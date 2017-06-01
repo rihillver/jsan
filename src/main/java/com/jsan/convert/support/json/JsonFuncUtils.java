@@ -11,8 +11,6 @@ public class JsonFuncUtils {
 	/**
 	 * 通过判断字符串的开头和结尾是否有 "["、"]" 来判断是否为 Json 字符串（数组形式）。
 	 * 
-	 * @param recursiveable
-	 * @param clazz
 	 * @param source
 	 * @return
 	 */
@@ -36,8 +34,6 @@ public class JsonFuncUtils {
 	/**
 	 * 通过判断字符串的开头和结尾是否有 "{"、"}" 来判断是否为 Json 字符串（对象形式）。
 	 * 
-	 * @param recursiveable
-	 * @param clazz
 	 * @param source
 	 * @return
 	 */
