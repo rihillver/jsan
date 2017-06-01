@@ -11,8 +11,6 @@ public interface Formatter {
 
 	void setPattern(String pattern);
 
-	String getPattern();
-
 	Object parse(String text) throws Exception;
 
 	String print(Object object) throws Exception;

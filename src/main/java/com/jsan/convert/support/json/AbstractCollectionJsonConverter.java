@@ -9,7 +9,7 @@ public abstract class AbstractCollectionJsonConverter extends AbstractCollection
 	@Override
 	protected <T> T getCollectionConvert(Class<T> clazz, Object source, Type type) {
 
-		source = JsonFuncUtils.handleSourceByJsonToArray(this, source);
+		source = JsonFuncUtils.handleSourceByJsonToArray(source);
 
 		return super.getCollectionConvert(clazz, source, type);
 	}

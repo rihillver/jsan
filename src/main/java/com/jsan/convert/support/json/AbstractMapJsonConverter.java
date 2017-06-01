@@ -9,7 +9,7 @@ public abstract class AbstractMapJsonConverter extends AbstractMapConverter {
 	@Override
 	protected <T> T getMapConvert(Class<T> clazz, Object source, Type type) {
 
-		source = JsonFuncUtils.handleSourceForJsonToMap(this, source);
+		source = JsonFuncUtils.handleSourceForJsonToMap(source);
 
 		return super.getMapConvert(clazz, source, type);
 	}

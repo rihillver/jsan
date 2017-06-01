@@ -32,10 +32,4 @@ public abstract class AbstractFormatter implements Formatter, Cloneable {
 		this.pattern = pattern;
 	}
 
-	@Override
-	public String getPattern() {
-
-		return this.pattern;
-	}
-
 }
