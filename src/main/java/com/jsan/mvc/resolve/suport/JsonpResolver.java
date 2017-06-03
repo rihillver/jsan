@@ -6,30 +6,32 @@ import javax.servlet.http.HttpServletResponse;
 import com.jsan.mvc.MappingInfo;
 import com.jsan.mvc.MvcConfig;
 import com.jsan.mvc.View;
+import com.jsan.mvc.resolve.AbstractResolver;
+import com.jsan.mvc.resolve.Resolver;
 import com.jsan.mvc.resolve.annotation.RegisterName;
 
-@RegisterName("jsonp")
-public class JsonpResolver extends JsonResolver {
+@RegisterName(Resolver.JSONP)
+public class JsonpResolver extends AbstractResolver {
 
-	public static final String CALLBACK = "callback";
+	protected static final String DEFAULT_JSONP_CALLBACK = "callback";
 
 	@Override
 	public void execute(View view, MvcConfig mvcConfig, MappingInfo mappingInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
-		response.setContentType("application/json");
+		setContentType(response, view.getContentType(), "application/json");
 
-		String str = getJsonString(view);
+		String json = getJsonString(view.getJsonConfig(), view.getValue());
 
-		String callback = (String) view.getAttribute(CALLBACK);
+		String jsonpCallback = view.getJsonpCallback();
 
-		if (callback == null) {
-			callback = CALLBACK;
+		if (jsonpCallback == null) {
+			jsonpCallback = DEFAULT_JSONP_CALLBACK;
 		}
 
-		str = callback + "(" + str + ")";
+		json = jsonpCallback + "(" + json + ")";
 
-		output(response, str);
+		print(response, json);
 	}
 
 }

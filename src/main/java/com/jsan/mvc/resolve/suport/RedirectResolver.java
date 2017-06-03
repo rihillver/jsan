@@ -14,7 +14,7 @@ import com.jsan.mvc.resolve.annotation.RegisterName;
  *
  */
 
-@RegisterName("redirect")
+@RegisterName(Resolver.REDIRECT)
 public class RedirectResolver implements Resolver {
 
 	@Override

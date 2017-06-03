@@ -23,8 +23,6 @@ public interface Resolver {
 	String BYTE = "byte";
 	String STREAM = "stream";
 
-	String CONTENT_TYPE = "contentType";
-
 	void execute(View view, MvcConfig mvcConfig, MappingInfo mappingInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 }

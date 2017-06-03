@@ -22,7 +22,7 @@ import com.jsan.mvc.resolve.annotation.RegisterName;
  *
  */
 
-@RegisterName("forward")
+@RegisterName(Resolver.FORWARD)
 public class ForwardResolver implements Resolver {
 
 	@Override

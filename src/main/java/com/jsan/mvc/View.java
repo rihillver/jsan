@@ -21,6 +21,10 @@ public class View {
 	private String url;
 	private Resolver resolver;
 
+	private String contentType;
+	private String jsonpCallback;
+	private JsonConfig jsonConfig;
+
 	public Object getValue() {
 		return get(VALUE);
 	}
@@ -43,6 +47,30 @@ public class View {
 
 	public void setResolver(Resolver resolver) {
 		this.resolver = resolver;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public String getJsonpCallback() {
+		return jsonpCallback;
+	}
+
+	public void setJsonpCallback(String jsonpCallback) {
+		this.jsonpCallback = jsonpCallback;
+	}
+
+	public JsonConfig getJsonConfig() {
+		return jsonConfig;
+	}
+
+	public void setJsonConfig(JsonConfig jsonConfig) {
+		this.jsonConfig = jsonConfig;
 	}
 
 	public Map<String, Object> getMap() {
@@ -82,7 +110,9 @@ public class View {
 
 	@Override
 	public String toString() {
-		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", resolver=" + resolver + "]";
+		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", resolver=" + resolver
+				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonConfig=" + jsonConfig
+				+ "]";
 	}
 
 }
