@@ -9,8 +9,10 @@ import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
 import com.jsan.mvc.annotation.FormConvert;
+import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
+import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
  * 方法形参信息。
@@ -23,10 +25,12 @@ public class ParameterInfo {
 	private Class<?> type; // 形参类型
 	private Type genericType; // 形参参数化类型
 	private ConvertService convertService;
+	private JsonParserConfigurator jsonParserConfigurator;
 
 	private Set<String> multiValueSet;
 
 	private FormConvert formConvert;
+	private JsonConvert jsonConvert;
 	private MethodValue methodValue;
 	private MultiValue multiValue;
 	private ConvertServiceRegister convertServiceRegister;
@@ -72,6 +76,14 @@ public class ParameterInfo {
 
 	public void setFormConvert(FormConvert formConvert) {
 		this.formConvert = formConvert;
+	}
+
+	public JsonConvert getJsonConvert() {
+		return jsonConvert;
+	}
+
+	public void setJsonConvert(JsonConvert jsonConvert) {
+		this.jsonConvert = jsonConvert;
 	}
 
 	public MethodValue getMethodValue() {
@@ -128,6 +140,14 @@ public class ParameterInfo {
 
 	public void setMultiValue(MultiValue multiValue) {
 		this.multiValue = multiValue;
+	}
+
+	public JsonParserConfigurator getJsonParserConfigurator() {
+		return jsonParserConfigurator;
+	}
+
+	public void setJsonParserConfigurator(JsonParserConfigurator jsonParserConfigurator) {
+		this.jsonParserConfigurator = jsonParserConfigurator;
 	}
 
 }

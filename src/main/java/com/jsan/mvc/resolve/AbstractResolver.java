@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.jsan.mvc.JsonConfig;
+import com.jsan.mvc.json.JsonSerializeConfigurator;
 
 public abstract class AbstractResolver implements Resolver {
 
@@ -20,10 +20,11 @@ public abstract class AbstractResolver implements Resolver {
 		}
 	}
 
-	protected String getJsonString(JsonConfig config, Object value) {
+	protected String getJsonString(JsonSerializeConfigurator configurator, Object value) {
 
-		return com.alibaba.fastjson.JSON.toJSONString(value, config.getSerializeConfig(), config.getSerializeFilters(),
-				config.getDateFormat(), config.getDefaultFeatures(), config.getSerializerFeatures());
+		return com.alibaba.fastjson.JSON.toJSONString(value, configurator.getSerializeConfig(),
+				configurator.getSerializeFilters(), configurator.getDateFormat(), configurator.getDefaultFeatures(),
+				configurator.getSerializerFeatures());
 	}
 
 	protected void print(HttpServletResponse response, Object value) throws Exception {

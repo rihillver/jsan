@@ -23,24 +23,18 @@ public class RedirectResolver implements Resolver {
 
 		String url = view.getUrl();
 
-		if (url != null) {
+		String viewPath = mvcConfig.getViewPath();
+		if (viewPath != null) { // 主要针对SimpleRestMappingAdapter适配器的处理，对于使用SimpleRestMappingAdapter的情况下，为了使视图解析更加正常（或更具备兼容性）一般不会将viewPath设置为null的，哪怕是设置为""也会设置的，设置为""时表示视图路径为WEB应用根目录下
 
-			String viewPath = mvcConfig.getViewPath();
-			if (viewPath != null) { // 主要针对SimpleRestMappingAdapter适配器的处理，对于使用SimpleRestMappingAdapter的情况下，为了使视图解析更加正常（或更具备兼容性）一般不会将viewPath设置为null的，哪怕是设置为""也会设置的，设置为""时表示视图路径为WEB应用根目录下
-
-				if (!url.startsWith("/")) {
-					String uri = mappingInfo.getUri();
-					uri = uri.substring(0, uri.lastIndexOf('/') + 1);
-					// uri = uri.toLowerCase(); // 此处将 uri 转换为小写，客户端转发可不用转换为小写
-					url = uri + url;
-				}
+			if (!url.startsWith("/")) {
+				String uri = mappingInfo.getUri();
+				uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+				// uri = uri.toLowerCase(); // 此处将 uri 转换为小写，客户端转发可不用转换为小写
+				url = uri + url;
 			}
-
-			response.sendRedirect(url);
-
-		} else {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
 		}
+
+		response.sendRedirect(url);
 	}
 
 }

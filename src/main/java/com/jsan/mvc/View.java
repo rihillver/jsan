@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.jsan.mvc.json.JsonSerializeConfigurator;
 import com.jsan.mvc.resolve.Resolver;
 
 /**
@@ -18,12 +19,12 @@ public class View {
 	private Map<String, Object> map = new LinkedHashMap<String, Object>();
 	private Map<String, Object> attribute;
 
-	private String url;
+	private String url = ""; // 初始化为""，当被设置为null时，则表示人为的要求抛出404错误
 	private Resolver resolver;
 
 	private String contentType;
 	private String jsonpCallback;
-	private JsonConfig jsonConfig;
+	private JsonSerializeConfigurator jsonSerializeConfigurator;
 
 	public Object getValue() {
 		return get(VALUE);
@@ -65,12 +66,12 @@ public class View {
 		this.jsonpCallback = jsonpCallback;
 	}
 
-	public JsonConfig getJsonConfig() {
-		return jsonConfig;
+	public JsonSerializeConfigurator getJsonSerializeConfigurator() {
+		return jsonSerializeConfigurator;
 	}
 
-	public void setJsonConfig(JsonConfig jsonConfig) {
-		this.jsonConfig = jsonConfig;
+	public void setJsonSerializeConfigurator(JsonSerializeConfigurator jsonSerializeConfigurator) {
+		this.jsonSerializeConfigurator = jsonSerializeConfigurator;
 	}
 
 	public Map<String, Object> getMap() {
@@ -111,8 +112,8 @@ public class View {
 	@Override
 	public String toString() {
 		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", resolver=" + resolver
-				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonConfig=" + jsonConfig
-				+ "]";
+				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonSerializeConfig="
+				+ jsonSerializeConfigurator + "]";
 	}
 
 }

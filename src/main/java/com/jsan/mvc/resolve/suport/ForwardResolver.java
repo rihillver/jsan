@@ -31,43 +31,37 @@ public class ForwardResolver implements Resolver {
 
 		String url = view.getUrl();
 
-		if (url != null) {
-
-			for (Map.Entry<String, Object> entry : view.getMap().entrySet()) {
-				request.setAttribute(entry.getKey(), entry.getValue()); // 设置request属性
-			}
-
-			String viewSuffix = mvcConfig.getViewSuffix();
-
-			if (url.indexOf('.') == -1) { // 由于是通过是否存在点来判断url是否含有后缀名，因此请不要在视图文件名中含有其他不必要的点（意味着除了后缀名前面的点以外不要存在其他的点）
-				url += viewSuffix;
-			}
-
-			url = url.toLowerCase(); // 此处将url转换为小写
-
-			// 当设置了视图路径时，则把视图路径添加到url的前面（通常用在以jsp作为视图时的情况下）
-			String viewPath = mvcConfig.getViewPath();
-			if (viewPath != null) {
-
-				if (!url.startsWith("/")) {
-					String uri = mappingInfo.getUri();
-					uri = uri.substring(0, uri.lastIndexOf('/') + 1);
-					uri = uri.toLowerCase(); // 此处将uri转换为小写
-					url = uri + url;
-				}
-
-				if (viewPath.endsWith("/")) {
-					viewPath = viewPath.substring(0, viewPath.length() - 1);
-				}
-
-				url = viewPath + url;
-			}
-
-			request.getRequestDispatcher(url).forward(request, response);
-
-		} else {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI()); // url为null则抛出404错误
+		for (Map.Entry<String, Object> entry : view.getMap().entrySet()) {
+			request.setAttribute(entry.getKey(), entry.getValue()); // 设置request属性
 		}
+
+		String viewSuffix = mvcConfig.getViewSuffix();
+
+		if (url.indexOf('.') == -1) { // 由于是通过是否存在点来判断url是否含有后缀名，因此请不要在视图文件名中含有其他不必要的点（意味着除了后缀名前面的点以外不要存在其他的点）
+			url += viewSuffix;
+		}
+
+		url = url.toLowerCase(); // 此处将url转换为小写
+
+		// 当设置了视图路径时，则把视图路径添加到url的前面（通常用在以jsp作为视图时的情况下）
+		String viewPath = mvcConfig.getViewPath();
+		if (viewPath != null) {
+
+			if (!url.startsWith("/")) {
+				String uri = mappingInfo.getUri();
+				uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+				uri = uri.toLowerCase(); // 此处将uri转换为小写
+				url = uri + url;
+			}
+
+			if (viewPath.endsWith("/")) {
+				viewPath = viewPath.substring(0, viewPath.length() - 1);
+			}
+
+			url = viewPath + url;
+		}
+
+		request.getRequestDispatcher(url).forward(request, response);
 
 	}
 

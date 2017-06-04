@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.alibaba.fastjson.JSON;
 import com.jsan.convert.BeanConvertUtils;
 import com.jsan.convert.BeanProxyUtils;
 import com.jsan.convert.ConvertFuncUtils;
@@ -52,12 +53,15 @@ import com.jsan.mvc.adapter.MappingAdapter;
 import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
-import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.Render;
 import com.jsan.mvc.intercept.GeneralInterceptService;
 import com.jsan.mvc.intercept.InterceptService;
 import com.jsan.mvc.intercept.Interceptor;
+import com.jsan.mvc.json.GeneralJsonParserConfigurator;
+import com.jsan.mvc.json.GeneralJsonSerializeConfigurator;
+import com.jsan.mvc.json.JsonParserConfigurator;
+import com.jsan.mvc.json.JsonSerializeConfigurator;
 import com.jsan.mvc.resolve.GeneralResolveService;
 import com.jsan.mvc.resolve.ResolveService;
 import com.jsan.mvc.resolve.Resolver;
@@ -84,6 +88,9 @@ public abstract class AbstractDispatcher implements Filter {
 	protected MappingAdapter mappingAdapter;
 	protected CacheAdapter cacheAdapter;
 
+	protected JsonSerializeConfigurator jsonSerializeConfigurator;
+	protected JsonParserConfigurator jsonParserConfigurator;
+
 	protected abstract void initCustom(FilterConfig filterConfig);
 
 	/**
@@ -96,9 +103,12 @@ public abstract class AbstractDispatcher implements Filter {
 	public String toString() {
 		return getClass().getName() + " [customResolverList=" + customResolverList + ", customConverterList="
 				+ customConverterList + ", customFormatterList=" + customFormatterList + ", customInterceptorList="
-				+ customInterceptorList + ", resolveService=" + resolveService + ", convertService=" + convertService
-				+ ", interceptService=" + interceptService + ", mvcConfig=" + mvcConfig + ", configProperties="
-				+ configProperties + ", mappingAdapter=" + mappingAdapter + ", cacheAdapter=" + cacheAdapter + "]";
+				+ customInterceptorList + ", convertServiceClass=" + convertServiceClass + ", resolveServiceClass="
+				+ resolveServiceClass + ", interceptServiceClass=" + interceptServiceClass + ", resolveService="
+				+ resolveService + ", convertService=" + convertService + ", interceptService=" + interceptService
+				+ ", mvcConfig=" + mvcConfig + ", configProperties=" + configProperties + ", mappingAdapter="
+				+ mappingAdapter + ", cacheAdapter=" + cacheAdapter + ", jsonSerializeConfigurator="
+				+ jsonSerializeConfigurator + ", jsonParserConfigurator=" + jsonParserConfigurator + "]";
 	}
 
 	@Override
@@ -198,6 +208,9 @@ public abstract class AbstractDispatcher implements Filter {
 		initMappingAdapter();
 		initCacheAdapter();
 
+		initJsonSerializeConfigurator();
+		initJsonParserConfigurator();
+
 		initCustomResolver(); // 必须在初始化ResolveService之前
 		initCustomConverter(); // 必须在初始化ConvertService之前
 		initCustomFormatter(); // 必须在初始化ConvertService之前
@@ -238,6 +251,24 @@ public abstract class AbstractDispatcher implements Filter {
 			}
 		}
 
+	}
+
+	protected void initJsonSerializeConfigurator() {
+
+		jsonSerializeConfigurator = (JsonSerializeConfigurator) MvcFuncUtils.getObjectByProperties(configProperties,
+				JsonSerializeConfigurator.class.getName());
+		if (jsonSerializeConfigurator == null) {
+			jsonSerializeConfigurator = new GeneralJsonSerializeConfigurator();
+		}
+	}
+
+	protected void initJsonParserConfigurator() {
+
+		jsonParserConfigurator = (JsonParserConfigurator) MvcFuncUtils.getObjectByProperties(configProperties,
+				JsonSerializeConfigurator.class.getName());
+		if (jsonParserConfigurator == null) {
+			jsonParserConfigurator = new GeneralJsonParserConfigurator();
+		}
 	}
 
 	protected void initCustomResolver() {
@@ -407,10 +438,32 @@ public abstract class AbstractDispatcher implements Filter {
 	protected <T> T newInstance(Class<T> clazz) {
 
 		try {
-			return clazz.newInstance();
+			return BeanProxyUtils.newInstance(clazz);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected JsonParserConfigurator getJsonParserConfigurator(ParameterInfo pInfo) {
+
+		JsonParserConfigurator configurator = pInfo.getJsonParserConfigurator();
+
+		if (configurator == null) {
+			synchronized (pInfo) {
+				configurator = pInfo.getJsonParserConfigurator();
+				if (configurator == null) {
+					Class<? extends JsonParserConfigurator> configuratorClass = pInfo.getJsonConvert().value(); // 这里不用判断JsonConvert是否为null，因为该方法被调用的情况下JsonConvert是一定不为null的
+					if (configuratorClass == JsonParserConfigurator.class) {
+						configurator = getJsonParserConfigurator();
+					} else {
+						configurator = newInstance(configuratorClass);
+					}
+					pInfo.setJsonParserConfigurator(configurator);
+				}
+			}
+		}
+
+		return configurator;
 	}
 
 	protected ConvertService getParameterConvertService(ControllerInfo cInfo, MethodInfo mInfo, ParameterInfo pInfo) {
@@ -674,11 +727,25 @@ public abstract class AbstractDispatcher implements Filter {
 		return mappingAdapter.getMappingInfo(mvcConfig, request);
 	}
 
+	/**
+	 * View 的 url 值若为 null 则抛出404错误。
+	 * 
+	 * @param view
+	 * @param mappingInfo
+	 * @param mInfo
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
 	protected void resolveView(View view, MappingInfo mappingInfo, MethodInfo mInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
 		if (!response.isCommitted()) { // 判断是否已将数据输出到客户端，如果已输出则无必要再执行视图解析
-			view.getResolver().execute(view, mvcConfig, mappingInfo, request, response);
+			if (view.getUrl() != null) {
+				view.getResolver().execute(view, mvcConfig, mappingInfo, request, response);
+			} else {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI()); // url为null则抛出404错误
+			}
 		}
 	}
 
@@ -757,15 +824,23 @@ public abstract class AbstractDispatcher implements Filter {
 		Class<?> returnType = mInfo.getMethod().getReturnType();
 
 		if (returnType != Void.TYPE) { // 此处必须判断返回值是否为void，因为在void的情况下，很可能是在方法内部直接用view来设置值
-			if (returnValue instanceof View) { // 如果返回值为View，那么这个View可能为方法内部自己new出来的，所以还需要判断resolver是否为null，如果为null则再次设置上去，url则不能在此加上去
+			if (returnValue instanceof View) { // 如果返回值为View，那么这个View可能为方法内部自己new出来的，这种情况需要补充以下设置
 				view = (View) returnValue;
-				if (view.getResolver() == null) {
+				String url = view.getUrl();
+				if (url != null && url.isEmpty()) { // 需要判断url是否为空，若为空则需在此设置上去，如果url为null，则意味着在方法内人为设置上去的，url为null则表示抛出404错误
+					view.setUrl(getViewUrl(mInfo));
+				}
+				if (view.getResolver() == null) { // 需要判断resolver是否为null，如果为null则在此设置上去，url则不能在此加上去
 					view.setResolver(getViewResolver(mInfo));
+				}
+				if (view.getJsonSerializeConfigurator() == null) { // 需要判断JsonSerializeConfigurator是否为null，如果为null则在此设置上去，View上的JsonSerializeConfigurator不能为null
+					view.setJsonSerializeConfigurator(getJsonSerializeConfigurator());
 				}
 			} else {
 				view.addValue(returnValue);
 			}
 		}
+
 		return view;
 	}
 
@@ -775,6 +850,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		view.setUrl(getViewUrl(mInfo));
 		view.setResolver(getViewResolver(mInfo));
+		view.setJsonSerializeConfigurator(getJsonSerializeConfigurator());
 
 		return view;
 	}
@@ -866,14 +942,14 @@ public abstract class AbstractDispatcher implements Filter {
 
 				ConvertService service = getParameterConvertService(cInfo, mInfo, pInfo);
 
-				FormConvert formConvert = pInfo.getFormConvert();
-				if (formConvert != null) {
-					if (Map.class.isAssignableFrom(type)) { // Map处理
+				if (pInfo.getFormConvert() != null) {
+					if (Map.class.isAssignableFrom(type)) { // 表单转Map处理
 						parameterObjects[i] = getRequestFormToMap(service, pInfo, request);
-					} else { // Bean处理
-						boolean daoBeanMode = formConvert.value(); // Bean是否使用代理对象的方式
-						parameterObjects[i] = getRequestFormToBean(service, cInfo, mInfo, pInfo, request, daoBeanMode);
+					} else { // 表单转Bean处理
+						parameterObjects[i] = getRequestFormToBean(service, pInfo, request);
 					}
+				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
+					parameterObjects[i] = getRequestJsonToObject(pInfo, request);
 				} else {
 					Object parameterValue;
 					if (pInfo.getMethodValue() != null) {
@@ -943,15 +1019,34 @@ public abstract class AbstractDispatcher implements Filter {
 		return parameterObjects;
 	}
 
+	/**
+	 * json 字符串转对象。
+	 * 
+	 * @param pInfo
+	 * @param request
+	 * @param jsonConvert
+	 * @return
+	 */
+	protected <T> T getRequestJsonToObject(ParameterInfo pInfo, HttpServletRequest request) {
+
+		String parameterValue = request.getParameter(pInfo.getName());
+		Type GenericType = pInfo.getGenericType();
+		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
+
+		return JSON.parseObject(parameterValue, GenericType, configurator.getParserConfig(),
+				configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+	}
+
 	@SuppressWarnings("unchecked")
-	protected <T> T getRequestFormToBean(ConvertService service, ControllerInfo cInfo, MethodInfo mInfo,
-			ParameterInfo pInfo, HttpServletRequest request, boolean daoBeanMode) throws Exception {
+	protected <T> T getRequestFormToBean(ConvertService service, ParameterInfo pInfo, HttpServletRequest request)
+			throws Exception {
 
 		Class<T> beanClass = (Class<T>) pInfo.getType();
 
-		// 创建表单 Bean 实例对象，当类的访问权限不足时（比如实例化在控制器类内创建的表单 Bean 类）自动通过 Cglib
-		// 动态代理的方式创建实例对象。
-		T bean = daoBeanMode ? BeanProxyUtils.getDaoBean(beanClass) : BeanProxyUtils.newInstance(beanClass);
+		// 判断是否使用daoBean模式，这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
+		// 创建表单Bean实例对象过程中当类的访问权限不足时（比如实例化在控制器类内创建的表单Bean类）自动通过Cglib动态代理的方式创建实例对象
+		T bean = pInfo.getFormConvert().value() ? BeanProxyUtils.getDaoBean(beanClass)
+				: BeanProxyUtils.newInstance(beanClass);
 
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
@@ -992,12 +1087,12 @@ public abstract class AbstractDispatcher implements Filter {
 
 	protected Object getRequestFormToMap(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
 
-		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		Type genericType = pInfo.getGenericType();
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
 
 		Map<String, String[]> requestParameterMap = request.getParameterMap();
+		Map<String, Object> map = new LinkedHashMap<String, Object>(requestParameterMap.size());
 		for (Map.Entry<String, String[]> entry : requestParameterMap.entrySet()) {
 			String key = entry.getKey();
 			String[] value = entry.getValue();
@@ -1031,6 +1126,16 @@ public abstract class AbstractDispatcher implements Filter {
 	protected MvcConfig getMvcConfig() {
 
 		return mvcConfig;
+	}
+
+	protected JsonSerializeConfigurator getJsonSerializeConfigurator() {
+
+		return jsonSerializeConfigurator;
+	}
+
+	protected JsonParserConfigurator getJsonParserConfigurator() {
+
+		return jsonParserConfigurator;
 	}
 
 }
