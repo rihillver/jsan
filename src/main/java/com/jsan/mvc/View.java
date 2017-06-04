@@ -112,7 +112,7 @@ public class View {
 	@Override
 	public String toString() {
 		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", resolver=" + resolver
-				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonSerializeConfig="
+				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonSerializeConfigurator="
 				+ jsonSerializeConfigurator + "]";
 	}
 
