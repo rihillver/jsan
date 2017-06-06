@@ -360,8 +360,8 @@ public abstract class AbstractSqlx implements Sqlx {
 			return null;
 		}
 
-		if (param.isTableUnderlineNamed()) {
-			table = DaoFuncUtils.parseToUnderlineString(table); // 转换为下划线命名规范
+		if (param.isTableInSnakeCase()) {
+			table = DaoFuncUtils.parseToSnakeCase(table); // 转换为下划线命名规范
 		}
 
 		String tablePrefix = param.getTablePrefix();
@@ -375,7 +375,7 @@ public abstract class AbstractSqlx implements Sqlx {
 	protected String getFieldProcessed(String field, Param param) {
 
 		if (param.isFieldCaseInsensitive()) {
-			return DaoFuncUtils.parseToUnderlineString(field);
+			return DaoFuncUtils.parseToSnakeCase(field);
 		} else {
 			return field;
 		}
@@ -1024,7 +1024,6 @@ public abstract class AbstractSqlx implements Sqlx {
 		}
 		extendedResultSetHandler.setConvertService(convertService);
 		extendedResultSetHandler.setFieldHandler(param.getFieldHandler());
-		;
 		extendedResultSetHandler.setCaseInsensitive(param.isFieldCaseInsensitive());
 		extendedResultSetHandler.setToLowerCase(param.isFieldToLowerCase());
 

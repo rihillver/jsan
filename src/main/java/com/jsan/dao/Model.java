@@ -46,13 +46,13 @@ public interface Model extends MapModel {
 
 	void setTablePrefix(String tablePrefix);
 
-	boolean isFieldUnderlineNamed();
+	boolean isFieldInSnakeCase();
 
-	void setFieldUnderlineNamed(boolean fieldUnderlineNamed);
+	void setFieldInSnakeCase(boolean fieldInSnakeCase);
 
-	boolean isTableUnderlineNamed();
+	boolean isTableInSnakeCase();
 
-	void setTableUnderlineNamed(boolean tableUnderlineNamed);
+	void setTableInSnakeCase(boolean tableInSnakeCase);
 
 	boolean isFieldToLowerCase();
 

@@ -11,10 +11,10 @@ import com.jsan.dao.annotation.Connecter;
 import com.jsan.dao.annotation.FieldCaseInsensitive;
 import com.jsan.dao.annotation.FieldHandlerRegister;
 import com.jsan.dao.annotation.FieldToLowerCase;
-import com.jsan.dao.annotation.FieldUnderlineNamed;
+import com.jsan.dao.annotation.FieldInSnakeCase;
 import com.jsan.dao.annotation.Table;
 import com.jsan.dao.annotation.TablePrefix;
-import com.jsan.dao.annotation.TableUnderlineNamed;
+import com.jsan.dao.annotation.TableInSnakeCase;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
 import com.jsan.dao.map.ListMultiValueMap;
@@ -40,8 +40,8 @@ public class SqlxModelBuilder implements SqlxModel {
 	protected String table;
 	protected String tablePrefix;
 
-	protected boolean fieldUnderlineNamed;
-	protected boolean tableUnderlineNamed;
+	protected boolean fieldInSnakeCase;
+	protected boolean tableInSnakeCase;
 	protected boolean fieldToLowerCase;
 	protected boolean fieldCaseInsensitive;
 
@@ -56,8 +56,8 @@ public class SqlxModelBuilder implements SqlxModel {
 		Connecter connecter = clazz.getAnnotation(Connecter.class);
 		Table table = clazz.getAnnotation(Table.class);
 		TablePrefix tablePrefix = clazz.getAnnotation(TablePrefix.class);
-		FieldUnderlineNamed fieldUnderlineNamed = clazz.getAnnotation(FieldUnderlineNamed.class);
-		TableUnderlineNamed tableUnderlineNamed = clazz.getAnnotation(TableUnderlineNamed.class);
+		FieldInSnakeCase fieldInSnakeCase = clazz.getAnnotation(FieldInSnakeCase.class);
+		TableInSnakeCase tableInSnakeCase = clazz.getAnnotation(TableInSnakeCase.class);
 		FieldToLowerCase fieldToLowerCase = clazz.getAnnotation(FieldToLowerCase.class);
 		FieldCaseInsensitive fieldCaseInsensitive = clazz.getAnnotation(FieldCaseInsensitive.class);
 
@@ -96,12 +96,12 @@ public class SqlxModelBuilder implements SqlxModel {
 			}
 		}
 
-		if (fieldUnderlineNamed != null) {
-			this.fieldUnderlineNamed = fieldUnderlineNamed.value();
+		if (fieldInSnakeCase != null) {
+			this.fieldInSnakeCase = fieldInSnakeCase.value();
 		}
 
-		if (tableUnderlineNamed != null) {
-			this.tableUnderlineNamed = tableUnderlineNamed.value();
+		if (tableInSnakeCase != null) {
+			this.tableInSnakeCase = tableInSnakeCase.value();
 		}
 
 		if (fieldToLowerCase != null) {
@@ -231,8 +231,8 @@ public class SqlxModelBuilder implements SqlxModel {
 		param.setAutoIncrementValue(autoIncrementValue);
 		param.setTable(table);
 		param.setTablePrefix(tablePrefix);
-		param.setTableUnderlineNamed(tableUnderlineNamed);
-		param.setFieldUnderlineNamed(fieldUnderlineNamed);
+		param.setTableInSnakeCase(tableInSnakeCase);
+		param.setFieldInSnakeCase(fieldInSnakeCase);
 		param.setFieldToLowerCase(fieldToLowerCase);
 		param.setFieldCaseInsensitive(fieldCaseInsensitive);
 

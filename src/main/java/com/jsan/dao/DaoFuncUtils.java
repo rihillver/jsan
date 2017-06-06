@@ -88,7 +88,13 @@ public class DaoFuncUtils {
 		return str;
 	}
 
-	public static String parseToUnderlineString(String str) {
+	/**
+	 * 下划线
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String parseToSnakeCase(String str) {
 
 		if (str == null) {
 			return null;
@@ -118,9 +124,9 @@ public class DaoFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToLowerCamelCaseString(String str) {
+	public static String parseToLowerCamelCase(String str) {
 
-		return parseToCamelCaseString(str, false);
+		return parseToCamelCase(str, false);
 	}
 
 	/**
@@ -129,9 +135,9 @@ public class DaoFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToUpperCamelCaseString(String str) {
+	public static String parseToUpperCamelCase(String str) {
 
-		return parseToCamelCaseString(str, true);
+		return parseToCamelCase(str, true);
 	}
 
 	/**
@@ -140,12 +146,12 @@ public class DaoFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToCamelCaseString(String str) {
+	public static String parseToCamelCase(String str) {
 
-		return parseToCamelCaseString(str, null);
+		return parseToCamelCase(str, null);
 	}
 
-	public static String parseToCamelCaseString(String str, Boolean firstCharacterUppercase) {
+	public static String parseToCamelCase(String str, Boolean firstCharacterUppercase) {
 
 		if (str == null) {
 			return null;

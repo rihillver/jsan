@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 定义表名是否转换为下划线命名规范的注解。
+ * 定义字段名是否转换为下划线命名规范的注解。
  *
  */
 
@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface TableUnderlineNamed {
+public @interface FieldInSnakeCase {
 
 	boolean value();
 }

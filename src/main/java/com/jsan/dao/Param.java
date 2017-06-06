@@ -35,8 +35,8 @@ public class Param {
 	private String table; // 表名
 	private String tablePrefix; // 表名前缀，比如 tb_
 
-	private boolean fieldUnderlineNamed;
-	private boolean tableUnderlineNamed;
+	private boolean fieldInSnakeCase;
+	private boolean tableInSnakeCase;
 	private boolean fieldToLowerCase; // 结果集的字段名是否转换为小写，主要为了 Oracle
 	private boolean fieldCaseInsensitive; // 结果集的字段名是否不区分大小写
 
@@ -238,20 +238,20 @@ public class Param {
 		this.tablePrefix = tablePrefix;
 	}
 
-	public boolean isFieldUnderlineNamed() {
-		return fieldUnderlineNamed;
+	public boolean isFieldInSnakeCase() {
+		return fieldInSnakeCase;
 	}
 
-	public void setFieldUnderlineNamed(boolean fieldUnderlineNamed) {
-		this.fieldUnderlineNamed = fieldUnderlineNamed;
+	public void setFieldInSnakeCase(boolean fieldInSnakeCase) {
+		this.fieldInSnakeCase = fieldInSnakeCase;
 	}
 
-	public boolean isTableUnderlineNamed() {
-		return tableUnderlineNamed;
+	public boolean isTableInSnakeCase() {
+		return tableInSnakeCase;
 	}
 
-	public void setTableUnderlineNamed(boolean tableUnderlineNamed) {
-		this.tableUnderlineNamed = tableUnderlineNamed;
+	public void setTableInSnakeCase(boolean tableInSnakeCase) {
+		this.tableInSnakeCase = tableInSnakeCase;
 	}
 
 	public boolean isFieldToLowerCase() {

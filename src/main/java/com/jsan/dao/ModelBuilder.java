@@ -128,23 +128,23 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public boolean isFieldUnderlineNamed() {
-		return fieldUnderlineNamed;
+	public boolean isFieldInSnakeCase() {
+		return fieldInSnakeCase;
 	}
 
 	@Override
-	public void setFieldUnderlineNamed(boolean fieldUnderlineNamed) {
-		this.fieldUnderlineNamed = fieldUnderlineNamed;
+	public void setFieldInSnakeCase(boolean fieldInSnakeCase) {
+		this.fieldInSnakeCase = fieldInSnakeCase;
 	}
 
 	@Override
-	public boolean isTableUnderlineNamed() {
-		return tableUnderlineNamed;
+	public boolean isTableInSnakeCase() {
+		return tableInSnakeCase;
 	}
 
 	@Override
-	public void setTableUnderlineNamed(boolean tableUnderlineNamed) {
-		this.tableUnderlineNamed = tableUnderlineNamed;
+	public void setTableInSnakeCase(boolean tableInSnakeCase) {
+		this.tableInSnakeCase = tableInSnakeCase;
 	}
 
 	@Override

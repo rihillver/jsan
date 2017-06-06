@@ -99,7 +99,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				columnName = columnName.toLowerCase();
 			}
 
-			columnName = DaoFuncUtils.parseToCamelCaseString(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+			columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 			Object obj = handleColumnValue(rs, rsmd, i);
 			obj = fieldHandle(columnName, obj);
@@ -127,7 +127,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 					columnName = columnName.toLowerCase();
 				}
 
-				columnName = DaoFuncUtils.parseToCamelCaseString(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 				Object obj = handleColumnValue(rs, rsmd, i);
 				obj = fieldHandle(columnName, obj);
