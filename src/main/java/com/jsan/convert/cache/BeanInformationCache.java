@@ -2,6 +2,7 @@ package com.jsan.convert.cache;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -12,7 +13,8 @@ import com.jsan.convert.ConvertFuncUtils;
 /**
  * BeanInformation 缓存。
  * <p>
- * 支持有继承关系的 Bean
+ * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，<br>
+ * fieldSet 则不含父类的字段。
  *
  */
 
@@ -106,28 +108,44 @@ public class BeanInformationCache {
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
 		for (Method method : methods) {
 			method.setAccessible(true);
-			if (method.getParameterTypes().length == 0) { // 不能有形参
-				String methodName = method.getName();
 
-				if (methodName.equals("getClass")) { // 将 getCalss() 方法排除
-					continue;
-				}
+			if (Modifier.isStatic(method.getModifiers())) { // 不能是静态方法
+				continue;
+			}
 
-				String key = null;
-				if (methodName.startsWith("get")) {
-					if (methodName.length() > 3 && Character.isUpperCase(methodName.charAt(3))) { // 第四个字母必须为大写
+			if (method.getParameterTypes().length != 0) { // 不能有形参
+				continue;
+			}
+
+			if (method.getReturnType() == Void.TYPE) { // 返回类型不能是void
+				continue;
+			}
+
+			String methodName = method.getName();
+
+			if (methodName.equals("getClass")) { // 将getCalss()方法排除
+				continue;
+			}
+
+			String key = null;
+			if (methodName.startsWith("get")) {
+				if (methodName.length() > 3) {
+					char c = methodName.charAt(3);
+					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第四个字母必须为大写，或下划线，或美元符
 						key = methodName.substring(3);
 					}
-				} else if (methodName.startsWith("is")) {
-					if (methodName.length() > 2 && Character.isUpperCase(methodName.charAt(2))) { // 第三个字母必须为大写
+				}
+			} else if (methodName.startsWith("is")) {
+				if (methodName.length() > 2 && method.getReturnType() == Boolean.TYPE) {
+					char c = methodName.charAt(2);
+					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第三个字母必须为大写，或下划线，或美元符
 						key = methodName.substring(2);
 					}
 				}
+			}
 
-				if (key != null) {
-					// 将方法名的前面 get 或 is 去掉，然后将第一个字母转为小写
-					map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);
-				}
+			if (key != null) {
+				map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);// 将方法名的前面get或is去掉，然后将第一个字母转为小写
 			}
 		}
 
@@ -141,14 +159,27 @@ public class BeanInformationCache {
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
 		for (Method method : methods) {
 			method.setAccessible(true);
+
+			if (Modifier.isStatic(method.getModifiers())) { // 不能是静态方法
+				continue;
+			}
+
+			if (method.getParameterTypes().length != 1) { // 只能是一个形参
+				continue;
+			}
+
+			if (method.getReturnType() != Void.TYPE) { // 返回类型只能是void
+				continue;
+			}
+
 			String methodName = method.getName();
-			// 以 set 开头并且形参只能是一个
-			if (method.getParameterTypes().length == 1 && methodName.startsWith("set")) {
-				// 第四个字母必须为大写
-				if (methodName.length() > 3 && Character.isUpperCase(methodName.charAt(3))) {
-					String key = methodName.substring(3);
-					// 将方法名的前面 set 去掉，然后将第一个字母转为小写
-					map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);
+			if (methodName.startsWith("set")) {
+				if (methodName.length() > 3) {
+					char c = methodName.charAt(3);
+					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第四个字母必须为大写，或下划线，或美元符
+						String key = methodName.substring(3); // 将方法名的前面set去掉，然后将第一个字符转为小写
+						map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);
+					}
 				}
 			}
 		}
