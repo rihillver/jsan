@@ -73,16 +73,13 @@ public class DaoFuncUtils {
 
 	public static String parseFirstCharToLowerCase(String str) {
 
-		if (str == null) {
-			return null;
-		}
-
-		char firstChar = str.charAt(0);
-
-		if (firstChar >= 'A' && firstChar <= 'Z') {
-			char[] arr = str.toCharArray();
-			arr[0] += ('a' - 'A');
-			return new String(arr);
+		if (str != null && str.length() > 0) {
+			char firstChar = str.charAt(0);
+			if (firstChar >= 'A' && firstChar <= 'Z') {
+				char[] arr = str.toCharArray();
+				arr[0] += ('a' - 'A');
+				return new String(arr);
+			}
 		}
 
 		return str;
@@ -157,7 +154,7 @@ public class DaoFuncUtils {
 			return null;
 		}
 
-		if (str.contains("_")) { // 存在下划线的情况才进行
+		if (str.indexOf('_') > -1) { // 存在下划线的情况才进行
 
 			StringBuilder sb = new StringBuilder();
 			boolean nextUpperCase = false;
