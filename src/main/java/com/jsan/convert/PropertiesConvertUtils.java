@@ -248,9 +248,7 @@ public class PropertiesConvertUtils {
 
 		try {
 
-			String canonicalPath = new File(url.getPath()).getCanonicalPath();
-
-			File file = new File(canonicalPath + path);
+			File file = new File(url.getPath(), path);
 
 			File parentFile = file.getParentFile();
 
