@@ -148,7 +148,7 @@ public class DaoFuncUtils {
 		return parseToCamelCase(str, null);
 	}
 
-	public static String parseToCamelCase(String str, Boolean firstCharacterUppercase) {
+	public static String parseToCamelCase(String str, Boolean firstCharacterUpperCase) {
 
 		if (str == null) {
 			return null;
@@ -173,9 +173,9 @@ public class DaoFuncUtils {
 				}
 			}
 
-			// 如果 firstCharacterUppercase 为 null 则不对首字母做转换处理
-			if (firstCharacterUppercase != null) {
-				if (firstCharacterUppercase) {
+			// 如果 firstCharacterUpperCase 为 null 则不对首字母做转换处理
+			if (firstCharacterUpperCase != null) {
+				if (firstCharacterUpperCase) {
 					sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
 				} else {
 					sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
@@ -185,9 +185,9 @@ public class DaoFuncUtils {
 			str = sb.toString();
 
 		} else {
-			// 如果 firstCharacterUppercase 为 null 或 str 为空则不对首字母做转换处理
-			if (firstCharacterUppercase != null && !str.isEmpty()) {
-				if (firstCharacterUppercase) {
+			// 如果 firstCharacterUpperCase 为 null 或 str 为空则不对首字母做转换处理
+			if (firstCharacterUpperCase != null && !str.isEmpty()) {
+				if (firstCharacterUpperCase) {
 					str = Character.toUpperCase(str.charAt(0)) + str.substring(1);
 				} else {
 					str = Character.toLowerCase(str.charAt(0)) + str.substring(1);
