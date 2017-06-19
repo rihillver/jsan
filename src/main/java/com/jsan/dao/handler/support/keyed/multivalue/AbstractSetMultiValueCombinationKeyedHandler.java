@@ -3,8 +3,8 @@ package com.jsan.dao.handler.support.keyed.multivalue;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class AbstractSetMultiValueCombinationKeyedHandler<T>
-		extends AbstractSetMultiValueKeyedHandler<String, T> {
+public abstract class AbstractSetMultiValueCombinationKeyedHandler<V>
+		extends AbstractSetMultiValueKeyedHandler<String, V> {
 
 	protected int[] keyColumnIndexes;
 	protected String[] keyColumnNames;

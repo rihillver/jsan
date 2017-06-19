@@ -1075,8 +1075,15 @@ public abstract class AbstractSqlx implements Sqlx {
 	@Override
 	public Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException {
 
+		return queryForMapPageEnhanced(param, new MapListHandler());
+	}
+
+	@Override
+	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
+			throws SQLException {
+
 		Page<Map<String, Object>> page = new Page<Map<String, Object>>();
-		handlePage(param, page, new MapListHandler());
+		handlePage(param, page, mapListHandler);
 		return page;
 	}
 
@@ -1095,8 +1102,14 @@ public abstract class AbstractSqlx implements Sqlx {
 	@Override
 	public <T> Page<T> queryForBeanPage(Param param, Class<T> beanClass) throws SQLException {
 
+		return queryForBeanPageEnhanced(param, new BeanListHandler<T>(beanClass));
+	}
+
+	@Override
+	public <T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException {
+
 		Page<T> page = new Page<T>();
-		handlePage(param, page, new BeanListHandler<T>(beanClass));
+		handlePage(param, page, beanListHandler);
 		return page;
 	}
 

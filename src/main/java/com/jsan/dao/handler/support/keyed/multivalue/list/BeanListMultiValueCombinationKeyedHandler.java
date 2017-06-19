@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import com.jsan.dao.handler.support.keyed.multivalue.AbstractListMultiValueCombinationKeyedHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 
-public class BeanListMultiValueCombinationKeyedHandler<T> extends AbstractListMultiValueCombinationKeyedHandler<T> {
+public class BeanListMultiValueCombinationKeyedHandler<V> extends AbstractListMultiValueCombinationKeyedHandler<V> {
 
-	protected Class<T> beanClass;
+	protected Class<V> beanClass;
 
-	public BeanListMultiValueCombinationKeyedHandler(ListMultiValueMap<String, T> multiValueMap, Class<T> beanClass,
+	public BeanListMultiValueCombinationKeyedHandler(ListMultiValueMap<String, V> multiValueMap, Class<V> beanClass,
 			String separator, int... keyColumnIndexes) {
 
 		this.multiValueMap = multiValueMap;
@@ -19,12 +19,12 @@ public class BeanListMultiValueCombinationKeyedHandler<T> extends AbstractListMu
 		this.keyColumnIndexes = keyColumnIndexes;
 	}
 
-	public BeanListMultiValueCombinationKeyedHandler(Class<T> beanClass, String separator, int... keyColumnIndexes) {
+	public BeanListMultiValueCombinationKeyedHandler(Class<V> beanClass, String separator, int... keyColumnIndexes) {
 
 		this(null, beanClass, separator, keyColumnIndexes);
 	}
 
-	public BeanListMultiValueCombinationKeyedHandler(ListMultiValueMap<String, T> multiValueMap, Class<T> beanClass,
+	public BeanListMultiValueCombinationKeyedHandler(ListMultiValueMap<String, V> multiValueMap, Class<V> beanClass,
 			String separator, String... keyColumnNames) {
 
 		this.multiValueMap = multiValueMap;
@@ -33,13 +33,13 @@ public class BeanListMultiValueCombinationKeyedHandler<T> extends AbstractListMu
 		this.keyColumnNames = keyColumnNames;
 	}
 
-	public BeanListMultiValueCombinationKeyedHandler(Class<T> beanClass, String separator, String... keyColumnNames) {
+	public BeanListMultiValueCombinationKeyedHandler(Class<V> beanClass, String separator, String... keyColumnNames) {
 
 		this(null, beanClass, separator, keyColumnNames);
 	}
 
 	@Override
-	protected T createValue(ResultSet rs) throws SQLException {
+	protected V createValue(ResultSet rs) throws SQLException {
 
 		return getBean(rs, beanClass, convertService);
 	}

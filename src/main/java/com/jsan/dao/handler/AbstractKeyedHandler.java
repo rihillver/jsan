@@ -7,6 +7,8 @@ import java.util.Map;
 
 public abstract class AbstractKeyedHandler<K, V> extends AbstractHandler<Map<K, V>> {
 
+	protected Map<K, V> map;
+
 	@Override
 	public Map<K, V> handle(ResultSet rs) throws SQLException {
 
@@ -21,7 +23,7 @@ public abstract class AbstractKeyedHandler<K, V> extends AbstractHandler<Map<K, 
 
 	protected Map<K, V> createMap() {
 
-		return new LinkedHashMap<K, V>();
+		return map == null ? new LinkedHashMap<K, V>() : map;
 	}
 
 	protected abstract K createKey(ResultSet rs) throws SQLException;

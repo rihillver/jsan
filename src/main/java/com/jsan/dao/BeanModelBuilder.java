@@ -11,6 +11,8 @@ import java.util.Set;
 
 import com.jsan.convert.BeanProxyUtils;
 import com.jsan.convert.cache.BeanInformationCache;
+import com.jsan.dao.handler.support.BeanListHandler;
+import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 import com.jsan.dao.map.SetMultiValueMap;
 
@@ -231,6 +233,16 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	}
 
 	@Override
+	public Page<B> queryForBeanPageEnhanced(Param param, BeanListHandler<B> beanListHandler) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Page<B> page = sqlx.queryForBeanPageEnhanced(param, beanListHandler);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
 	public <K> Map<K, B> queryForBeanKeyedMap(Param param, Class<K> keyClass, String keyColumnName)
 			throws SQLException {
 
@@ -325,6 +337,17 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 
 		Sqlx sqlx = getSqlx();
 		Page<Map<String, Object>> page = sqlx.queryForMapPage(param);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
+	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
+			throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Page<Map<String, Object>> page = sqlx.queryForMapPageEnhanced(param, mapListHandler);
 		sqlx.close();
 
 		return page;

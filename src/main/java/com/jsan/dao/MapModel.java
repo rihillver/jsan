@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import com.jsan.dao.handler.support.BeanListHandler;
+import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 import com.jsan.dao.map.SetMultiValueMap;
 
@@ -42,6 +44,8 @@ public interface MapModel extends SqlxModel {
 
 	Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException;
 	
+	Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler) throws SQLException;
+	
 
 	<K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
 
@@ -64,6 +68,8 @@ public interface MapModel extends SqlxModel {
 	<T> List<T> queryForBeanList(Param param, Class<T> beanClass) throws SQLException;
 
 	<T> Page<T> queryForBeanPage(Param param, Class<T> beanClass) throws SQLException;
+	
+	<T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException;
 	
 	
 	<K, T> Map<K, T> queryForBeanKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;

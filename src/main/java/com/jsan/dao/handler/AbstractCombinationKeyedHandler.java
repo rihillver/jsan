@@ -3,7 +3,7 @@ package com.jsan.dao.handler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class AbstractCombinationKeyedHandler<T> extends AbstractKeyedHandler<String, T> {
+public abstract class AbstractCombinationKeyedHandler<V> extends AbstractKeyedHandler<String, V> {
 
 	protected int[] keyColumnIndexes;
 	protected String[] keyColumnNames;

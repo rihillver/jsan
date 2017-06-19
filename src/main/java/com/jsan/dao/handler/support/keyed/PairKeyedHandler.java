@@ -2,6 +2,7 @@ package com.jsan.dao.handler.support.keyed;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.jsan.dao.handler.AbstractSingleKeyedHandler;
 
@@ -16,18 +17,31 @@ public class PairKeyedHandler<K, V> extends AbstractSingleKeyedHandler<K, V> {
 
 	protected Class<V> valueClass;
 	protected String valueColumnName;
-	protected int valueColumnIndex = 2;
+	protected int valueColumnIndex = 2; // 值默认为第2列
 
 	public PairKeyedHandler(Class<K> keyClass, Class<V> valueClass) {
 
+		this(null, keyClass, valueClass);
+	}
+
+	public PairKeyedHandler(Map<K, V> map, Class<K> keyClass, Class<V> valueClass) {
+
+		this.map = map;
 		this.keyClass = keyClass;
 		this.valueClass = valueClass;
 	}
 
 	public PairKeyedHandler(Class<K> keyClass, String keyColumnName, Class<V> valueClass, String valueColumnName) {
 
-		this.keyClass = keyClass;
-		this.valueClass = valueClass;
+		this(keyClass, valueClass);
+		this.keyColumnName = keyColumnName;
+		this.valueColumnName = valueColumnName;
+	}
+
+	public PairKeyedHandler(Map<K, V> map, Class<K> keyClass, String keyColumnName, Class<V> valueClass,
+			String valueColumnName) {
+
+		this(map, keyClass, valueClass);
 		this.keyColumnName = keyColumnName;
 		this.valueColumnName = valueColumnName;
 	}
