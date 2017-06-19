@@ -12,15 +12,7 @@ public abstract class AbstractSingleKeyedHandler<K, V> extends AbstractKeyedHand
 	@Override
 	protected K createKey(ResultSet rs) throws SQLException {
 
-		K k = null;
-
-		if (keyColumnName == null) {
-			k = getObject(rs, keyColumnIndex, keyClass, convertService);
-		} else {
-			k = getObject(rs, keyColumnName, keyClass, convertService);
-		}
-
-		return k;
+		return getKey(rs, keyClass, keyColumnIndex, keyColumnName);
 	}
 
 }

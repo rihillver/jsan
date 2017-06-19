@@ -140,6 +140,43 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		return bean;
 	}
 
+	protected <P> P getKey(ResultSet rs, Class<P> keyClass, int keyColumnIndex, String keyColumnName)
+			throws SQLException {
+
+		P k = null;
+
+		if (keyColumnName == null) {
+			k = getObject(rs, keyColumnIndex, keyClass, convertService);
+		} else {
+			k = getObject(rs, keyColumnName, keyClass, convertService);
+		}
+
+		return k;
+	}
+	
+	protected String getCombinationKey(ResultSet rs, String separator, int[] keyColumnIndexes, String[] keyColumnNames) throws SQLException {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		if (keyColumnNames == null) {
+			for (int i = 0; i < keyColumnIndexes.length; i++) {
+				if (i > 0 && separator != null) {
+					sb.append(separator);
+				}
+				sb.append(getObject(rs, keyColumnIndexes[i], String.class, convertService));
+			}
+		} else {
+			for (int i = 0; i < keyColumnNames.length; i++) {
+				if (i > 0 && separator != null) {
+					sb.append(separator);
+				}
+				sb.append(getObject(rs, keyColumnNames[i], String.class, convertService));
+			}
+		}
+		
+		return sb.toString();
+	}
+
 	protected <B> B newInstance(Class<B> type) throws SQLException {
 
 		try {
