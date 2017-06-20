@@ -15,6 +15,30 @@ public class CombinationKeyListHandler extends AbstractHandler<List<String>> {
 	protected String[] keyColumnNames;
 	protected String separator;
 
+	public CombinationKeyListHandler(String separator, int... keyColumnIndexes) {
+
+		this(null, separator, keyColumnIndexes);
+	}
+
+	public CombinationKeyListHandler(List<String> list, String separator, int... keyColumnIndexes) {
+
+		this.list = list;
+		this.separator = separator;
+		this.keyColumnIndexes = keyColumnIndexes;
+	}
+
+	public CombinationKeyListHandler(String separator, String... keyColumnNames) {
+
+		this(null, separator, keyColumnNames);
+	}
+
+	public CombinationKeyListHandler(List<String> list, String separator, String... keyColumnNames) {
+
+		this.list = list;
+		this.separator = separator;
+		this.keyColumnNames = keyColumnNames;
+	}
+
 	@Override
 	public List<String> handle(ResultSet rs) throws SQLException {
 

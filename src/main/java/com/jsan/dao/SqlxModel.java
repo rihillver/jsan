@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
@@ -94,4 +95,14 @@ public interface SqlxModel {
 	<K, V> SetMultiValueMap<K, V> queryForPairSetMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName, Class<V> valueClass, String valueColumnName) throws SQLException;
 
 	<V> SetMultiValueMap<String, V> queryForPairSetMultiValueCombinationKeyedMap(Param param, Class<V> valueClass, String valueColumnName, String separator, String... keyColumnNames) throws SQLException;
+	
+	
+	<K> List<K> queryForKeyList(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+
+	<K> Set<K> queryForKeySet(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+
+	List<String> queryForCombinationKeyList(Param param, String separator, String... keyColumnNames) throws SQLException;
+
+	Set<String> queryForCombinationKeySet(Param param, String separator, String... keyColumnNames) throws SQLException;
+
 }

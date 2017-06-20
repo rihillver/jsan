@@ -15,6 +15,30 @@ public class CombinationKeySetHandler extends AbstractHandler<Set<String>> {
 	protected String[] keyColumnNames;
 	protected String separator;
 
+	public CombinationKeySetHandler(String separator, int... keyColumnIndexes) {
+
+		this(null, separator, keyColumnIndexes);
+	}
+
+	public CombinationKeySetHandler(Set<String> set, String separator, int... keyColumnIndexes) {
+
+		this.set = set;
+		this.separator = separator;
+		this.keyColumnIndexes = keyColumnIndexes;
+	}
+
+	public CombinationKeySetHandler(String separator, String... keyColumnNames) {
+
+		this(null, separator, keyColumnNames);
+	}
+
+	public CombinationKeySetHandler(Set<String> set, String separator, String... keyColumnNames) {
+
+		this.set = set;
+		this.separator = separator;
+		this.keyColumnNames = keyColumnNames;
+	}
+
 	@Override
 	public Set<String> handle(ResultSet rs) throws SQLException {
 

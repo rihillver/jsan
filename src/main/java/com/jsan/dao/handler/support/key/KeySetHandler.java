@@ -15,6 +15,41 @@ public class KeySetHandler<K> extends AbstractHandler<Set<K>> {
 	protected int keyColumnIndex = 1; // 键默认为第1列
 	protected String keyColumnName;
 
+	public KeySetHandler(Class<K> keyClass) {
+
+		this(null, keyClass);
+	}
+
+	public KeySetHandler(Set<K> set, Class<K> keyClass) {
+
+		this.set = set;
+		this.keyClass = keyClass;
+	}
+
+	public KeySetHandler(Class<K> keyClass, int keyColumnIndex) {
+
+		this(null, keyClass, keyColumnIndex);
+	}
+
+	public KeySetHandler(Set<K> set, Class<K> keyClass, int keyColumnIndex) {
+
+		this.set = set;
+		this.keyClass = keyClass;
+		this.keyColumnIndex = keyColumnIndex;
+	}
+
+	public KeySetHandler(Class<K> keyClass, String keyColumnName) {
+
+		this(null, keyClass, keyColumnName);
+	}
+
+	public KeySetHandler(Set<K> set, Class<K> keyClass, String keyColumnName) {
+
+		this.set = set;
+		this.keyClass = keyClass;
+		this.keyColumnName = keyColumnName;
+	}
+
 	@Override
 	public Set<K> handle(ResultSet rs) throws SQLException {
 

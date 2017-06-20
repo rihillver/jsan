@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,10 @@ import com.jsan.dao.handler.support.BeanListHandler;
 import com.jsan.dao.handler.support.MapHandler;
 import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.handler.support.ObjectHandler;
+import com.jsan.dao.handler.support.key.CombinationKeyListHandler;
+import com.jsan.dao.handler.support.key.CombinationKeySetHandler;
+import com.jsan.dao.handler.support.key.KeyListHandler;
+import com.jsan.dao.handler.support.key.KeySetHandler;
 import com.jsan.dao.handler.support.keyed.BeanCombinationKeyedHandler;
 import com.jsan.dao.handler.support.keyed.BeanKeyedHandler;
 import com.jsan.dao.handler.support.keyed.MapCombinationKeyedHandler;
@@ -1311,5 +1316,67 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		return queryEnhanced(param, new PairSetMultiValueCombinationKeyedHandler<V>(valueClass, valueColumnName,
 				separator, keyColumnNames));
+	}
+
+	/**
+	 * 若 keyColumnName 为 null 则取第一列的值。
+	 * 
+	 * @param param
+	 * @param keyClass
+	 * @param keyColumnName
+	 * @return
+	 * @throws SQLException
+	 */
+	@Override
+	public <K> List<K> queryForKeyList(Param param, Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		return queryEnhanced(param, new KeyListHandler<K>(keyClass, keyColumnName));
+	}
+
+	/**
+	 * 若 keyColumnName 为 null 则取第一列的值。
+	 * 
+	 * @param param
+	 * @param keyClass
+	 * @param keyColumnName
+	 * @return
+	 * @throws SQLException
+	 */
+	@Override
+	public <K> Set<K> queryForKeySet(Param param, Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		return queryEnhanced(param, new KeySetHandler<K>(keyClass, keyColumnName));
+	}
+
+	/**
+	 * 若 separator 为 null 则无分隔符直接拼接 keyColumnNames。
+	 * 
+	 * @param param
+	 * @param separator
+	 * @param keyColumnNames
+	 * @return
+	 * @throws SQLException
+	 */
+	@Override
+	public List<String> queryForCombinationKeyList(Param param, String separator, String... keyColumnNames)
+			throws SQLException {
+
+		return queryEnhanced(param, new CombinationKeyListHandler(separator, keyColumnNames));
+	}
+
+	/**
+	 * 若 separator 为 null 则无分隔符直接拼接 keyColumnNames。
+	 * 
+	 * @param param
+	 * @param separator
+	 * @param keyColumnNames
+	 * @return
+	 * @throws SQLException
+	 */
+	@Override
+	public Set<String> queryForCombinationKeySet(Param param, String separator, String... keyColumnNames)
+			throws SQLException {
+
+		return queryEnhanced(param, new CombinationKeySetHandler(separator, keyColumnNames));
 	}
 }

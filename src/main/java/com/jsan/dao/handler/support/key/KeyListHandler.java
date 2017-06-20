@@ -15,6 +15,41 @@ public class KeyListHandler<K> extends AbstractHandler<List<K>> {
 	protected int keyColumnIndex = 1; // 键默认为第1列
 	protected String keyColumnName;
 
+	public KeyListHandler(Class<K> keyClass) {
+
+		this(null, keyClass);
+	}
+
+	public KeyListHandler(List<K> list, Class<K> keyClass) {
+
+		this.list = list;
+		this.keyClass = keyClass;
+	}
+
+	public KeyListHandler(Class<K> keyClass, int keyColumnIndex) {
+
+		this(null, keyClass, keyColumnIndex);
+	}
+
+	public KeyListHandler(List<K> list, Class<K> keyClass, int keyColumnIndex) {
+
+		this.list = list;
+		this.keyClass = keyClass;
+		this.keyColumnIndex = keyColumnIndex;
+	}
+
+	public KeyListHandler(Class<K> keyClass, String keyColumnName) {
+
+		this(null, keyClass, keyColumnName);
+	}
+
+	public KeyListHandler(List<K> list, Class<K> keyClass, String keyColumnName) {
+
+		this.list = list;
+		this.keyClass = keyClass;
+		this.keyColumnName = keyColumnName;
+	}
+
 	@Override
 	public List<K> handle(ResultSet rs) throws SQLException {
 

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.annotation.ConvertServiceRegister;
@@ -488,6 +489,48 @@ public class SqlxModelBuilder implements SqlxModel {
 		sqlx.close();
 
 		return map;
+	}
+
+	@Override
+	public <K> List<K> queryForKeyList(Param param, Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		List<K> list = sqlx.queryForKeyList(param, keyClass, keyColumnName);
+		sqlx.close();
+
+		return list;
+	}
+
+	@Override
+	public <K> Set<K> queryForKeySet(Param param, Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Set<K> set = sqlx.queryForKeySet(param, keyClass, keyColumnName);
+		sqlx.close();
+
+		return set;
+	}
+
+	@Override
+	public List<String> queryForCombinationKeyList(Param param, String separator, String... keyColumnNames)
+			throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		List<String> list = sqlx.queryForCombinationKeyList(param, separator, keyColumnNames);
+		sqlx.close();
+
+		return list;
+	}
+
+	@Override
+	public Set<String> queryForCombinationKeySet(Param param, String separator, String... keyColumnNames)
+			throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Set<String> set = sqlx.queryForCombinationKeySet(param, separator, keyColumnNames);
+		sqlx.close();
+
+		return set;
 	}
 
 }
