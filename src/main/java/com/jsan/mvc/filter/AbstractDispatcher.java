@@ -66,8 +66,17 @@ import com.jsan.mvc.resolve.GeneralResolveService;
 import com.jsan.mvc.resolve.ResolveService;
 import com.jsan.mvc.resolve.Resolver;
 
+/**
+ * 抽象请求转发器。
+ * <p>
+ * 当映射无后缀的请求时，请求 URL 对应的 WEB 应用目录下不能有同名的文件夹，否则 WEB
+ * 应用服务器（Apache、Tomcat）会将请求至该文件夹目录下而导致映射错误（例如请求 http://www.abc.com/news，如果 WEB
+ * 根目录存在 news 文件夹，则实际请求路径将为 http://www.abc.com/news/，这可能不是我们原先想要的）。
+ *
+ */
+
 public abstract class AbstractDispatcher implements Filter {
-	
+
 	protected static final String DEFAULT_CONFIG_FILE = "/jsanmvc.properties"; // 默认配置文件
 
 	protected FilterConfig filterConfig;
