@@ -67,8 +67,10 @@ import com.jsan.mvc.resolve.ResolveService;
 import com.jsan.mvc.resolve.Resolver;
 
 public abstract class AbstractDispatcher implements Filter {
-
+	
 	protected static final String DEFAULT_CONFIG_FILE = "/jsanmvc.properties"; // 默认配置文件
+
+	protected FilterConfig filterConfig;
 
 	protected final List<Class<? extends Resolver>> customResolverList = new ArrayList<Class<? extends Resolver>>(); // 多个Filter不共用
 	protected final List<Class<? extends Converter>> customConverterList = new ArrayList<Class<? extends Converter>>(); // 多个Filter不共用
@@ -91,7 +93,7 @@ public abstract class AbstractDispatcher implements Filter {
 	protected JsonSerializeConfigurator jsonSerializeConfigurator;
 	protected JsonParserConfigurator jsonParserConfigurator;
 
-	protected abstract void initCustom(FilterConfig filterConfig);
+	protected abstract void initCustom();
 
 	/**
 	 * 如果通过 Spring IOC 容器的方式获取对象，当使用了 AOP 时返回的可能是代理对象
@@ -119,15 +121,17 @@ public abstract class AbstractDispatcher implements Filter {
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 
+		filterConfig = config;
+
 		try {
 
-			initConfig(config); // 必须在最前
+			initConfig(); // 必须在最前
 			initConfigProperties(); // 必须在第二
 
 			// 后面的初始化依赖于前两个
 			initStrategies();
 
-			initCustom(config); // 初始化子类自定义的配置
+			initCustom(); // 初始化子类自定义的配置
 
 		} catch (Exception e) { // 这里捕获所有异常并打印异常，原因是当Tomcat启动时对于Filter的init(FilterConfig)方法内所抛出的异常在控制台无法看到
 			e.printStackTrace();
@@ -137,14 +141,14 @@ public abstract class AbstractDispatcher implements Filter {
 		System.out.println("[mvc] " + toString());
 	}
 
-	protected void initConfig(FilterConfig config) {
+	protected void initConfig() {
 
 		mvcConfig = new MvcConfig();
 
 		Field[] fields = MvcConfig.class.getDeclaredFields();
 		for (Field field : fields) {
 			field.setAccessible(true);
-			String parameter = config.getInitParameter(field.getName());
+			String parameter = filterConfig.getInitParameter(field.getName());
 			if (parameter != null) {
 				try {
 					if (field.getType() == boolean.class) {

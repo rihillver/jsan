@@ -3,10 +3,6 @@ package com.jsan.mvc.filter;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.servlet.FilterConfig;
-
-import net.sf.cglib.proxy.Enhancer;
-
 import com.jsan.mvc.ControllerInfo;
 import com.jsan.mvc.MethodInfo;
 import com.jsan.mvc.annotation.InterceptServiceRegister;
@@ -15,6 +11,8 @@ import com.jsan.mvc.intercept.ControllerMethodInterceptor;
 import com.jsan.mvc.intercept.InterceptService;
 import com.jsan.mvc.intercept.InterceptServiceCache;
 import com.jsan.mvc.intercept.Interceptor;
+
+import net.sf.cglib.proxy.Enhancer;
 
 /**
  * 请求转发器。
@@ -35,7 +33,7 @@ import com.jsan.mvc.intercept.Interceptor;
 public class DispatcherFilter extends AbstractDispatcher {
 
 	@Override
-	protected void initCustom(FilterConfig config) {
+	protected void initCustom() {
 
 	}
 

@@ -244,7 +244,7 @@ public class PropertiesConvertUtils {
 
 	public static void storeProperties(Properties properties, String path, boolean append) {
 
-		URL url = Object.class.getResource("/");
+		URL url = PropertiesConvertUtils.class.getResource("/");
 
 		try {
 

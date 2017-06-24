@@ -84,7 +84,7 @@ public class ConvertFuncUtils {
 
 	public static Properties getProperties(String path) throws IOException {
 
-		InputStream inputStream = Object.class.getResourceAsStream(path);
+		InputStream inputStream = ConvertFuncUtils.class.getResourceAsStream(path);
 
 		if (inputStream == null) {
 			throw new IOException("failed to open the file: " + path);

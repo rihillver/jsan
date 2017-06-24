@@ -1,7 +1,5 @@
 package com.jsan.spring;
 
-import javax.servlet.FilterConfig;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -23,9 +21,9 @@ public class DispatcherFilter extends AbstractDispatcher {
 	private ApplicationContext applicationContext;
 
 	@Override
-	protected void initCustom(FilterConfig config) {
+	protected void initCustom() {
 
-		applicationContext = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext()); // 无论多少次的获取返回的都是相同的对象引用
+		applicationContext = WebApplicationContextUtils.getWebApplicationContext(filterConfig.getServletContext()); // 无论多少次的获取返回的都是相同的对象引用
 	}
 
 	/**

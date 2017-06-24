@@ -99,7 +99,7 @@ public class ContextUtils implements ApplicationContextAware {
 	 */
 	private static String getWebRootPath() {
 
-		URL url = Object.class.getResource("/");
+		URL url = ContextUtils.class.getResource("/");
 		File file = new File(url.getPath());
 		File webInfFile = file.getParentFile();
 		File webRootFile = webInfFile.getParentFile();
