@@ -119,13 +119,20 @@ public abstract class AbstractDispatcher implements Filter {
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 
-		initConfig(config); // 必须在最前
-		initConfigProperties(); // 必须在第二
+		try {
 
-		// 后面的初始化依赖于前两个
-		initStrategies();
+			initConfig(config); // 必须在最前
+			initConfigProperties(); // 必须在第二
 
-		initCustom(config); // 初始化子类自定义的配置
+			// 后面的初始化依赖于前两个
+			initStrategies();
+
+			initCustom(config); // 初始化子类自定义的配置
+
+		} catch (Exception e) { // 这里捕获所有异常并打印异常，原因是当Tomcat启动时对于Filter的init(FilterConfig)方法内所抛出的异常在控制台无法看到
+			e.printStackTrace();
+			throw new ServletException(e);
+		}
 
 		System.out.println("[mvc] " + toString());
 	}
@@ -190,7 +197,7 @@ public abstract class AbstractDispatcher implements Filter {
 			try {
 				configProperties = MvcFuncUtils.getProperties(configFile);
 			} catch (IOException e) {
-				throw new RuntimeException("");
+				throw new RuntimeException(e);
 			}
 		} else {
 			try {
