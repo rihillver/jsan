@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
-
-public class StreamUtilsTest extends TestCase {
+public class StreamUtilsTest {
 
 	public void testBar() throws IOException {
 

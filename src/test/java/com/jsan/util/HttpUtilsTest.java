@@ -3,9 +3,7 @@ package com.jsan.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import junit.framework.TestCase;
-
-public class HttpUtilsTest extends TestCase {
+public class HttpUtilsTest {
 
 	public void testFoo() throws UnsupportedEncodingException {
 

@@ -2,10 +2,11 @@ package com.jsan.convert;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class BeanProxyUtilsTest extends TestCase {
+public class BeanProxyUtilsTest {
 
+	@Test
 	public void testBar() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		Class<?> clazz = Class.forName("com.jsan.convert.BeanProxyUtilsTest$User");
@@ -19,6 +20,7 @@ public class BeanProxyUtilsTest extends TestCase {
 		System.out.println(user);
 	}
 
+	@Test
 	public void testFoo() {
 
 		User user = BeanProxyUtils.getObject(User.class);
