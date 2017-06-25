@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * 可以提取全部文件类型或指定文件类型的图片尺寸，extractDimension 优先级别高于extractDimensionTypes。</li>
  * <li>当设置了对 gif 格式的文件提取图片尺寸时，如果 gif 图片为动态图片则会导致动画失效（仅保存到第一帧），因此对于 gif
  * 动态图片的上传处理最好不要提取图片尺寸，以避免 gif 动画失效，或者通过结合其他类库进行处理（比如 im4java）。</li>
- * <li>当上传的文件类型设置了提取图片尺寸时，任何操作异常都将抛出 WebImageIOException 异常，可根据情况捕获该异常进行下一步处理。</li>
+ * <li>当上传的文件类型设置了提取图片尺寸时，任何对该文件流的操作异常都将抛出 WebImageIOException 异常，可根据情况捕获该异常进行下一步处理。</li>
  * </ul>
  *
  */
