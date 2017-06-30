@@ -7,7 +7,7 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 
 public abstract class AbstractJsonParserConfigurator implements JsonParserConfigurator {
 
-	protected ParserConfig parserConfig = ParserConfig.global;
+	protected ParserConfig parserConfig = ParserConfig.getGlobalInstance();
 	protected ParseProcess parseProcess;
 	protected int featureValues = JSON.DEFAULT_PARSER_FEATURE;
 	protected Feature[] features;

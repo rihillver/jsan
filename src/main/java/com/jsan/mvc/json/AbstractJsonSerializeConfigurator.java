@@ -7,11 +7,13 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public abstract class AbstractJsonSerializeConfigurator implements JsonSerializeConfigurator {
 
-	protected SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+	protected static SerializerFeature[] emptySerializerFeatures = new SerializerFeature[0];
+
+	protected SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
 	protected SerializeFilter[] serializeFilters;
 	protected String dateFormat;
 	protected int defaultFeatures = JSON.DEFAULT_GENERATE_FEATURE;
-	protected SerializerFeature[] serializerFeatures;
+	protected SerializerFeature[] serializerFeatures = emptySerializerFeatures; // 由于fastjson当前版本在SerializeWriter编码上的疏忽，没有对SerializerFeature为null的情况进行判断
 
 	@Override
 	public SerializeConfig getSerializeConfig() {
