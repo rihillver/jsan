@@ -17,6 +17,7 @@ import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
 import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.Get;
+import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.Post;
@@ -142,6 +143,8 @@ public class ControllerInfoCache {
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof FormConvert) {
 				pInfo.setFormConvert((FormConvert) annotation);
+			} else if (annotation instanceof JsonConvert) {
+				pInfo.setJsonConvert((JsonConvert) annotation);
 			} else if (annotation instanceof MethodValue) {
 				pInfo.setMethodValue((MethodValue) annotation);
 			} else if (annotation instanceof MultiValue) {

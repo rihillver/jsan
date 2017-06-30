@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
- * 控制器上映射方法形参上的表单字段 json 转换注解。
+ * 控制器上映射方法形参上的表单字段 json 转换成（Bean）对象的注解。
  * 
  */
 
