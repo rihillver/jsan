@@ -54,6 +54,7 @@ import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
 import com.jsan.mvc.annotation.MultiValue;
+import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.Render;
 import com.jsan.mvc.intercept.GeneralInterceptService;
 import com.jsan.mvc.intercept.InterceptService;
@@ -975,10 +976,11 @@ public abstract class AbstractDispatcher implements Filter {
 					if (pInfo.getMethodValue() != null) {
 						parameterValue = mappingInfo.getMethodValue();
 					} else {
+						String requestParameterName = getRequestParameterName(pInfo);
 						if (pInfo.getMultiValue() != null) { // 是否为指定多值的参数
-							parameterValue = request.getParameterValues(pInfo.getName());
+							parameterValue = request.getParameterValues(requestParameterName);
 						} else {
-							parameterValue = request.getParameter(pInfo.getName());
+							parameterValue = request.getParameter(requestParameterName);
 						}
 					}
 					Converter converter = service.lookupConverter(type);
@@ -995,6 +997,11 @@ public abstract class AbstractDispatcher implements Filter {
 				message.append(type.getCanonicalName());
 				message.append(") ");
 				message.append(pInfo.getName());
+				if (pInfo.getParamName() != null) {
+					message.append(" [");
+					message.append(pInfo.getParamName().value());
+					message.append("]");
+				}
 				message.append(" : ");
 				if (type.isArray()) {
 					String arrayStr;
@@ -1040,6 +1047,21 @@ public abstract class AbstractDispatcher implements Filter {
 	}
 
 	/**
+	 * 返回请求参数名。
+	 * 
+	 * @param pInfo
+	 * @return
+	 */
+	protected String getRequestParameterName(ParameterInfo pInfo) {
+
+		ParamName paramName = pInfo.getParamName();
+		if (paramName != null) {
+			return paramName.value();
+		}
+		return pInfo.getName();
+	}
+
+	/**
 	 * json 字符串转对象。
 	 * 
 	 * @param pInfo
@@ -1049,7 +1071,8 @@ public abstract class AbstractDispatcher implements Filter {
 	 */
 	protected <T> T getRequestJsonToObject(ParameterInfo pInfo, HttpServletRequest request) {
 
-		String parameterValue = request.getParameter(pInfo.getName());
+		String requestParameterName = getRequestParameterName(pInfo);
+		String parameterValue = request.getParameter(requestParameterName);
 		Type GenericType = pInfo.getGenericType();
 		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
 

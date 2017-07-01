@@ -20,6 +20,7 @@ import com.jsan.mvc.annotation.Get;
 import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
+import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.Post;
 import com.jsan.mvc.annotation.Render;
 
@@ -141,7 +142,9 @@ public class ControllerInfoCache {
 	private static void fillAnnotationToParameterInfo(ParameterInfo pInfo, Annotation[] annotations) {
 
 		for (Annotation annotation : annotations) {
-			if (annotation instanceof FormConvert) {
+			if (annotation instanceof ParamName) {
+				pInfo.setParamName((ParamName) annotation);
+			} else if (annotation instanceof FormConvert) {
 				pInfo.setFormConvert((FormConvert) annotation);
 			} else if (annotation instanceof JsonConvert) {
 				pInfo.setJsonConvert((JsonConvert) annotation);

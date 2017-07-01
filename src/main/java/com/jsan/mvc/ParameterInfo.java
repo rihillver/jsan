@@ -12,6 +12,7 @@ import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
+import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
@@ -29,6 +30,7 @@ public class ParameterInfo {
 
 	private Set<String> multiValueSet;
 
+	private ParamName paramName; // 指定的请求参数名
 	private FormConvert formConvert;
 	private JsonConvert jsonConvert;
 	private MethodValue methodValue;
@@ -68,6 +70,14 @@ public class ParameterInfo {
 
 	public void setConvertService(ConvertService convertService) {
 		this.convertService = convertService;
+	}
+
+	public ParamName getParamName() {
+		return paramName;
+	}
+
+	public void setParamName(ParamName paramName) {
+		this.paramName = paramName;
 	}
 
 	public FormConvert getFormConvert() {
