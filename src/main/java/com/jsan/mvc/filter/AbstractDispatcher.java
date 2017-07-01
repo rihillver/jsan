@@ -285,7 +285,7 @@ public abstract class AbstractDispatcher implements Filter {
 	protected void initJsonParserConfigurator() {
 
 		jsonParserConfigurator = (JsonParserConfigurator) MvcFuncUtils.getObjectByProperties(configProperties,
-				JsonSerializeConfigurator.class.getName());
+				JsonParserConfigurator.class.getName());
 		if (jsonParserConfigurator == null) {
 			jsonParserConfigurator = new GeneralJsonParserConfigurator();
 		}

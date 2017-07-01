@@ -13,7 +13,7 @@ public abstract class AbstractJsonSerializeConfigurator implements JsonSerialize
 	protected SerializeFilter[] serializeFilters;
 	protected String dateFormat;
 	protected int defaultFeatures = JSON.DEFAULT_GENERATE_FEATURE;
-	protected SerializerFeature[] serializerFeatures = emptySerializerFeatures; // 由于fastjson当前版本在SerializeWriter编码上的疏忽，没有对SerializerFeature为null的情况进行判断
+	protected SerializerFeature[] serializerFeatures = emptySerializerFeatures; // 由于fastjson在SerializeWriter编码上的疏忽（该备注时版本1.2.33），没有对SerializerFeature为null的情况进行判断
 
 	@Override
 	public SerializeConfig getSerializeConfig() {
