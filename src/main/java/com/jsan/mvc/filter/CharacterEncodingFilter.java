@@ -25,7 +25,7 @@ import com.jsan.mvc.RequestConverter;
  * <li>forceEncoding ： 是否强制编码（默认值： false），如为 true 则将覆盖源字符编码，并且设置响应字符编码。</li>
  * <li>fromEncoding ： 源字符编码，仅对于 GET 请求方式。</li>
  * <li>toEncoding ： 目标字符编码，仅对于 GET 请求方式。</li>
- * <li>trim ： 是否去除请求参数值的前后空白（默认值： false）。
+ * <li>trim ： 是否去除请求参数值的前后空白（默认值： false）。</li>
  * </ul>
  *
  */
@@ -78,8 +78,10 @@ public class CharacterEncodingFilter implements Filter {
 			}
 		}
 
-		if (fromEncoding != null && toEncoding != null && request.getMethod().equalsIgnoreCase("GET")) {
-			request = new RequestConverter(request, fromEncoding, toEncoding, trim);
+		if (trim) { // GET、POST均处理
+			request = new RequestConverter(request, fromEncoding, toEncoding, true);
+		} else if (fromEncoding != null && toEncoding != null && request.getMethod().equalsIgnoreCase("GET")) { // 只处理GET
+			request = new RequestConverter(request, fromEncoding, toEncoding, false);
 		}
 
 		filterChain.doFilter(request, response);

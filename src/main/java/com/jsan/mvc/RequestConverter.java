@@ -19,6 +19,11 @@ public class RequestConverter extends HttpServletRequestWrapper {
 	private boolean trim;
 	private boolean isParameterMapConverted;
 
+	public RequestConverter(HttpServletRequest request, boolean trim) {
+
+		this(request, null, null, false);
+	}
+
 	public RequestConverter(HttpServletRequest request, String fromEncoding, String toEncoding) {
 
 		this(request, fromEncoding, toEncoding, false);
@@ -90,13 +95,15 @@ public class RequestConverter extends HttpServletRequestWrapper {
 	private String getConvert(String str) {
 
 		if (str != null) {
-			try {
-				str = new String(str.getBytes(fromEncoding), toEncoding);
-				if (trim) {
-					str = str.trim();
+			if (fromEncoding != null && toEncoding != null) {
+				try {
+					str = new String(str.getBytes(fromEncoding), toEncoding);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
 				}
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
+			}
+			if (trim) {
+				str = str.trim();
 			}
 		}
 
