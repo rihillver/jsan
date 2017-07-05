@@ -17,8 +17,8 @@ public class MvcConfig {
 	private String viewPath;
 	private String methodKey;
 	private String configFile;
-	private String viewSuffix;
-	private String contextPath;
+	private String viewSuffix; // 务必以反斜杠"/"开头
+	private String contextPath; // 务必以反斜杠"/"开头
 	private String executeTime;
 	private String defaultRender;
 	private String packagePrefix;

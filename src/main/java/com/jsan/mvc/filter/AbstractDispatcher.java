@@ -723,10 +723,17 @@ public abstract class AbstractDispatcher implements Filter {
 		chain.doFilter(request, response);
 	}
 
+	/**
+	 * 如果 MvcConfig 配置了执行耗时的键名，则在 View
+	 * 中请勿再使用与此键名相同的作为传递请求响应的参数名，因为该参数值始终将会在此被设置成执行耗时。
+	 * 
+	 * @param view
+	 * @param startTime
+	 */
 	protected void setExecuteTime(View view, long startTime) {
 
 		String executeTime = mvcConfig.getExecuteTime();
-		if (executeTime != null && view.get(executeTime) == null) {
+		if (executeTime != null) {
 			double usedTime = (System.nanoTime() - startTime) / 1000000.0;
 			view.add(executeTime, usedTime);
 		}
