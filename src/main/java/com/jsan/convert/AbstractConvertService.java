@@ -189,8 +189,10 @@ public abstract class AbstractConvertService implements ConvertService, Cloneabl
 		Converter converter = converterMap.get(type);
 
 		if (converter == null) {
-			type = lookupCommonConverterType(type);
-			converter = converterMap.get(type);
+			Class<?> commonType = lookupCommonConverterType(type);
+			if (commonType != null) {
+				converter = converterMap.get(commonType);
+			}
 		}
 
 		if (converter == null) {
