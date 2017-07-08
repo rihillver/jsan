@@ -10,8 +10,8 @@ import com.jsan.mvc.resolve.Resolver;
 import com.jsan.mvc.resolve.annotation.RegisterName;
 
 /**
- * 客户端转发解析器。
- *
+ * 客户端转发解析器（有可能会对相对路径作相应处理，主要适用于站内链接转发）。
+ * 
  */
 
 @RegisterName(Resolver.REDIRECT)

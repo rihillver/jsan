@@ -16,6 +16,7 @@ public interface Resolver {
 
 	String FORWARD = "forward";
 	String REDIRECT = "redirect";
+	String JUMP = "jump";
 	String HTML = "html";
 	String JSON = "json";
 	String JSONP = "jsonp";
