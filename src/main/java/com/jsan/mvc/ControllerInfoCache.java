@@ -145,7 +145,13 @@ public class ControllerInfoCache {
 			if (annotation instanceof ParamName) {
 				pInfo.setParamName((ParamName) annotation);
 			} else if (annotation instanceof FormConvert) {
-				pInfo.setFormConvert((FormConvert) annotation);
+				FormConvert formConvert = (FormConvert) annotation;
+				pInfo.setFormConvert(formConvert);
+				String[] params = formConvert.params();
+				if (params.length > 0) {
+					Set<String> set = new HashSet<String>(Arrays.asList(params));
+					pInfo.setFormConvertParamSet(set); // 初始化formConvertParamSet
+				}
 			} else if (annotation instanceof JsonConvert) {
 				pInfo.setJsonConvert((JsonConvert) annotation);
 			} else if (annotation instanceof MethodValue) {

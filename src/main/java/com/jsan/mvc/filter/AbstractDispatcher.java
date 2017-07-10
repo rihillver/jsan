@@ -1100,12 +1100,18 @@ public abstract class AbstractDispatcher implements Filter {
 
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
+		Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
 
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 			String key = entry.getKey();
+
+			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
+				continue;
+			}
+
 			String[] value = entry.getValue();
 			Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
 
@@ -1140,11 +1146,17 @@ public abstract class AbstractDispatcher implements Filter {
 		Type genericType = pInfo.getGenericType();
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
+		Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
 
 		Map<String, String[]> requestParameterMap = request.getParameterMap();
 		Map<String, Object> map = new LinkedHashMap<String, Object>(requestParameterMap.size());
 		for (Map.Entry<String, String[]> entry : requestParameterMap.entrySet()) {
 			String key = entry.getKey();
+
+			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
+				continue;
+			}
+
 			String[] value = entry.getValue();
 			Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
 			map.put(key, obj);

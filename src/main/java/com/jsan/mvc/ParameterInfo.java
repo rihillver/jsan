@@ -29,6 +29,7 @@ public class ParameterInfo {
 	private JsonParserConfigurator jsonParserConfigurator;
 
 	private Set<String> multiValueSet;
+	private Set<String> formConvertParamSet;
 
 	private ParamName paramName; // 指定的请求参数名
 	private FormConvert formConvert;
@@ -158,6 +159,14 @@ public class ParameterInfo {
 
 	public void setJsonParserConfigurator(JsonParserConfigurator jsonParserConfigurator) {
 		this.jsonParserConfigurator = jsonParserConfigurator;
+	}
+
+	public Set<String> getFormConvertParamSet() {
+		return formConvertParamSet;
+	}
+
+	public void setFormConvertParamSet(Set<String> formConvertParamSet) {
+		this.formConvertParamSet = formConvertParamSet;
 	}
 
 }
