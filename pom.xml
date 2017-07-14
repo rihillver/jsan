@@ -5,7 +5,7 @@
 
 	<groupId>jsan</groupId>
 	<artifactId>jsan</artifactId>
-	<version>1.1</version>
+	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>jsan</name>
@@ -28,6 +28,7 @@
 
 		<cglib-nodep.version>3.2.5</cglib-nodep.version>
 		<fastjson.version>1.2.33</fastjson.version>
+		<slf4j-api.version>1.7.25</slf4j-api.version>
 
 		<ehcache.version>2.10.4</ehcache.version>
 		<spring.version>4.3.8.RELEASE</spring.version>
@@ -84,6 +85,14 @@
 			<version>${fastjson.version}</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-api.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
 
 
 		<!-- mvc - selectable dependencies -->
