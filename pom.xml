@@ -5,7 +5,7 @@
 
 	<groupId>jsan</groupId>
 	<artifactId>jsan</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 
 	<name>jsan</name>
