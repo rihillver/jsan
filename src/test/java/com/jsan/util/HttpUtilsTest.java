@@ -29,7 +29,7 @@ public class HttpUtilsTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("key", "可乐");
 
-		System.out.println(HttpUtils.getString(url, "post", map));
+		System.out.println(HttpUtils.getString(url, HttpUtils.POST, map));
 
 	}
 
@@ -72,7 +72,7 @@ public class HttpUtilsTest {
 	public void testBar() {
 
 		String url = "https://www.baidu.com/";
-		System.out.println(HttpUtils.getFile(url, "get", null, "d:/baidu.html"));
+		System.out.println(HttpUtils.getFile(url, HttpUtils.GET, null, "d:/baidu.html"));
 	}
 
 	public void testBaz() {

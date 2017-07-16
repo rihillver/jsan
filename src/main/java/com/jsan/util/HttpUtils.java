@@ -26,6 +26,10 @@ import java.util.Random;
  */
 
 public class HttpUtils {
+	
+	public static final String GET = "GET";
+
+	public static final String POST = "POST";
 
 	private static final int CONNECT_TIMEOUT = 10000; // 建立连接的超时时间为10秒
 
@@ -272,7 +276,7 @@ public class HttpUtils {
 			method = method.toUpperCase();
 		}
 
-		if (method == null || "GET".equals(method)) {
+		if (method == null || GET.equals(method)) {
 			urlStr = convertParamToUrlString(urlStr, params);
 		}
 
@@ -288,14 +292,14 @@ public class HttpUtils {
 
 			if (method != null) {
 				conn.setRequestMethod(method);
-				if ("POST".equals(method)) {
+				if (POST.equals(method)) {
 					conn.setDoOutput(true);
 				}
 			}
 
 			conn.connect();
 
-			if (params != null && "POST".equals(method)) {
+			if (params != null && POST.equals(method)) {
 				PrintWriter writer = new PrintWriter(conn.getOutputStream());
 				writer.write(convertParamToString(params));
 				writer.flush();
