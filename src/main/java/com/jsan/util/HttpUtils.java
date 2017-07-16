@@ -7,15 +7,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Map;
 import java.util.Random;
 
 /**
  * 简易的 Http 请求工具类。
  * <ul>
- * <li>主要通过 HttpURLConnection 简易实现（仅支持 GET 请求）。</li>
+ * <li>通过 HttpURLConnection 简易实现。</li>
  * <li>更专业的可参 Apache HttpComponents。</li>
  * </ul>
  * 
@@ -30,91 +34,31 @@ public class HttpUtils {
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
 
 	/**
-	 * 返回 URL 请求的字符串形式（自动分析字符编码）。
-	 * 
-	 * @param url
-	 * @return
-	 */
-	public static String getString(URL url) {
-
-		return getString(url, null);
-	}
-
-	/**
-	 * 返回 URL 请求的字符串形式（指定字符编码）。
-	 * 
-	 * @param url
-	 * @param charset
-	 * @return
-	 */
-	public static String getString(URL url, String charset) {
-
-		String str = null;
-		HttpURLConnection conn = null;
-		InputStream in = null;
-
-		try {
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setConnectTimeout(CONNECT_TIMEOUT);
-			conn.setReadTimeout(READ_TIMEOUT);
-			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止网络爬虫抓取网页内容
-			conn.connect();
-
-			if (charset == null) {
-				String contentType = conn.getContentType();
-				if (contentType != null) {
-					String temp = contentType.replaceAll(".*charset\\s*=\\s*([\\w-]+).*", "$1");
-					if (!temp.equals(contentType) && temp.length() > 0) {
-						charset = temp;
-					}
-				}
-			}
-
-			if (conn.getResponseCode() == 200) {
-
-				in = conn.getInputStream();
-
-				byte[] result = streamToBytes(in);
-
-				if (result != null) {
-					if (charset != null) {
-						str = new String(result, charset);
-					} else {
-						str = new String(result);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
-
-		return str;
-	}
-
-	/**
-	 * 返回 URL 请求的字符串形式（自动分析字符编码）。
+	 * 返回 URL 请求的字符串形式（GET 方式，自动分析字符编码）。
 	 * 
 	 * @param urlStr
 	 * @return
 	 */
 	public static String getString(String urlStr) {
 
-		return getString(urlStr, null);
+		return getString(urlStr, null, null);
 	}
 
 	/**
-	 * 返回 URL 请求的字符串形式（指定字符编码）。
+	 * 返回 URL 请求的字符串形式（自动分析字符编码）。
+	 * 
+	 * @param urlStr
+	 * @param method
+	 * @param params
+	 * @return
+	 */
+	public static String getString(String urlStr, String method, Map<String, Object> params) {
+
+		return getString(urlStr, method, params, null);
+	}
+
+	/**
+	 * 返回 URL 请求的字符串形式（GET 方式，指定字符编码）。
 	 * 
 	 * @param urlStr
 	 * @param charset
@@ -122,22 +66,75 @@ public class HttpUtils {
 	 */
 	public static String getString(String urlStr, String charset) {
 
-		return getString(getURL(urlStr), charset);
+		return getString(urlStr, null, null, charset);
+	}
+
+	/**
+	 * 返回 URL 请求的字符串形式（指定字符编码）。
+	 * 
+	 * @param urlStr
+	 * @param method
+	 * @param params
+	 * @param charset
+	 * @return
+	 */
+	public static String getString(String urlStr, String method, Map<String, Object> params, String charset) {
+
+		CharsetRecorder recorder = charset == null ? new CharsetRecorder() : null;
+
+		byte[] result = getBytes(urlStr, method, params, recorder);
+
+		if (charset == null) {
+			charset = recorder.getCharset();
+		}
+
+		if (result != null) {
+			if (charset != null) {
+				try {
+					return new String(result, charset);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				return new String(result);
+			}
+		}
+
+		return null;
+
+	}
+
+	/**
+	 * 返回 URL 请求的字节数组形式（GET 方式）。
+	 * 
+	 * @param urlStr
+	 * @return
+	 */
+	public static byte[] getBytes(String urlStr) {
+
+		return getBytes(urlStr, null, null);
 	}
 
 	/**
 	 * 返回 URL 请求的字节数组形式。
 	 * 
-	 * @param url
+	 * @param urlStr
+	 * @param method
+	 * @param params
 	 * @return
 	 */
-	public static byte[] getBytes(URL url) {
+	public static byte[] getBytes(String urlStr, String method, Map<String, Object> params) {
+
+		return getBytes(urlStr, method, params, null);
+	}
+
+	private static byte[] getBytes(String urlStr, String method, Map<String, Object> params, CharsetRecorder recorder) {
 
 		byte[] bytes = null;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		try {
-			toStream(url, out);
+			toStream(urlStr, out, method, params, recorder);
 			bytes = out.toByteArray();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,24 +150,27 @@ public class HttpUtils {
 	}
 
 	/**
-	 * 返回 URL 请求的字节数组形式。
+	 * 返回 URL 请求的文件形式（GET 方式）。
 	 * 
 	 * @param urlStr
+	 * @param filePath
 	 * @return
 	 */
-	public static byte[] getBytes(String urlStr) {
+	public static File getFile(String urlStr, String filePath) {
 
-		return getBytes(getURL(urlStr));
+		return getFile(urlStr, null, null, filePath);
 	}
 
 	/**
 	 * 返回 URL 请求的文件形式。
 	 * 
-	 * @param url
+	 * @param urlStr
+	 * @param method
+	 * @param params
 	 * @param filePath
 	 * @return
 	 */
-	public static File getFile(URL url, String filePath) {
+	public static File getFile(String urlStr, String method, Map<String, Object> params, String filePath) {
 
 		File oldFile = null;
 
@@ -194,7 +194,7 @@ public class HttpUtils {
 		try {
 			fos = new FileOutputStream(file);
 			bos = new BufferedOutputStream(fos);
-			toStream(url, bos);
+			toStream(urlStr, bos, method, params);
 			return file;
 		} catch (Exception e) {
 			error = true;
@@ -222,39 +222,101 @@ public class HttpUtils {
 	}
 
 	/**
-	 * 返回 URL 请求的文件形式。
+	 * 输入流转为输出流。
 	 * 
-	 * @param urlStr
-	 * @param filePath
-	 * @return
+	 * @param in
+	 * @param out
+	 * @throws IOException
 	 */
-	public static File getFile(String urlStr, String filePath) {
+	private static void convertStream(InputStream in, OutputStream out) throws IOException {
 
-		return getFile(getURL(urlStr), filePath);
+		byte[] buffer = new byte[1024 * 4];
+		int len = 0;
+		while ((len = in.read(buffer)) != -1) {
+			out.write(buffer, 0, len);
+		}
+
+	}
+
+	private static URL getURL(String urlStr) {
+
+		try {
+			return new URL(urlStr);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * URL 请求转输出流。
 	 * 
-	 * @param url
+	 * @param urlStr
 	 * @param out
-	 * @throws IOException
+	 * @param method
+	 * @param params
+	 * @throws Exception
 	 */
-	public static void toStream(URL url, OutputStream out) throws Exception {
+	public static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params)
+			throws Exception {
+
+		toStream(urlStr, out, method, params, null);
+	}
+
+	private static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params,
+			CharsetRecorder recorder) throws Exception {
 
 		HttpURLConnection conn = null;
 		InputStream in = null;
 
+		if (method != null) {
+			method = method.toUpperCase();
+		}
+
+		if (method == null || "GET".equals(method)) {
+			urlStr = convertParamToUrlString(urlStr, params);
+		}
+
+		URL url = getURL(urlStr);
+
 		try {
 			conn = (HttpURLConnection) url.openConnection();
+			conn.setUseCaches(false); // 禁止缓存
+			conn.setInstanceFollowRedirects(false); // 禁止重定向
 			conn.setConnectTimeout(CONNECT_TIMEOUT);
 			conn.setReadTimeout(READ_TIMEOUT);
-			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止网络爬虫抓取网页内容
+			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止非常规的User-Agent请求
+
+			if (method != null) {
+				conn.setRequestMethod(method);
+				if ("POST".equals(method)) {
+					conn.setDoOutput(true);
+				}
+			}
+
 			conn.connect();
 
+			if (params != null && "POST".equals(method)) {
+				PrintWriter writer = new PrintWriter(conn.getOutputStream());
+				writer.write(convertParamToString(params));
+				writer.flush();
+			}
+
 			if (conn.getResponseCode() == 200) {
+
+				if (recorder != null) { // 提取字符编码
+					String contentType = conn.getContentType();
+					if (contentType != null) {
+						String temp = contentType.replaceAll(".*charset\\s*=\\s*([\\w-]+).*", "$1");
+						if (!temp.equals(contentType) && temp.length() > 0) {
+							recorder.setCharset(temp);
+						}
+					}
+				}
+
 				in = conn.getInputStream();
 				convertStream(in, out);
+			} else {
+				throw new RuntimeException("response code is not 200");
 			}
 
 		} finally {
@@ -272,70 +334,72 @@ public class HttpUtils {
 	}
 
 	/**
-	 * URL 请求转输出流。
+	 * 将请求 url 和 Map 形式的请求参数转换成经过 URL 编码的 url 字符串（主要用于 GET 请求）。
 	 * 
 	 * @param urlStr
-	 * @param out
-	 * @throws IOException
+	 * @param params
+	 * @return
 	 */
-	public static void toStream(String urlStr, OutputStream out) throws Exception {
+	public static String convertParamToUrlString(String urlStr, Map<String, Object> params) {
 
-		toStream(getURL(urlStr), out);
+		if (params != null) {
+			if (urlStr.indexOf('?') == -1) {
+				urlStr = urlStr + "?" + convertParamToString(params);
+			} else {
+				urlStr = urlStr + "&" + convertParamToString(params);
+			}
+		}
+
+		return urlStr;
 	}
 
 	/**
-	 * 输入流转为输出流。
+	 * 将 Map 形式的请求参数转换成经过 URL 编码的字符串。
 	 * 
-	 * @param in
-	 * @param out
-	 * @throws IOException
+	 * @param params
+	 * @return
 	 */
-	private static void convertStream(InputStream in, OutputStream out) throws IOException {
+	public static String convertParamToString(Map<String, Object> params) {
 
-		byte[] buffer = new byte[1024 * 4];
-		int len = 0;
-		while ((len = in.read(buffer)) != -1) {
-			out.write(buffer, 0, len);
-		}
-
-	}
-
-	private static byte[] streamToBytes(InputStream in) throws IOException {
-
-		if (in == null) {
+		if (params == null) {
 			return null;
 		}
 
-		ByteArrayOutputStream out = null;
-
-		try {
-
-			// 当从网络URL中获取输入流时不能使用 in.available()
-			// result = new byte[in.available()];
-			// in.read(result);
-
-			out = new ByteArrayOutputStream();
-			convertStream(in, out);
-			return out.toByteArray();
-
-		} finally {
-			if (out != null) {
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
+			if (i++ > 0) {
+				sb.append("&");
+			}
+			sb.append(entry.getKey());
+			sb.append("=");
+			Object value = entry.getValue();
+			if (value == null) {
+				sb.append("");
+			} else {
 				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+					sb.append(URLEncoder.encode(value.toString(), "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
 				}
 			}
 		}
+
+		return sb.toString();
 	}
 
-	private static URL getURL(String urlStr) {
+	private static class CharsetRecorder {
 
-		try {
-			return new URL(urlStr);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+		String charset;
+
+		public String getCharset() {
+			return charset;
 		}
+
+		public void setCharset(String charset) {
+			this.charset = charset;
+		}
+
 	}
 
 }
