@@ -26,7 +26,7 @@ import java.util.Random;
  */
 
 public class HttpUtils {
-	
+
 	public static final String GET = "GET";
 
 	public static final String POST = "POST";
@@ -320,7 +320,7 @@ public class HttpUtils {
 				in = conn.getInputStream();
 				convertStream(in, out);
 			} else {
-				throw new RuntimeException("response code is not 200");
+				throw new RuntimeException("response code is " + conn.getResponseCode());
 			}
 
 		} finally {
