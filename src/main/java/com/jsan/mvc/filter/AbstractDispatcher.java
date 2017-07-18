@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +22,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.jsan.convert.BeanConvertUtils;
@@ -77,6 +78,8 @@ import com.jsan.mvc.resolve.Resolver;
  */
 
 public abstract class AbstractDispatcher implements Filter {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected static final String DEFAULT_CONFIG_FILE = "/jsanmvc.properties"; // 默认配置文件
 
@@ -143,12 +146,12 @@ public abstract class AbstractDispatcher implements Filter {
 
 			initCustom(); // 初始化子类自定义的配置
 
-		} catch (Exception e) { // 这里捕获所有异常并打印异常，原因是当Tomcat启动时对于Filter的init(FilterConfig)方法内所抛出的异常在控制台无法看到
-			e.printStackTrace();
-			throw new ServletException(e);
+		} catch (Exception e) {
+			logger.error("Initialization failed", e);
+			throw e;
 		}
 
-		System.out.println("[mvc] " + toString());
+		logger.info("Initialization: {}", toString());
 	}
 
 	protected void initConfig() {
@@ -211,15 +214,14 @@ public abstract class AbstractDispatcher implements Filter {
 			try {
 				configProperties = MvcFuncUtils.getProperties(configFile);
 			} catch (IOException e) {
+				logger.error("Unable to load the custom configuration file: {}", configFile);
 				throw new RuntimeException(e);
 			}
 		} else {
 			try {
 				configProperties = MvcFuncUtils.getProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
 			} catch (IOException e) {
-				// 没有默认配置文件，这种情况允许
-				// logging...
-				// e.printStackTrace();
+				logger.warn("Unable to load the default configuration file: {}", DEFAULT_CONFIG_FILE);
 			}
 		}
 	}
@@ -613,60 +615,6 @@ public abstract class AbstractDispatcher implements Filter {
 		return service;
 	}
 
-	protected boolean isDebug() {
-
-		return mvcConfig.isDebug();
-	}
-
-	protected void printDebugMessage(String message) {
-
-		printDebugMessage(message, false);
-	}
-
-	protected void printDebugMessage(String message, boolean url) {
-
-		if (url) {
-			System.out.println("[url] " + message);
-		} else {
-			System.out.println("[mvc] " + message);
-		}
-	}
-
-	protected final ThreadLocal<SimpleDateFormat> simpleDateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
-
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("HH:mm:ss");
-		}
-	};
-
-	protected void printRequestTestMessage(HttpServletRequest request, boolean url) {
-
-		if (isDebug()) {
-			System.out.println("\n");
-			printDebugMessage(createRequestTestMessage(request), url);
-		}
-	}
-
-	protected String createRequestTestMessage(HttpServletRequest request) {
-
-		StringBuilder sb = new StringBuilder();
-		sb.append(simpleDateFormatThreadLocal.get().format(new Date()));
-		sb.append(" -- (");
-		sb.append(request.getRemoteAddr());
-		sb.append(") ");
-		sb.append(request.getRequestURI());
-		String str = request.getQueryString();
-		if (str != null) {
-			sb.append("?");
-			sb.append(str);
-		}
-
-		return sb.toString();
-	}
-
-	// ==================================================
-
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
 			throws IOException, ServletException {
@@ -677,7 +625,7 @@ public abstract class AbstractDispatcher implements Filter {
 		try {
 			doDispatcher(request, response, filterChain);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Dispatcher exception", e);
 			throw new ServletException(e);
 		}
 
@@ -697,8 +645,6 @@ public abstract class AbstractDispatcher implements Filter {
 				MethodInfo mInfo = getMethodInfo(mappingInfo, cInfo, request);
 				if (mInfo != null) {
 
-					printRequestTestMessage(request, false); // test 输出
-
 					View view = getView(mappingInfo, cInfo, mInfo, request, response);
 
 					setExecuteTime(view, startTime);
@@ -706,21 +652,14 @@ public abstract class AbstractDispatcher implements Filter {
 					resolveView(view, mappingInfo, mInfo, request, response);
 
 				} else {
-					nextFilter(request, response, chain);
+					chain.doFilter(request, response);
 				}
 			} else {
-				nextFilter(request, response, chain);
+				chain.doFilter(request, response);
 			}
 		} else {
-			nextFilter(request, response, chain);
+			chain.doFilter(request, response);
 		}
-	}
-
-	protected void nextFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-
-		printRequestTestMessage(request, true); // test输出
-		chain.doFilter(request, response);
 	}
 
 	/**
@@ -946,7 +885,7 @@ public abstract class AbstractDispatcher implements Filter {
 	protected Object[] getParameterObjects(View view, MappingInfo mappingInfo, ControllerInfo cInfo, MethodInfo mInfo,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		StringBuilder message = isDebug() ? new StringBuilder() : null;
+		StringBuilder message = logger.isDebugEnabled() ? new StringBuilder() : null;
 
 		ParameterInfo[] parameterInfos = mInfo.getParameterInfos();
 		int length = parameterInfos.length;
@@ -1046,8 +985,11 @@ public abstract class AbstractDispatcher implements Filter {
 			methodStr = methodStr.substring(0, methodStr.indexOf('('));
 			message.insert(0, "()");
 			message.insert(0, methodStr);
+			message.insert(0, "] ");
+			message.insert(0, request.getMethod());
+			message.insert(0, "[");
 			message.insert(0, "invoker -- ");
-			printDebugMessage(message.toString());
+			logger.debug(message.toString());
 		}
 
 		return parameterObjects;

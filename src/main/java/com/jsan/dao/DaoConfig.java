@@ -7,12 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.Converter;
 import com.jsan.convert.Formatter;
 import com.jsan.convert.GeneralConvertService;
 
 public class DaoConfig {
+
+	private static final Logger logger = LoggerFactory.getLogger(DaoConfig.class);
 
 	private static final String DEFAULT_CONFIG_FILE = "/jsandao.properties"; // 默认配置文件
 
@@ -25,7 +30,6 @@ public class DaoConfig {
 	private static final List<Class<? extends Converter>> customConverterList = createCustomConverterList();
 	private static final List<Class<? extends Formatter>> customFormatterList = createCustomFormatterList();
 	private static final ConvertService convertService = createConvertService();
-	private static final boolean debug = createDebug();
 
 	private static final ThreadLocal<Connection> threadLocal = new ThreadLocal<Connection>();
 
@@ -34,28 +38,42 @@ public class DaoConfig {
 		try {
 			Class<?> connectionProviderClass = Class
 					.forName(configProperties.getProperty(ConnectionProvider.class.getName()));
-			return (ConnectionProvider) connectionProviderClass.newInstance();
+			ConnectionProvider provider = (ConnectionProvider) connectionProviderClass.newInstance();
+			logger.info("Loaded ConnectionProvider: {}", provider.getClass().getName());
+			return provider;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			String msg = "Unable to load the implementation class of ConnectionProvider";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private static Class<? extends Sqlx> createSqlxClass() {
 
+		Class<? extends Sqlx> sqlxClazz;
+
 		try {
-			return (Class<? extends Sqlx>) Class.forName(configProperties.getProperty(Sqlx.class.getName()));
+			sqlxClazz = (Class<? extends Sqlx>) Class.forName(configProperties.getProperty(Sqlx.class.getName()));
 		} catch (Exception e) {
-			return AnsiSql.class; // 默认
+			sqlxClazz = AnsiSql.class; // 默认
 		}
+
+		logger.info("Loaded SqlxClass: {}", sqlxClazz.getName());
+
+		return sqlxClazz;
 	}
 
 	private static Properties createConfigProperties() {
 
 		try {
-			return DaoFuncUtils.getProperties(DEFAULT_CONFIG_FILE);
+			Properties properties = DaoFuncUtils.getProperties(DEFAULT_CONFIG_FILE);
+			logger.info("Loaded ConfigProperties: {}", DEFAULT_CONFIG_FILE);
+			return properties;
 		} catch (IOException e) {
-			throw new RuntimeException("configProperties can not be null");
+			String msg = "Unable to load the default configuration file: " + DEFAULT_CONFIG_FILE;
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
 		}
 	}
 
@@ -67,17 +85,18 @@ public class DaoConfig {
 		String[] customs = DaoFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
 		if (customs != null) {
 			for (String className : customs) {
-				Class<?> clazz = null;
+				Class<?> clazz;
 				try {
 					clazz = Class.forName(className);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Unable to load the Converter class: " + className, e);
+					throw new RuntimeException(e);
 				}
-				if (clazz != null) {
-					list.add((Class<? extends Converter>) clazz);
-				}
+				list.add((Class<? extends Converter>) clazz);
 			}
 		}
+
+		logger.info("Loaded CustomConverterList: {}", list);
 
 		return list;
 	}
@@ -90,17 +109,18 @@ public class DaoConfig {
 		String[] customs = DaoFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
 		if (customs != null) {
 			for (String className : customs) {
-				Class<?> clazz = null;
+				Class<?> clazz;
 				try {
 					clazz = Class.forName(className);
 				} catch (Exception e) {
+					logger.error("Unable to load the Formatter class: " + className, e);
 					throw new RuntimeException(e);
 				}
-				if (clazz != null) {
-					list.add((Class<? extends Formatter>) clazz);
-				}
+				list.add((Class<? extends Formatter>) clazz);
 			}
 		}
+
+		logger.info("Loaded CustomFormatterList: {}", list);
 
 		return list;
 	}
@@ -108,23 +128,18 @@ public class DaoConfig {
 	@SuppressWarnings("unchecked")
 	private static Class<? extends ConvertService> createConvertServiceClass() {
 
+		Class<? extends ConvertService> convertServiceClass;
+
 		try {
-			return (Class<? extends ConvertService>) Class
+			convertServiceClass = (Class<? extends ConvertService>) Class
 					.forName(configProperties.getProperty(ConvertService.class.getName()));
 		} catch (Exception e) {
-			return GeneralConvertService.class; // 默认
-		}
-	}
-
-	private static boolean createDebug() {
-
-		try {
-			Class.forName(configProperties.getProperty(Debug.class.getName()));
-			return true;
-		} catch (Exception e) {
-			return false;
+			convertServiceClass = GeneralConvertService.class; // 默认
 		}
 
+		logger.info("Loaded ConvertServiceClass: {}", convertServiceClass.getName());
+
+		return convertServiceClass;
 	}
 
 	/**
@@ -163,16 +178,6 @@ public class DaoConfig {
 		return convertService;
 	}
 
-	public static boolean isDebug() {
-
-		return debug;
-	}
-
-	public static void printDebugMessage(String message) {
-
-		System.out.println("[dao] " + message);
-	}
-
 	public static Connection getConnection() {
 
 		return getConnection(null);
@@ -187,14 +192,14 @@ public class DaoConfig {
 			try {
 				conn = connectionProvider.getConnection(dataSourceName);
 			} catch (SQLException e) {
-				throw new RuntimeException(e);
+				String msg = "Get connection failed [" + dataSourceName + "]";
+				logger.error(msg, e);
+				throw new RuntimeException(msg, e);
 			}
 			flag = false;
 		}
 
-		if (isDebug()) {
-			printDebugMessage("dataSourceName -- (" + dataSourceName + (flag ? "/byThreadLocal" : "") + ") " + conn);
-		}
+		logger.debug("dataSourceName -- ({}{}) {}", dataSourceName, (flag ? "/byThreadLocal" : ""), conn);
 
 		return conn;
 	}

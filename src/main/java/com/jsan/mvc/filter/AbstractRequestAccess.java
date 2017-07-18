@@ -11,6 +11,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 请求访问过滤器，一般情况下理应将该 Filter 设置在其他过滤器的前面。
  * <ul>
@@ -24,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 public abstract class AbstractRequestAccess implements Filter {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String redirect;
 	protected int statusCode = 403;
@@ -40,10 +45,15 @@ public abstract class AbstractRequestAccess implements Filter {
 		redirect = filterConfig.getInitParameter("redirect");
 		String statusCodeStr = filterConfig.getInitParameter("statusCode");
 		if (statusCodeStr != null) {
-			statusCode = Integer.parseInt(statusCodeStr);
+			try {
+				statusCode = Integer.parseInt(statusCodeStr);
+			} catch (NumberFormatException e) {
+				logger.error("Number parse failure", e);
+				throw e;
+			}
 		}
 
-		System.out.println("[mvc] " + toString());
+		logger.info("Initialization: {}", toString());
 	}
 
 	@Override

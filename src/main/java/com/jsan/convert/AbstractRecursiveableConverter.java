@@ -4,7 +4,12 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class AbstractRecursiveableConverter implements Converter, Recursiveable, Cloneable {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	private ConvertService convertService;
 
@@ -100,8 +105,7 @@ public abstract class AbstractRecursiveableConverter implements Converter, Recur
 			try {
 				return formatter.print(source);
 			} catch (Exception e) {
-				// logging...
-				// e.printStackTrace();
+				logger.warn("Formatter parse failure [{}]: {}", formatter.getClass().getName(), source);
 				return null; // 无法 print 的时候返回 null
 			}
 		} else {
@@ -127,8 +131,7 @@ public abstract class AbstractRecursiveableConverter implements Converter, Recur
 			try {
 				return formatter.parse(source);
 			} catch (Exception e) {
-				// logging...
-				// e.printStackTrace();
+				logger.warn("Formatter parse failure [{}]: {}", formatter.getClass().getName(), source);
 				return null; // 无法 parse 的时候返回 null
 			}
 		} else {

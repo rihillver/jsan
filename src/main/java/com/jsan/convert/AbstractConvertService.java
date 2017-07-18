@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.convert.annotation.RegisterType;
 import com.jsan.convert.support.BigDecimalConverter;
 import com.jsan.convert.support.BigIntegerConverter;
@@ -44,6 +47,8 @@ import com.jsan.convert.support.StringConverter;
  */
 
 public abstract class AbstractConvertService implements ConvertService, Cloneable {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Map<Class<?>, Converter> converterMap = new HashMap<Class<?>, Converter>();
 	private Map<Class<?>, Formatter> formatterMap = new HashMap<Class<?>, Formatter>();
@@ -196,7 +201,10 @@ public abstract class AbstractConvertService implements ConvertService, Cloneabl
 		}
 
 		if (converter == null) {
-			throw new RuntimeException("Converter for " + type.getName() + " is not registered"); // 抛出转换器未注册异常
+			// 抛出转换器未注册异常
+			String msg = "Converter not registered: " + type.getName();
+			logger.error(msg);
+			throw new RuntimeException(msg);
 		}
 
 		return converter;
@@ -231,8 +239,10 @@ public abstract class AbstractConvertService implements ConvertService, Cloneabl
 		Formatter formatter = formatterMap.get(type);
 
 		if (formatter == null) {
-			type = lookupCommonFormatterType(type);
-			formatter = formatterMap.get(type);
+			Class<?> commonType = lookupCommonFormatterType(type);
+			if (commonType != null) {
+				formatter = formatterMap.get(commonType);
+			}
 		}
 
 		return formatter;

@@ -9,7 +9,6 @@ import java.util.Set;
 
 public class MvcConfig {
 
-	private boolean debug;
 	private boolean multiton;
 	private boolean cacheable;
 	private boolean interceptable;
@@ -25,14 +24,6 @@ public class MvcConfig {
 	private String ultimateMethod;
 	private String methodDelimiter;
 	private Set<String> mappingSuffix;
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
 
 	public boolean isMultiton() {
 		return multiton;
@@ -148,11 +139,11 @@ public class MvcConfig {
 
 	@Override
 	public String toString() {
-		return "MvcConfig [debug=" + debug + ", multiton=" + multiton + ", cacheable=" + cacheable + ", interceptable="
-				+ interceptable + ", viewPath=" + viewPath + ", methodKey=" + methodKey + ", configFile=" + configFile
-				+ ", viewSuffix=" + viewSuffix + ", contextPath=" + contextPath + ", executeTime=" + executeTime
-				+ ", defaultRender=" + defaultRender + ", packagePrefix=" + packagePrefix + ", ultimateMethod="
-				+ ultimateMethod + ", methodDelimiter=" + methodDelimiter + ", mappingSuffix=" + mappingSuffix + "]";
+		return "MvcConfig [multiton=" + multiton + ", cacheable=" + cacheable + ", interceptable=" + interceptable
+				+ ", viewPath=" + viewPath + ", methodKey=" + methodKey + ", configFile=" + configFile + ", viewSuffix="
+				+ viewSuffix + ", contextPath=" + contextPath + ", executeTime=" + executeTime + ", defaultRender="
+				+ defaultRender + ", packagePrefix=" + packagePrefix + ", ultimateMethod=" + ultimateMethod
+				+ ", methodDelimiter=" + methodDelimiter + ", mappingSuffix=" + mappingSuffix + "]";
 	}
 
 }

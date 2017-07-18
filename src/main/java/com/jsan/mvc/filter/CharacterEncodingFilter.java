@@ -11,6 +11,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.mvc.RequestConverter;
 
 /**
@@ -31,6 +34,8 @@ import com.jsan.mvc.RequestConverter;
  */
 
 public class CharacterEncodingFilter implements Filter {
+	
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String encoding;
 	protected boolean forceEncoding;
@@ -61,7 +66,7 @@ public class CharacterEncodingFilter implements Filter {
 			trim = true;
 		}
 
-		System.out.println("[mvc] " + toString());
+		logger.info("Initialization: {}", toString());
 	}
 
 	@Override

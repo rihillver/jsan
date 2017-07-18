@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 请求日志过滤器。
  * <p>
@@ -21,6 +24,8 @@ import javax.servlet.http.HttpSession;
 
 public abstract class AbstractRequestLogging implements Filter {
 
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+	
 	@Override
 	public String toString() {
 
@@ -30,7 +35,7 @@ public abstract class AbstractRequestLogging implements Filter {
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 
-		System.out.println("[mvc] " + toString());
+		logger.info("Initialization: {}", toString());
 	}
 
 	@Override

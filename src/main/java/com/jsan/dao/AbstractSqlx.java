@@ -16,6 +16,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.convert.ConvertService;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
@@ -57,6 +60,8 @@ import com.jsan.dao.map.SetMultiValueMap;
  */
 
 public abstract class AbstractSqlx implements Sqlx {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected abstract String getPageSqlProcessed(String sql, int pageSize, int pageNumber);
 
@@ -158,8 +163,7 @@ public abstract class AbstractSqlx implements Sqlx {
 			pmd = stmt.getParameterMetaData();
 		} catch (Exception e) {
 			// 允许某些 JDBC 驱动不支持获取 ParameterMetaData
-			// logging...
-			// e.printStackTrace();
+			logger.warn("Cannot get the ParameterMetaData");
 		}
 
 		for (int i = 0; i < params.length; i++) {
@@ -172,8 +176,7 @@ public abstract class AbstractSqlx implements Sqlx {
 						sqlType = pmd.getParameterType(i + 1);
 					} catch (Exception e) {
 						// 异常的情况下则使用 Types.VARCHAR
-						// logging...
-						// e.printStackTrace();
+						logger.warn("Cannot get the ParameterType");
 					}
 				}
 				stmt.setNull(i + 1, sqlType);
@@ -209,12 +212,14 @@ public abstract class AbstractSqlx implements Sqlx {
 		SQLException e = new SQLException(msg.toString(), cause.getSQLState(), cause.getErrorCode());
 		e.setNextException(cause);
 
+		logger.error("SQL exception", e);
+
 		throw e;
 	}
 
 	protected void showSql(String type, String sql, Object[] params) {
 
-		if (DaoConfig.isDebug()) {
+		if (logger.isDebugEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(type);
 			sb.append("\n");
@@ -223,7 +228,7 @@ public abstract class AbstractSqlx implements Sqlx {
 			sb.append("\n");
 			sb.append("----> ");
 			sb.append(params == null ? null : Arrays.toString(params));
-			DaoConfig.printDebugMessage(sb.toString());
+			logger.debug(sb.toString());
 		}
 	}
 
@@ -637,7 +642,10 @@ public abstract class AbstractSqlx implements Sqlx {
 			}
 		} else {
 			// 抛出异常：该删除或查询操作没有指定主键值或条件参数值
-			throw new RuntimeException("the delete or query statement doesn't specify a parameter value");
+			RuntimeException re = new RuntimeException(
+					"The delete or query statement doesn't specify a parameter value");
+			logger.error("Runtime exception", re);
+			throw re;
 		}
 
 		param.setInitializedSql(sqlBuilder.toString());

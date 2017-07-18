@@ -58,8 +58,7 @@ public abstract class AbstractDateTimeConverter extends AbstractRecursiveableCon
 				try {
 					object = getDateFormat().parse((String) source);
 				} catch (ParseException e) {
-					// logging...
-					// e.printStackTrace();
+					logger.warn("Default DateFormat parse failure: {}", source);
 					object = null;
 				}
 			}
