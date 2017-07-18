@@ -44,7 +44,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 					try {
 						object = new BigDecimal((String) source);
 					} catch (Exception e) {
-						// logging... 字符串不能正确转换成 BigDecimal
+						// 字符串不能正确转换成 BigDecimal
+						logger.warn("Unable to convert to BigDecimal: {}", source);
 						// object = getHexNumberHandle((String) source);
 						// 对于十六进制的字符串转换，暂时不做处理
 						object = null;
@@ -68,7 +69,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 		if (clazz == Integer.class) {
 			long value = number.longValue();
 			if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
-				// logging... 超界
+				// 超界
+				logger.warn("Value out of range [Integer]： {}", value);
 				return null;
 			} else {
 				return number.intValue();
@@ -82,7 +84,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 			}
 			if (bigInteger != null && (bigInteger.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0
 					|| bigInteger.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0)) {
-				// logging... 超界
+				// 超界
+				logger.warn("Value out of range [Long]： {}", number);
 				return null;
 			} else {
 				return number.longValue();
@@ -90,7 +93,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 		} else if (clazz == Short.class) {
 			long value = number.longValue();
 			if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
-				// logging... 超界
+				// 超界
+				logger.warn("Value out of range [Short]： {}", value);
 				return null;
 			} else {
 				return number.shortValue();
@@ -98,7 +102,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 		} else if (clazz == Byte.class) {
 			long value = number.longValue();
 			if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
-				// logging... 超界
+				// 超界
+				logger.warn("Value out of range [Byte]： {}", value);
 				return null;
 			} else {
 				return number.byteValue();
@@ -185,7 +190,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 		} else if (source instanceof Number) {
 			long value = ((Number) source).longValue();
 			if (value < Character.MIN_VALUE || value > Character.MAX_VALUE) {
-				// logging... 超界
+				// 超界
+				logger.warn("Value out of range [Character]： {}", value);
 				object = null;
 			} else {
 				object = (char) value;
@@ -272,7 +278,8 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 		try {
 			return decodeBigInteger(source);
 		} catch (Exception e) {
-			// logging ... 十六进制转换异常
+			// 十六进制转换异常
+			logger.warn("Unable to convert to Number: {}", source);
 			return null;
 		}
 	}

@@ -45,10 +45,7 @@ public abstract class AbstractCollectionConverter extends AbstractRecursiveableC
 		try {
 			object = (Collection<Object>) clazz.newInstance();
 		} catch (Exception e) {
-			// 如果clazz是接口或抽象类的情况将会实例化失败
-			String msg = "Unable to instantiate the class: " + clazz.getName();
-			logger.error(msg);
-			throw new RuntimeException(msg, e);
+			throw new RuntimeException(e);
 		}
 
 		Converter converter = lookupConverter(actualClass);
