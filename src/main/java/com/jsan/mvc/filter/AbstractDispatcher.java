@@ -148,7 +148,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		} catch (Exception e) {
 			logger.error("Initialization failed", e);
-			throw e;
+			throw new ServletException(e);
 		}
 
 		logger.info("Initialization: {}", toString());
@@ -988,7 +988,7 @@ public abstract class AbstractDispatcher implements Filter {
 			message.insert(0, "] ");
 			message.insert(0, request.getMethod());
 			message.insert(0, "[");
-			message.insert(0, "invoker -- ");
+			message.insert(0, "invoke -- ");
 			logger.debug(message.toString());
 		}
 
