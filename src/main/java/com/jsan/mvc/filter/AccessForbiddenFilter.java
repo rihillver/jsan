@@ -43,7 +43,7 @@ public class AccessForbiddenFilter implements Filter {
 			try {
 				statusCode = Integer.parseInt(statusCodeStr);
 			} catch (NumberFormatException e) {
-				logger.error("Number parse failure", e);
+				logger.error("Failed to parse Integer: " + statusCodeStr, e);
 				throw e;
 			}
 		}

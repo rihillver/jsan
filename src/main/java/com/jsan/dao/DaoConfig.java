@@ -42,7 +42,7 @@ public class DaoConfig {
 			logger.info("Loaded ConnectionProvider: {}", provider.getClass().getName());
 			return provider;
 		} catch (Exception e) {
-			String msg = "Unable to load the implementation class of ConnectionProvider";
+			String msg = "Cannot load the implementation class of ConnectionProvider";
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
@@ -71,7 +71,7 @@ public class DaoConfig {
 			logger.info("Loaded ConfigProperties: {}", DEFAULT_CONFIG_FILE);
 			return properties;
 		} catch (IOException e) {
-			String msg = "Unable to load the default configuration file: " + DEFAULT_CONFIG_FILE;
+			String msg = "Cannot load the default configuration file: " + DEFAULT_CONFIG_FILE;
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
@@ -89,8 +89,9 @@ public class DaoConfig {
 				try {
 					clazz = Class.forName(className);
 				} catch (Exception e) {
-					logger.error("Unable to load the Converter class: " + className, e);
-					throw new RuntimeException(e);
+					String msg = "Cannot load the Converter class: " + className;
+					logger.error(msg, e);
+					throw new RuntimeException(msg, e);
 				}
 				list.add((Class<? extends Converter>) clazz);
 			}
@@ -113,8 +114,9 @@ public class DaoConfig {
 				try {
 					clazz = Class.forName(className);
 				} catch (Exception e) {
-					logger.error("Unable to load the Formatter class: " + className, e);
-					throw new RuntimeException(e);
+					String msg = "Cannot load the Formatter class: " + className;
+					logger.error(msg, e);
+					throw new RuntimeException(msg, e);
 				}
 				list.add((Class<? extends Formatter>) clazz);
 			}
@@ -192,7 +194,7 @@ public class DaoConfig {
 			try {
 				conn = connectionProvider.getConnection(dataSourceName);
 			} catch (SQLException e) {
-				String msg = "Get connection failed [" + dataSourceName + "]";
+				String msg = "Failed to get connection [" + dataSourceName + "]";
 				logger.error(msg, e);
 				throw new RuntimeException(msg, e);
 			}

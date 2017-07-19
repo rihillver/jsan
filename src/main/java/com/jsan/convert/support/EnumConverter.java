@@ -37,8 +37,7 @@ public class EnumConverter extends AbstractRecursiveableConverter {
 			try {
 				e = Enum.valueOf(enumType, source.toString());
 			} catch (Exception ex) {
-				// logging...
-				// ex.printStackTrace();
+				logger.warn("Cannot convert to Enum: {}", source);
 			}
 		}
 

@@ -45,7 +45,7 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 						object = new BigDecimal((String) source);
 					} catch (Exception e) {
 						// 字符串不能正确转换成 BigDecimal
-						logger.warn("Unable to convert to BigDecimal: {}", source);
+						logger.warn("Cannot convert to BigDecimal: {}", source);
 						// object = getHexNumberHandle((String) source);
 						// 对于十六进制的字符串转换，暂时不做处理
 						object = null;
@@ -279,7 +279,7 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 			return decodeBigInteger(source);
 		} catch (Exception e) {
 			// 十六进制转换异常
-			logger.warn("Unable to convert to Number: {}", source);
+			logger.warn("Cannot convert to Number: {}", source);
 			return null;
 		}
 	}

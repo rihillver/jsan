@@ -212,7 +212,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		SQLException e = new SQLException(msg.toString(), cause.getSQLState(), cause.getErrorCode());
 		e.setNextException(cause);
 
-		logger.error("SQL exception", e);
+		logger.error("SQLException capture", e);
 
 		throw e;
 	}
@@ -642,10 +642,7 @@ public abstract class AbstractSqlx implements Sqlx {
 			}
 		} else {
 			// 抛出异常：该删除或查询操作没有指定主键值或条件参数值
-			RuntimeException re = new RuntimeException(
-					"The delete or query statement doesn't specify a parameter value");
-			logger.error("Runtime exception", re);
-			throw re;
+			throw new RuntimeException("Query or delete statement doesn't specify parameter values");
 		}
 
 		param.setInitializedSql(sqlBuilder.toString());

@@ -214,14 +214,14 @@ public abstract class AbstractDispatcher implements Filter {
 			try {
 				configProperties = MvcFuncUtils.getProperties(configFile);
 			} catch (IOException e) {
-				logger.error("Unable to load the custom configuration file: {}", configFile);
+				logger.error("Cannot load the custom configuration file: {}", configFile);
 				throw new RuntimeException(e);
 			}
 		} else {
 			try {
 				configProperties = MvcFuncUtils.getProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
 			} catch (IOException e) {
-				logger.warn("Unable to load the default configuration file: {}", DEFAULT_CONFIG_FILE);
+				logger.warn("Cannot load the default configuration file: {}", DEFAULT_CONFIG_FILE);
 			}
 		}
 	}
@@ -625,7 +625,7 @@ public abstract class AbstractDispatcher implements Filter {
 		try {
 			doDispatcher(request, response, filterChain);
 		} catch (Exception e) {
-			logger.error("Dispatcher exception", e);
+			logger.error("Exception capture", e);
 			throw new ServletException(e);
 		}
 

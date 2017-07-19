@@ -182,7 +182,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		try {
 			return BeanProxyUtils.newInstance(type);
 		} catch (Exception e) {
-			throw new SQLException("Cannot create " + type.getName() + ": " + e.getMessage());
+			throw new SQLException("Cannot create instance: " + type.getName() + ": " + e.getMessage());
 		}
 	}
 
