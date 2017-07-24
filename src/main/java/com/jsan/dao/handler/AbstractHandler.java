@@ -61,7 +61,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnIndex);
-		obj = fieldHandle(null, obj);
+		obj = fieldHandle(null, columnIndex, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -76,7 +76,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnName);
-		obj = fieldHandle(columnName, obj);
+		obj = fieldHandle(columnName, 0, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -102,7 +102,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 			columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 			Object obj = handleColumnValue(rs, rsmd, i);
-			obj = fieldHandle(columnName, obj);
+			obj = fieldHandle(columnName, i, obj);
 			map.put(columnName, obj);
 		}
 
@@ -130,7 +130,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 				Object obj = handleColumnValue(rs, rsmd, i);
-				obj = fieldHandle(columnName, obj);
+				obj = fieldHandle(columnName, i, obj);
 				BeanConvertUtils.convertBeanElement(Mold.DAO, bean, beanClass, service, columnName, obj);
 			}
 		} catch (Exception e) {
@@ -153,11 +153,12 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 
 		return k;
 	}
-	
-	protected String getCombinationKey(ResultSet rs, String separator, int[] keyColumnIndexes, String[] keyColumnNames) throws SQLException {
-		
+
+	protected String getCombinationKey(ResultSet rs, String separator, int[] keyColumnIndexes, String[] keyColumnNames)
+			throws SQLException {
+
 		StringBuilder sb = new StringBuilder();
-		
+
 		if (keyColumnNames == null) {
 			for (int i = 0; i < keyColumnIndexes.length; i++) {
 				if (i > 0 && separator != null) {
@@ -173,7 +174,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				sb.append(getObject(rs, keyColumnNames[i], String.class, convertService));
 			}
 		}
-		
+
 		return sb.toString();
 	}
 
@@ -312,9 +313,9 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	 * @param columnName
 	 * @return
 	 */
-	protected Object fieldHandle(String columnName, Object obj) {
+	protected Object fieldHandle(String columnName, int columnIndex, Object obj) {
 
-		return fieldHandler == null ? obj : fieldHandler.handle(columnName, obj);
+		return fieldHandler == null ? obj : fieldHandler.handle(columnName, columnIndex, obj);
 	}
 
 }

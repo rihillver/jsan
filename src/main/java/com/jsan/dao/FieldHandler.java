@@ -14,12 +14,15 @@ public interface FieldHandler {
 	 * 的参数设置还可能是转换成了小写的列名。</li>
 	 * <li>此处传入的 columnName 也可能为 null，此时应该是 getObject(ResultSet, int,
 	 * Class&lt;O&gt;, ConvertService) 方法调用。</li>
+	 * <li>此处传入的 columnIndex 也可能为 0，此时应该是 getObject(ResultSet, String,
+	 * Class&lt;O&gt;, ConvertService) 方法调用。</li>
 	 * </ul>
 	 * 
 	 * @param columnName
+	 * @param columnIndex
 	 * @param obj
 	 * @return
 	 */
-	Object handle(String columnName, Object obj);
+	Object handle(String columnName, int columnIndex, Object obj);
 
 }
