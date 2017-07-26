@@ -18,11 +18,11 @@ public interface FieldHandler {
 	 * Class&lt;O&gt;, ConvertService) 方法调用。</li>
 	 * </ul>
 	 * 
-	 * @param columnName
 	 * @param columnIndex
+	 * @param columnName
 	 * @param obj
 	 * @return
 	 */
-	Object handle(String columnName, int columnIndex, Object obj);
+	Object handle(int columnIndex, String columnName, Object obj);
 
 }

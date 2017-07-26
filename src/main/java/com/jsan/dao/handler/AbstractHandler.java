@@ -61,7 +61,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnIndex);
-		obj = fieldHandle(null, columnIndex, obj);
+		obj = fieldHandle(columnIndex, null, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -76,7 +76,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnName);
-		obj = fieldHandle(columnName, 0, obj);
+		obj = fieldHandle(0, columnName, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -102,7 +102,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 			columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 			Object obj = handleColumnValue(rs, rsmd, i);
-			obj = fieldHandle(columnName, i, obj);
+			obj = fieldHandle(i, columnName, obj);
 			map.put(columnName, obj);
 		}
 
@@ -130,7 +130,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
 				Object obj = handleColumnValue(rs, rsmd, i);
-				obj = fieldHandle(columnName, i, obj);
+				obj = fieldHandle(i, columnName, obj);
 				BeanConvertUtils.convertBeanElement(Mold.DAO, bean, beanClass, service, columnName, obj);
 			}
 		} catch (Exception e) {
@@ -313,9 +313,9 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	 * @param columnName
 	 * @return
 	 */
-	protected Object fieldHandle(String columnName, int columnIndex, Object obj) {
+	protected Object fieldHandle(int columnIndex, String columnName, Object obj) {
 
-		return fieldHandler == null ? obj : fieldHandler.handle(columnName, columnIndex, obj);
+		return fieldHandler == null ? obj : fieldHandler.handle(columnIndex, columnName, obj);
 	}
 
 }
