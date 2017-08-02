@@ -968,7 +968,7 @@ public abstract class AbstractDispatcher implements Filter {
 					} else if (type == byte[].class) {
 						arrayStr = Arrays.toString((byte[]) parameterObjects[i]);
 					} else {
-						arrayStr = Arrays.toString((Object[]) parameterObjects[i]);
+						arrayStr = Arrays.deepToString((Object[]) parameterObjects[i]);
 					}
 					message.append(arrayStr);
 				} else {
