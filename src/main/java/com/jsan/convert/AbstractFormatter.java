@@ -21,7 +21,7 @@ public abstract class AbstractFormatter implements Formatter, Cloneable {
 			throw new RuntimeException(e);
 		}
 
-		// formatter.setPattern(pattern); // String 类型，赋值即改变对象引用，因此不会像其他对象那样造成错乱
+		// formatter.setPattern(pattern); // String 是不可变对象，赋值即改变对象引用，因此不会像其他对象那样造成错乱
 
 		return formatter;
 	}
