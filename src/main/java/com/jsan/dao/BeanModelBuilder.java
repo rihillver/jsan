@@ -18,17 +18,13 @@ import com.jsan.dao.map.SetMultiValueMap;
 
 public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B> {
 
-	private Class<B> beanClass;
-
-	{
-		initModelBeanClass();
-	}
+	private final Class<B> beanClass = initModelBeanClass();
 
 	@SuppressWarnings("unchecked")
-	private void initModelBeanClass() {
+	private Class<B> initModelBeanClass() {
 
 		Type type = getClass().getGenericSuperclass();
-		beanClass = (Class<B>) ((ParameterizedType) type).getActualTypeArguments()[0];
+		return (Class<B>) ((ParameterizedType) type).getActualTypeArguments()[0];
 	}
 
 	protected Map<String, Object> getBeanMap(B bean) {

@@ -18,7 +18,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 
 	protected Object[] primaryValue;
 	protected int rowCount;
-	protected String rowCountSql;
+	// protected String rowCountSql;
 
 	@Override
 	public Param createParam(String sql, int pageSize, int pageNumber) {
