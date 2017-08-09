@@ -47,10 +47,10 @@ public class SqlxModelBuilder implements SqlxModel {
 	protected boolean fieldCaseInsensitive;
 
 	{
-		this.initModelAnnotation();
+		initModelAnnotation();
 	}
 
-	protected void initModelAnnotation() {
+	private void initModelAnnotation() {
 
 		Class<?> clazz = getClass();
 

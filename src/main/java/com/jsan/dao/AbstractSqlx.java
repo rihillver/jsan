@@ -67,12 +67,12 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected static final String ORDER_BY_REGEX = "(?i)\\s+order\\s+by\\s+";
 
-	protected enum Crud {
+	protected static enum Crud {
 		INSERT, DELETE, UPDATE, QUERY
 	}
 
-	protected Connection connection;
-	protected ResultSet resultSet;
+	private Connection connection;
+	private ResultSet resultSet;
 
 	public AbstractSqlx() {
 

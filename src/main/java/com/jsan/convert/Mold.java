@@ -1,7 +1,7 @@
 package com.jsan.convert;
 
 /**
- * 应用类型。
+ * 应用模块。
  *
  */
 

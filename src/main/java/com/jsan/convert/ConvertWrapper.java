@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class ConvertWrapper {
 
-	protected Map<String, Object> map;
+	private Map<String, Object> map;
 
 	public ConvertWrapper(Map<String, Object> map) {
 

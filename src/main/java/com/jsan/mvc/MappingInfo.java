@@ -7,9 +7,9 @@ package com.jsan.mvc;
 
 public class MappingInfo {
 
-	String uri;
-	String suffix; // 后缀
-	String methodValue; // 映射到控制器类上的方法名
+	private String uri;
+	private String suffix; // 后缀
+	private String methodValue; // 映射到控制器类上的方法名
 
 	public String getUri() {
 		return uri;
