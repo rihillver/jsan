@@ -31,18 +31,18 @@ import com.jsan.convert.support.ShortConverter;
 
 public class ConvertUtils {
 
-	private static final IntegerConverter integerConverter = new IntegerConverter();
-	private static final LongConverter longConverter = new LongConverter();
-	private static final FloatConverter floatConverter = new FloatConverter();
-	private static final DoubleConverter doubleConverter = new DoubleConverter();
-	private static final ShortConverter shortConverter = new ShortConverter();
-	private static final CharacterConverter characterConverter = new CharacterConverter();
-	private static final ByteConverter byteConverter = new ByteConverter();
-	private static final BooleanConverter booleanConverter = new BooleanConverter();
+	protected static final IntegerConverter integerConverter = new IntegerConverter();
+	protected static final LongConverter longConverter = new LongConverter();
+	protected static final FloatConverter floatConverter = new FloatConverter();
+	protected static final DoubleConverter doubleConverter = new DoubleConverter();
+	protected static final ShortConverter shortConverter = new ShortConverter();
+	protected static final CharacterConverter characterConverter = new CharacterConverter();
+	protected static final ByteConverter byteConverter = new ByteConverter();
+	protected static final BooleanConverter booleanConverter = new BooleanConverter();
 
-	private static final BigDecimalConverter bigDecimalConverter = new BigDecimalConverter();
-	private static final BigIntegerConverter bigIntegerConverter = new BigIntegerConverter();
-	private static final DateConverter dateConverter = new DateConverter();
+	protected static final BigDecimalConverter bigDecimalConverter = new BigDecimalConverter();
+	protected static final BigIntegerConverter bigIntegerConverter = new BigIntegerConverter();
+	protected static final DateConverter dateConverter = new DateConverter();
 
 	/**
 	 * 返回转换值（int）。
@@ -140,7 +140,7 @@ public class ConvertUtils {
 	 * @param pattern
 	 * @return
 	 */
-	private static NumberFormat getNumberFormat(String pattern) {
+	protected static NumberFormat getNumberFormat(String pattern) {
 
 		return getNumberFormat(pattern, null);
 	}
@@ -152,7 +152,7 @@ public class ConvertUtils {
 	 * @param roundingMode
 	 * @return
 	 */
-	private static NumberFormat getNumberFormat(String pattern, RoundingMode roundingMode) {
+	protected static NumberFormat getNumberFormat(String pattern, RoundingMode roundingMode) {
 
 		NumberFormat numberFormat;
 
@@ -726,7 +726,7 @@ public class ConvertUtils {
 	 * @param str
 	 * @return
 	 */
-	private static String getHtmlEscape(String str) {
+	protected static String getHtmlEscape(String str) {
 
 		if (str != null) {
 			StringBuilder sb = new StringBuilder();
@@ -858,7 +858,7 @@ public class ConvertUtils {
 	 * @param excludeASCII
 	 * @return
 	 */
-	private static String getUnicodeConvert(String str, boolean excludeASCII) {
+	protected static String getUnicodeConvert(String str, boolean excludeASCII) {
 
 		if (str != null) {
 			StringBuilder sb = new StringBuilder();
@@ -1019,7 +1019,7 @@ public class ConvertUtils {
 	 * @param pattern
 	 * @return
 	 */
-	private static DateFormat getDateFormat(String pattern) {
+	protected static DateFormat getDateFormat(String pattern) {
 
 		return DateFormatCache.getDateFormat(pattern);
 	}
