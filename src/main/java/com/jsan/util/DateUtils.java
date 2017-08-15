@@ -140,7 +140,7 @@ public class DateUtils {
 	 * 
 	 * @param year
 	 * @param month
-	 *            起始为 0
+	 *            起始为 1
 	 * @return
 	 */
 	public static Date parseDate(int year, int month) {
@@ -153,7 +153,7 @@ public class DateUtils {
 	 * 
 	 * @param year
 	 * @param month
-	 *            起始为 0
+	 *            起始为 1
 	 * @param day
 	 * @return
 	 */
@@ -167,7 +167,7 @@ public class DateUtils {
 	 * 
 	 * @param year
 	 * @param month
-	 *            起始为 0
+	 *            起始为 1
 	 * @param day
 	 * @param hour
 	 * @param minute
@@ -176,7 +176,7 @@ public class DateUtils {
 	 */
 	public static Date parseDate(int year, int month, int day, int hour, int minute, int second) {
 
-		Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
+		Calendar calendar = new GregorianCalendar(year, month - 1, day, hour, minute, second);
 		return calendar.getTime();
 	}
 
@@ -369,6 +369,34 @@ public class DateUtils {
 	}
 
 	/**
+	 * 判断指定时间是否在当前时间之前（小于等于）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isBeforeOrEquals(Date date) {
+
+		return isBeforeOrEquals(getDate(), date);
+	}
+
+	/**
+	 * 判断指定时间是否在参照时间之前（小于等于）。
+	 * 
+	 * @param referenceDate
+	 * @param date
+	 * @return
+	 */
+	public static boolean isBeforeOrEquals(Date referenceDate, Date date) {
+
+		int i = date.compareTo(referenceDate);
+		if (i <= 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * 判断指定时间是否在当前时间之后（大于）。
 	 * 
 	 * @param date
@@ -390,6 +418,34 @@ public class DateUtils {
 
 		int i = date.compareTo(referenceDate);
 		if (i > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * 判断指定时间是否在当前时间之后（大于等于）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isAfterOrEquals(Date date) {
+
+		return isAfterOrEquals(getDate(), date);
+	}
+
+	/**
+	 * 判断指定时间是否在参照时间之后（大于等于）。
+	 * 
+	 * @param referenceDate
+	 * @param date
+	 * @return
+	 */
+	public static boolean isAfterOrEquals(Date referenceDate, Date date) {
+
+		int i = date.compareTo(referenceDate);
+		if (i >= 0) {
 			return true;
 		} else {
 			return false;
