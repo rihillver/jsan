@@ -118,41 +118,10 @@ public class Param {
 
 	public void set(String name, Object object) {
 
-		set(name, object, false);
-	}
-
-	/**
-	 * @param object
-	 * @param apos
-	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
-	 */
-	public void set(Object object, boolean apos) {
-		set(String.valueOf(++paramCount), object, apos);
-	}
-
-	/**
-	 * @param i
-	 *            该参数从 1 开始
-	 * @param object
-	 * @param apos
-	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
-	 */
-	public void set(int i, Object object, boolean apos) {
-		set(String.valueOf(i), object, apos);
-	}
-
-	/**
-	 * @param name
-	 * @param object
-	 * @param apos
-	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
-	 */
-	public void set(String name, Object object, boolean apos) {
-
 		if (paramMap == null) {
 			paramMap = new LinkedHashMap<String, Object>();
 		}
-		paramMap.put(name, apos ? wrapApos(fixApos(object.toString())) : object);
+		paramMap.put(name, object);
 	}
 
 	public Map<String, Boolean> getOrderByMap() {
@@ -363,6 +332,15 @@ public class Param {
 		return str;
 	}
 
+	public String wrapApos(String str, boolean fix) {
+
+		if (fix) {
+			str = fixApos(str);
+		}
+
+		return wrapApos(str);
+	}
+
 	public String wrapMate(String str) {
 
 		if (str != null) {
@@ -379,6 +357,15 @@ public class Param {
 		}
 
 		return str;
+	}
+
+	public String wrapMateApos(String str, boolean fix) {
+
+		if (fix) {
+			str = fixApos(str);
+		}
+
+		return wrapMateApos(str);
 	}
 
 	public String wrapLeftMate(String str) {
@@ -399,6 +386,15 @@ public class Param {
 		return str;
 	}
 
+	public String wrapLeftMateApos(String str, boolean fix) {
+
+		if (fix) {
+			str = fixApos(str);
+		}
+
+		return wrapLeftMateApos(str);
+	}
+
 	public String wrapRightMate(String str) {
 
 		if (str != null) {
@@ -415,5 +411,14 @@ public class Param {
 		}
 
 		return str;
+	}
+
+	public String wrapRightMateApos(String str, boolean fix) {
+
+		if (fix) {
+			str = fixApos(str);
+		}
+
+		return wrapRightMateApos(str);
 	}
 }
