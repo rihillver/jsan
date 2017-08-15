@@ -118,10 +118,41 @@ public class Param {
 
 	public void set(String name, Object object) {
 
+		set(name, object, false);
+	}
+
+	/**
+	 * @param object
+	 * @param apos
+	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
+	 */
+	public void set(Object object, boolean apos) {
+		set(String.valueOf(++paramCount), object, apos);
+	}
+
+	/**
+	 * @param i
+	 *            该参数从 1 开始
+	 * @param object
+	 * @param apos
+	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
+	 */
+	public void set(int i, Object object, boolean apos) {
+		set(String.valueOf(i), object, apos);
+	}
+
+	/**
+	 * @param name
+	 * @param object
+	 * @param apos
+	 *            为 true 时，先将参数转为字符串，然后替换单引号为双单引号，再在前后包上单引号
+	 */
+	public void set(String name, Object object, boolean apos) {
+
 		if (paramMap == null) {
 			paramMap = new LinkedHashMap<String, Object>();
 		}
-		paramMap.put(name, object);
+		paramMap.put(name, apos ? wrapApos(fixApos(object.toString())) : object);
 	}
 
 	public Map<String, Boolean> getOrderByMap() {
