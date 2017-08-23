@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import com.jsan.convert.cache.BeanConvertServiceCache;
+import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
 
 /**
@@ -25,33 +26,48 @@ public class BeanConvertUtils {
 
 		T bean = createBeanInstance(beanClass);
 
-		for (Map.Entry<?, ?> entry : map.entrySet()) {
-			convertBeanElement(Mold.COMMON, bean, beanClass, service, entry.getKey().toString(), entry.getValue());
+		Map<String, Method> writeMethodMap = BeanInformationCache.getWriteMethodMap(beanClass);
+		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.COMMON,
+				beanClass, service);
+
+		try {
+			for (Map.Entry<?, ?> entry : map.entrySet()) {
+				Method method = writeMethodMap.get(entry.getKey().toString());
+				if (method != null) {
+					convertBeanElement(bean, beanClass, service, container, method, entry.getValue());
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		return bean;
 	}
 
 	public static <T> void convertBeanElement(Mold mold, T bean, Class<T> beanClass, ConvertService service, String key,
-			Object value) {
+			Object value) throws Exception {
 
 		Method method = BeanInformationCache.getWriteMethod(beanClass, key);
 		if (method != null) {
-			Class<?> type = method.getParameterTypes()[0];
-			Type genericType = method.getGenericParameterTypes()[0];
-
-			// 返回的 ConvertService 是不会为 null 的
-			ConvertService tempService = BeanConvertServiceCache.getConvertService(mold, beanClass, method, service);
-
-			Converter converter = tempService.lookupConverter(type);
-			Object object = converter.convert(value, genericType);
-
-			try {
-				method.invoke(bean, object);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(mold, beanClass,
+					service);
+			convertBeanElement(bean, beanClass, service, container, method, value);
 		}
+	}
+
+	public static <T> void convertBeanElement(T bean, Class<T> beanClass, ConvertService service,
+			BeanConvertServiceContainer container, Method method, Object value) throws Exception {
+
+		Class<?> type = method.getParameterTypes()[0];
+		Type genericType = method.getGenericParameterTypes()[0];
+
+		// 返回的 ConvertService 是不会为 null 的
+		ConvertService tempService = BeanConvertServiceCache.getConvertService(beanClass, method, service, container);
+
+		Converter converter = tempService.lookupConverter(type);
+		Object object = converter.convert(value, genericType);
+
+		method.invoke(bean, object);
 	}
 
 	private static <T> T createBeanInstance(Class<T> beanClass) {

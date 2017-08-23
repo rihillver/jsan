@@ -33,8 +33,8 @@ public class BeanConvertServiceCache {
 	private static final Map<Class<?>, BeanConvertServiceContainer> mvc_beanConvertServiceContainerMap = new HashMap<Class<?>, BeanConvertServiceContainer>();
 	private static final Map<Class<?>, BeanConvertServiceContainer> dao_beanConvertServiceContainerMap = new HashMap<Class<?>, BeanConvertServiceContainer>();
 
-	public static ConvertService getConvertService(Mold mold, Class<?> beanClass, Method method,
-			ConvertService convertService) {
+	public static Map<Class<?>, BeanConvertServiceContainer> getConvertServiceContainerMap(Mold mold,
+			Class<?> beanClass) {
 
 		Map<Class<?>, BeanConvertServiceContainer> beanConvertServiceContainerMap;
 
@@ -53,7 +53,7 @@ public class BeanConvertServiceCache {
 			break;
 		}
 
-		return getBeanConvertService(beanClass, method, convertService, beanConvertServiceContainerMap);
+		return beanConvertServiceContainerMap;
 	}
 
 	private static ConvertService createConvertServiceInstance(Class<? extends ConvertService> convertServiceClass) {
@@ -205,8 +205,32 @@ public class BeanConvertServiceCache {
 		return container;
 	}
 
-	private static ConvertService getBeanConvertService(Class<?> beanClass, Method method,
-			ConvertService convertService, Map<Class<?>, BeanConvertServiceContainer> beanConvertServiceContainerMap) {
+	public static ConvertService getConvertService(Mold mold, Class<?> beanClass, Method method,
+			ConvertService convertService) {
+	
+		BeanConvertServiceContainer container = getConvertServiceContainer(mold, beanClass, convertService);
+	
+		return getConvertService(beanClass, method, convertService, container);
+	}
+
+	public static ConvertService getConvertService(Class<?> beanClass, Method method, ConvertService convertService,
+			BeanConvertServiceContainer container) {
+	
+		if (container.getFirstConvertService() == convertService) {
+			// 当上层 convertService 与 firstConvertService 是同一对象时则直接取缓存
+			return container.getWriteMethodParameterConvertService(method);
+		} else {
+			// 当上层 convertService 与 firstConvertService
+			// 不是同一对象时则不能能使用缓存了，只能够直接通过克隆新的 convertService 再进行注册格式化器
+			return createBeanWriteMethodParameterConvertServiceInstance(beanClass, method, convertService);
+		}
+	}
+
+	public static BeanConvertServiceContainer getConvertServiceContainer(Mold mold, Class<?> beanClass,
+			ConvertService convertService) {
+
+		Map<Class<?>, BeanConvertServiceContainer> beanConvertServiceContainerMap = getConvertServiceContainerMap(
+				mold, beanClass);
 
 		BeanConvertServiceContainer container = beanConvertServiceContainerMap.get(beanClass);
 
@@ -220,14 +244,7 @@ public class BeanConvertServiceCache {
 			}
 		}
 
-		if (container.getFirstConvertService() == convertService) {
-			// 当上层 convertService 与 firstConvertService 是同一对象时则直接取缓存
-			return container.getWriteMethodParameterConvertService(method);
-		} else {
-			// 当上层 convertService 与 firstConvertService
-			// 不是同一对象时则不能能使用缓存了，只能够直接通过克隆新的 convertService 再进行注册格式化器
-			return createBeanWriteMethodParameterConvertServiceInstance(beanClass, method, convertService);
-		}
+		return container;
 	}
 
 }

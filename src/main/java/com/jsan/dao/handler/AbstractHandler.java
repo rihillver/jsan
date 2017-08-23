@@ -3,6 +3,7 @@ package com.jsan.dao.handler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
@@ -17,6 +18,9 @@ import com.jsan.convert.BeanProxyUtils;
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.Converter;
 import com.jsan.convert.Mold;
+import com.jsan.convert.cache.BeanConvertServiceCache;
+import com.jsan.convert.cache.BeanConvertServiceContainer;
+import com.jsan.convert.cache.BeanInformationCache;
 import com.jsan.dao.DaoFuncUtils;
 import com.jsan.dao.FieldHandler;
 import com.jsan.dao.map.CaseInsensitiveMap;
@@ -109,12 +113,47 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		return map;
 	}
 
+//	protected <B> B getBean(ResultSet rs, Class<B> beanClass, ConvertService service) throws SQLException {
+//
+//		B bean = newInstance(beanClass);
+//
+//		ResultSetMetaData rsmd = rs.getMetaData();
+//		int cols = rsmd.getColumnCount();
+//
+//		try {
+//			for (int i = 1; i <= cols; i++) {
+//				String columnName = rsmd.getColumnLabel(i);
+//				if (columnName == null || columnName.length() == 0) {
+//					columnName = rsmd.getColumnName(i);
+//				}
+//
+//				if (toLowerCase) {
+//					columnName = columnName.toLowerCase();
+//				}
+//
+//				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+//
+//				Object obj = handleColumnValue(rs, rsmd, i);
+//				obj = fieldHandle(i, columnName, obj);
+//				BeanConvertUtils.convertBeanElement(Mold.DAO, bean, beanClass, service, columnName, obj);
+//			}
+//		} catch (Exception e) {
+//			throw new SQLException(e);
+//		}
+//
+//		return bean;
+//	}
+
 	protected <B> B getBean(ResultSet rs, Class<B> beanClass, ConvertService service) throws SQLException {
 
 		B bean = newInstance(beanClass);
 
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int cols = rsmd.getColumnCount();
+
+		Map<String, Method> writeMethodMap = BeanInformationCache.getWriteMethodMap(beanClass);
+		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.DAO, beanClass,
+				service);
 
 		try {
 			for (int i = 1; i <= cols; i++) {
@@ -129,9 +168,14 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 
 				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 
-				Object obj = handleColumnValue(rs, rsmd, i);
-				obj = fieldHandle(i, columnName, obj);
-				BeanConvertUtils.convertBeanElement(Mold.DAO, bean, beanClass, service, columnName, obj);
+				Method method = writeMethodMap.get(columnName);
+				if (method != null) {
+
+					Object obj = handleColumnValue(rs, rsmd, i);
+					obj = fieldHandle(i, columnName, obj);
+
+					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, obj);
+				}
 			}
 		} catch (Exception e) {
 			throw new SQLException(e);

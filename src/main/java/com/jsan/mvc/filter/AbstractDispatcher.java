@@ -39,6 +39,9 @@ import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
+import com.jsan.convert.cache.BeanConvertServiceCache;
+import com.jsan.convert.cache.BeanConvertServiceContainer;
+import com.jsan.convert.cache.BeanInformationCache;
 import com.jsan.mvc.ControllerClassCache;
 import com.jsan.mvc.ControllerInfo;
 import com.jsan.mvc.ControllerInfoCache;
@@ -1046,6 +1049,10 @@ public abstract class AbstractDispatcher implements Filter {
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
 
+		Map<String, Method> writeMethodMap = BeanInformationCache.getWriteMethodMap(beanClass);
+		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass,
+				service);
+
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 			String key = entry.getKey();
@@ -1054,10 +1061,13 @@ public abstract class AbstractDispatcher implements Filter {
 				continue;
 			}
 
-			String[] value = entry.getValue();
-			Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
+			Method method = writeMethodMap.get(key);
+			if (method != null) {
+				String[] value = entry.getValue();
+				Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
 
-			BeanConvertUtils.convertBeanElement(Mold.MVC, bean, beanClass, service, key, obj);
+				BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, obj);
+			}
 		}
 
 		return bean;
