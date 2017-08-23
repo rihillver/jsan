@@ -66,29 +66,29 @@ public class ControllerMethodInterceptor implements MethodInterceptor {
 
 	private void before(Invocation inv, List<Interceptor> list) {
 
-		for (Interceptor interceptor : list) {
-			interceptor.before(inv);
+		for (int i = 0, j = list.size(); i < j; i++) {
+			list.get(i).before(inv);
 		}
 	}
 
 	private void after(Invocation inv, List<Interceptor> list) {
 
-		for (Interceptor interceptor : list) {
-			interceptor.after(inv);
+		for (int i = 0, j = list.size(); i < j; i++) {
+			list.get(i).after(inv);
 		}
 	}
 
 	private void afterReturning(Invocation inv, Object result, List<Interceptor> list) {
 
-		for (Interceptor interceptor : list) {
-			interceptor.afterReturning(inv, result);
+		for (int i = 0, j = list.size(); i < j; i++) {
+			list.get(i).afterReturning(inv, result);
 		}
 	}
 
 	private void afterThrowing(Invocation inv, Exception e, List<Interceptor> list) {
 
-		for (Interceptor interceptor : list) {
-			interceptor.afterThrowing(inv, e);
+		for (int i = 0, j = list.size(); i < j; i++) {
+			list.get(i).afterThrowing(inv, e);
 		}
 	}
 

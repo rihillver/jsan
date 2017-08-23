@@ -143,7 +143,7 @@ public class DispatcherFilter extends AbstractDispatcher {
 							|| method.isAnnotationPresent(InterceptorRegister.class)) {
 						service = createMethodInterceptService(cInfo, mInfo);
 					} else {
-						service = getTypeInterceptService(cInfo); // 获取定义在类上的转换服务
+						service = getTypeInterceptService(cInfo); // 获取定义在类上的拦截服务
 					}
 					mInfo.setInterceptService(service);
 				}
@@ -183,7 +183,7 @@ public class DispatcherFilter extends AbstractDispatcher {
 							|| type.isAnnotationPresent(InterceptorRegister.class)) {
 						service = createTypeInterceptService(cInfo);
 					} else {
-						service = getInterceptService(); // 获取定义在DispatcherFilter上的转换服务
+						service = getInterceptService(); // 获取定义在DispatcherFilter上的拦截服务
 					}
 					cInfo.setInterceptService(service);
 				}

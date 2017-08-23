@@ -13,10 +13,6 @@ public class Invocation {
 	private Object[] args;
 	private MethodProxy methodProxy;
 
-	// private HttpServletRequest request;
-	// private HttpServletResponse response;
-	// private String methodValue; // 映射到控制器类上的方法名，与MappingInfo的methodValue一致
-
 	public Object getReturnValue() {
 		return returnValue;
 	}
