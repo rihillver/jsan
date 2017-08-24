@@ -22,7 +22,9 @@ public class InterceptServiceCache {
 
 	public static void put(Method method, InterceptService interceptService) {
 
-		interceptServiceMap.put(method, interceptService);
+		synchronized (interceptServiceMap) {
+			interceptServiceMap.put(method, interceptService);
+		}
 	}
 
 }
