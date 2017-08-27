@@ -45,6 +45,9 @@ public interface SqlxModel {
 	boolean deleteById(Object... primaryValue) throws SQLException;
 
 	boolean deleteByIds(String ids, Object... primaryValue) throws SQLException;
+
+	
+	String printBeanFieldDefinition() throws SQLException;
 	
 	
 	// ==================================================

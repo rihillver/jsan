@@ -199,24 +199,25 @@ public class DaoFuncUtils {
 		return str;
 	}
 
-	public static String printRowMateData(List<RowMetaData> list, boolean toLowerCase) {
+	public static String printBeanFieldDefinition(List<RowMetaData> list, boolean toLowerCase) {
 
 		StringBuilder sb = new StringBuilder();
 
 		for (RowMetaData rmd : list) {
-			String className = rmd.getColumnClassName();
-			int idx = className.lastIndexOf('.');
-			if (idx > -1) {
-				className = className.substring(idx + 1);
+			String columnClassName = rmd.getColumnClassName();
+			int i = columnClassName.lastIndexOf('.');
+			if (i > -1) {
+				columnClassName = columnClassName.substring(i + 1);
 			}
-			String name = rmd.getColumnName();
+			String columnName = rmd.getColumnName();
 			if (toLowerCase) {
-				name = name.toLowerCase();
+				columnName = columnName.toLowerCase();
 			}
-			name = parseToCamelCase(name, false); // 转为小驼峰形式
-			sb.append(className);
+			columnName = parseToCamelCase(columnName, false); // 转为小驼峰形式
+			sb.append("private ");
+			sb.append(columnClassName);
 			sb.append(" ");
-			sb.append(name);
+			sb.append(columnName);
 			sb.append(";\n");
 		}
 
