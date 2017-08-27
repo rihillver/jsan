@@ -419,6 +419,16 @@ public class SqlxModelBuilder implements SqlxModel {
 	}
 
 	@Override
+	public List<RowMetaData> queryForRowMetaData(Param param) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		List<RowMetaData> list = sqlx.queryForRowMetaData(param);
+		sqlx.close();
+
+		return list;
+	}
+
+	@Override
 	public <K, V> Map<K, V> queryForPairKeyedMap(Param param, Class<K> keyClass, String keyColumnName,
 			Class<V> valueClass, String valueColumnName) throws SQLException {
 

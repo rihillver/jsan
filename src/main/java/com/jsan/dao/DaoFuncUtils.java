@@ -2,6 +2,7 @@ package com.jsan.dao;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 public class DaoFuncUtils {
@@ -196,6 +197,30 @@ public class DaoFuncUtils {
 		}
 
 		return str;
+	}
+
+	public static String printRowMateData(List<RowMetaData> list, boolean toLowerCase) {
+
+		StringBuilder sb = new StringBuilder();
+
+		for (RowMetaData rmd : list) {
+			String className = rmd.getColumnClassName();
+			int idx = className.lastIndexOf('.');
+			if (idx > -1) {
+				className = className.substring(idx + 1);
+			}
+			String name = rmd.getColumnName();
+			if (toLowerCase) {
+				name = name.toLowerCase();
+			}
+			name = parseToCamelCase(name, false); // 转为小驼峰形式
+			sb.append(className);
+			sb.append(" ");
+			sb.append(name);
+			sb.append(";\n");
+		}
+
+		return sb.toString();
 	}
 
 }

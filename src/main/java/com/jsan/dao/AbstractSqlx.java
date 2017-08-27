@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -1023,6 +1024,77 @@ public abstract class AbstractSqlx implements Sqlx {
 		String rowCountSql = getRowCountSqlProcessed(param);
 		return executeQuery(rowCountSql, getHandlerEnhancedProcessed(param, new ObjectHandler<T>(clazz)),
 				param.getInitializedParams());
+	}
+
+	@Override
+	public List<RowMetaData> queryForRowMetaData(Param param) throws SQLException {
+
+		if (resultSet != null) { // 当 resultSet 存在的时候直接处理 resultSet
+			return getRowMetaDataProcessed(resultSet);
+		}
+
+		handleParam(param, Crud.QUERY);
+
+		String sql = param.getInitializedSql();
+		Object[] params = param.getInitializedParams();
+
+		showSql("executeQuery", sql, params);
+
+		ResultSet rs = null;
+		PreparedStatement stmt = null;
+
+		try {
+			stmt = prepareStatement(sql);
+			fillStatement(stmt, params);
+			rs = stmt.executeQuery();
+			return getRowMetaDataProcessed(rs);
+		} catch (SQLException e) {
+			rethrow(e, sql, params);
+		} finally {
+			try {
+				close(rs);
+			} finally {
+				close(stmt);
+			}
+		}
+
+		return null;
+	}
+
+	protected List<RowMetaData> getRowMetaDataProcessed(ResultSet rs) throws SQLException {
+
+		List<RowMetaData> list = new ArrayList<RowMetaData>();
+
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int cols = rsmd.getColumnCount();
+
+		for (int column = 1; column <= cols; column++) {
+			RowMetaData rmd = new RowMetaData();
+			rmd.setAutoIncrement(rsmd.isAutoIncrement(column));
+			rmd.setCaseSensitive(rsmd.isCaseSensitive(column));
+			rmd.setSearchable(rsmd.isSearchable(column));
+			rmd.setCurrency(rsmd.isCurrency(column));
+			rmd.setNullable(rsmd.isNullable(column));
+			rmd.setSigned(rsmd.isSigned(column));
+			rmd.setColumnDisplaySize(rsmd.getColumnDisplaySize(column));
+			rmd.setColumnLabel(rsmd.getColumnLabel(column));
+			rmd.setColumnName(rsmd.getColumnName(column));
+			rmd.setSchemaName(rsmd.getSchemaName(column));
+			rmd.setPrecision(rsmd.getPrecision(column));
+			rmd.setScale(rsmd.getScale(column));
+			rmd.setTableName(rsmd.getTableName(column));
+			rmd.setCatalogName(rsmd.getCatalogName(column));
+			rmd.setColumnType(rsmd.getColumnType(column));
+			rmd.setColumnTypeName(rsmd.getColumnTypeName(column));
+			rmd.setReadOnly(rsmd.isReadOnly(column));
+			rmd.setWritable(rsmd.isWritable(column));
+			rmd.setDefinitelyWritable(rsmd.isDefinitelyWritable(column));
+			rmd.setColumnClassName(rsmd.getColumnClassName(column));
+
+			list.add(rmd);
+		}
+
+		return list;
 	}
 
 	protected <T> EnhancedResultSetHandler<T> getHandlerEnhancedProcessed(Param param,

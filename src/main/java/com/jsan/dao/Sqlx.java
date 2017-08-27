@@ -50,6 +50,7 @@ public interface Sqlx {
 
 	<T> T queryForRowCount(Param param, Class<T> clazz) throws SQLException;
 	
+	List<RowMetaData> queryForRowMetaData(Param param) throws SQLException;
 	
 	// ==================================================
 	

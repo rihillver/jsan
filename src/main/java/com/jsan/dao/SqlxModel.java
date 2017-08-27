@@ -83,6 +83,8 @@ public interface SqlxModel {
 	
 	<T> T queryForRowCount(Param param, Class<T> clazz) throws SQLException;
 	
+	List<RowMetaData> queryForRowMetaData(Param param) throws SQLException;
+	
 
 	<K, V> Map<K, V> queryForPairKeyedMap(Param param, Class<K> keyClass, String keyColumnName, Class<V> valueClass, String valueColumnName) throws SQLException;
 
