@@ -206,4 +206,15 @@ public class RowMetaData {
 		this.columnClassName = columnClassName;
 	}
 
+	@Override
+	public String toString() {
+		return "RowMetaData [autoIncrement=" + autoIncrement + ", caseSensitive=" + caseSensitive + ", searchable="
+				+ searchable + ", currency=" + currency + ", nullable=" + nullable + ", signed=" + signed
+				+ ", columnDisplaySize=" + columnDisplaySize + ", columnLabel=" + columnLabel + ", columnName="
+				+ columnName + ", schemaName=" + schemaName + ", precision=" + precision + ", scale=" + scale
+				+ ", tableName=" + tableName + ", catalogName=" + catalogName + ", columnType=" + columnType
+				+ ", columnTypeName=" + columnTypeName + ", readOnly=" + readOnly + ", writable=" + writable
+				+ ", definitelyWritable=" + definitelyWritable + ", columnClassName=" + columnClassName + "]";
+	}
+
 }

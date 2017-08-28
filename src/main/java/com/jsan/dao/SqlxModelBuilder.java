@@ -271,13 +271,13 @@ public class SqlxModelBuilder implements SqlxModel {
 	}
 
 	@Override
-	public String printBeanFieldDefinition() throws SQLException {
+	public String buildBeanFieldDefinition() throws SQLException {
 
 		Param param = new Param();
 		param.setInitializedSql("select * from " + table + " where 1=2");
 		List<RowMetaData> list = queryForRowMetaData(param);
 
-		return DaoFuncUtils.printBeanFieldDefinition(list, fieldToLowerCase);
+		return DaoFuncUtils.buildBeanFieldDefinition(list, fieldToLowerCase);
 	}
 
 	@Override

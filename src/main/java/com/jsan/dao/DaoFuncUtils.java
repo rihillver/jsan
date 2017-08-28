@@ -3,6 +3,7 @@ package com.jsan.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class DaoFuncUtils {
@@ -199,7 +200,18 @@ public class DaoFuncUtils {
 		return str;
 	}
 
-	public static String printBeanFieldDefinition(List<RowMetaData> list, boolean toLowerCase) {
+	public static String buildBeanFieldDefinition(List<RowMetaData> list) {
+
+		return buildBeanFieldDefinition(list, false);
+	}
+
+	public static String buildBeanFieldDefinition(List<RowMetaData> list, boolean fieldToLowerCase) {
+
+		return buildBeanFieldDefinition(list, fieldToLowerCase, null);
+	}
+
+	public static String buildBeanFieldDefinition(List<RowMetaData> list, boolean fieldToLowerCase,
+			Map<String, String> fieldCommentMap) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -209,16 +221,34 @@ public class DaoFuncUtils {
 			if (i > -1) {
 				columnClassName = columnClassName.substring(i + 1);
 			}
-			String columnName = rmd.getColumnName();
-			if (toLowerCase) {
-				columnName = columnName.toLowerCase();
-			}
-			columnName = parseToCamelCase(columnName, false); // 转为小驼峰形式
+
 			sb.append("private ");
 			sb.append(columnClassName);
 			sb.append(" ");
-			sb.append(columnName);
-			sb.append(";\n");
+
+			String columnName = rmd.getColumnLabel();
+			if (columnName == null || columnName.length() == 0) {
+				columnName = rmd.getColumnName();
+			}			
+			
+			String fieldName = columnName;
+			if (fieldToLowerCase) {
+				fieldName = fieldName.toLowerCase();
+			}
+			fieldName = parseToCamelCase(fieldName, false); // 转为小驼峰形式
+
+			sb.append(fieldName);
+			sb.append(";");
+
+			if (fieldCommentMap != null) {
+				String comment = fieldCommentMap.get(columnName);
+				if (comment != null && comment.length() > 0) {
+					sb.append(" // ");
+					sb.append(comment);
+				}
+			}
+
+			sb.append("\n");
 		}
 
 		return sb.toString();
