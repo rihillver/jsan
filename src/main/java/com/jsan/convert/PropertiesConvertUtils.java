@@ -26,16 +26,27 @@ public class PropertiesConvertUtils {
 	private static final String PROPERTIES_SUFFIX = ".properties";
 	private static final ConvertService defaultConvertService = new SplitTrimConvertService();
 
+	public static <T> T getObject(Class<T> clazz) {
+
+		return getObjectEnhanced(null, null, clazz, defaultConvertService, null);
+	}
+
 	/**
 	 * 在 classes 根目录下根据类名寻找对应的 properties 文件，并转换成对象（默认使用 SplitTrimConvertService
 	 * 进行转换）。
 	 * 
 	 * @param clazz
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(Class<T> clazz) {
+	public static <T> T getObjectEnhanced(Class<T> clazz, String keyPrefix) {
 
-		return getObject(clazz, defaultConvertService);
+		return getObjectEnhanced(null, null, clazz, defaultConvertService, keyPrefix);
+	}
+
+	public static <T> T getObject(Class<T> clazz, ConvertService service) {
+
+		return getObjectEnhanced(null, null, clazz, service, null);
 	}
 
 	/**
@@ -43,11 +54,17 @@ public class PropertiesConvertUtils {
 	 * 
 	 * @param clazz
 	 * @param service
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(Class<T> clazz, ConvertService service) {
+	public static <T> T getObjectEnhanced(Class<T> clazz, ConvertService service, String keyPrefix) {
 
-		return getObject(null, null, clazz, service);
+		return getObjectEnhanced(null, null, clazz, service, keyPrefix);
+	}
+
+	public static <T> T getObject(String path, Class<T> clazz) {
+
+		return getObjectEnhanced(path, clazz, defaultConvertService, null);
 	}
 
 	/**
@@ -55,11 +72,17 @@ public class PropertiesConvertUtils {
 	 *
 	 * @param path
 	 * @param clazz
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(String path, Class<T> clazz) {
+	public static <T> T getObjectEnhanced(String path, Class<T> clazz, String keyPrefix) {
 
-		return getObject(path, clazz, defaultConvertService);
+		return getObjectEnhanced(path, clazz, defaultConvertService, keyPrefix);
+	}
+
+	public static <T> T getObject(String dirPath, String fileName, Class<T> clazz) {
+
+		return getObjectEnhanced(dirPath, fileName, clazz, defaultConvertService, null);
 	}
 
 	/**
@@ -71,11 +94,17 @@ public class PropertiesConvertUtils {
 	 * @param dirPath
 	 * @param fileName
 	 * @param clazz
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(String dirPath, String fileName, Class<T> clazz) {
+	public static <T> T getObjectEnhanced(String dirPath, String fileName, Class<T> clazz, String keyPrefix) {
 
-		return getObject(dirPath, fileName, clazz, defaultConvertService);
+		return getObjectEnhanced(dirPath, fileName, clazz, defaultConvertService, keyPrefix);
+	}
+
+	public static <T> T getObject(String path, Class<T> clazz, ConvertService service) {
+
+		return getObjectEnhanced(path, clazz, service, null);
 	}
 
 	/**
@@ -84,13 +113,23 @@ public class PropertiesConvertUtils {
 	 * @param path
 	 * @param clazz
 	 * @param service
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(String path, Class<T> clazz, ConvertService service) {
+	public static <T> T getObjectEnhanced(String path, Class<T> clazz, ConvertService service, String keyPrefix) {
 
 		Properties properties = loadProperties(path);
 
+		if (keyPrefix != null && keyPrefix.length() > 0) {
+			properties = handleProperties(properties, keyPrefix);
+		}
+
 		return BeanConvertUtils.getObject(clazz, properties, service);
+	}
+
+	public static <T> T getObject(String dirPath, String fileName, Class<T> clazz, ConvertService service) {
+
+		return getObjectEnhanced(dirPath, fileName, clazz, service, null);
 	}
 
 	/**
@@ -103,9 +142,11 @@ public class PropertiesConvertUtils {
 	 * @param fileName
 	 * @param clazz
 	 * @param service
+	 * @param keyPrefix
 	 * @return
 	 */
-	public static <T> T getObject(String dirPath, String fileName, Class<T> clazz, ConvertService service) {
+	public static <T> T getObjectEnhanced(String dirPath, String fileName, Class<T> clazz, ConvertService service,
+			String keyPrefix) {
 
 		Properties properties = null;
 
@@ -129,12 +170,40 @@ public class PropertiesConvertUtils {
 			properties = loadProperties(dirPath, fileName);
 		}
 
+		if (keyPrefix != null && keyPrefix.length() > 0) {
+			properties = handleProperties(properties, keyPrefix);
+		}
+
 		return BeanConvertUtils.getObject(clazz, properties, service);
+	}
+
+	private static Properties handleProperties(Properties properties, String keyPrefix) {
+
+		Properties prop = new Properties();
+		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+			String key = entry.getKey().toString();
+			int len = keyPrefix.length();
+			if (key.startsWith(keyPrefix)) {
+				prop.setProperty(key.substring(len), entry.getValue().toString());
+			}
+		}
+
+		return prop;
 	}
 
 	public static void setObject(Object obj) {
 
-		setObject(obj, null, null);
+		setObjectEnhanced(obj, null, null, null);
+	}
+
+	public static void setObjectEnhanced(Object obj, String keyPrefix) {
+
+		setObjectEnhanced(obj, null, null, keyPrefix);
+	}
+
+	public static void setObject(Object obj, String path) {
+
+		setObjectEnhanced(obj, path, null);
 	}
 
 	/**
@@ -142,17 +211,24 @@ public class PropertiesConvertUtils {
 	 * 
 	 * @param obj
 	 * @param path
+	 * @param keyPrefix
 	 */
-	public static void setObject(Object obj, String path) {
+	public static void setObjectEnhanced(Object obj, String path, String keyPrefix) {
 
-		Properties properties = new Properties();
+		Properties properties;
+		if (keyPrefix != null && keyPrefix.length() > 0) {
+			properties = loadProperties(path);
+		} else {
+			properties = new Properties();
+			keyPrefix = "";
+		}
 
 		if (Map.class.isAssignableFrom(obj.getClass())) { // Map 的情况下
 			for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {
 				Object key = entry.getKey();
 				Object value = entry.getValue();
 				if (key != null && value != null) {
-					properties.setProperty(key.toString(), value.toString());
+					properties.setProperty(keyPrefix + key.toString(), value.toString());
 				}
 			}
 		} else { // Bean 的情况下
@@ -165,12 +241,17 @@ public class PropertiesConvertUtils {
 					throw new RuntimeException(e);
 				}
 				if (value != null) {
-					properties.setProperty(entry.getKey(), value.toString());
+					properties.setProperty(keyPrefix + entry.getKey(), value.toString());
 				}
 			}
 		}
 
 		storeProperties(properties, path);
+	}
+
+	public static void setObject(Object obj, String dirPath, String fileName) {
+
+		setObjectEnhanced(obj, dirPath, fileName, null);
 	}
 
 	/**
@@ -179,8 +260,9 @@ public class PropertiesConvertUtils {
 	 * @param obj
 	 * @param dirPath
 	 * @param fileName
+	 * @param keyPrefix
 	 */
-	public static void setObject(Object obj, String dirPath, String fileName) {
+	public static void setObjectEnhanced(Object obj, String dirPath, String fileName, String keyPrefix) {
 
 		dirPath = getQualifiedDirPath(dirPath);
 
@@ -188,7 +270,7 @@ public class PropertiesConvertUtils {
 			fileName = obj.getClass().getSimpleName().toLowerCase() + PROPERTIES_SUFFIX;
 		}
 
-		setObject(obj, dirPath + fileName);
+		setObjectEnhanced(obj, dirPath + fileName, keyPrefix);
 	}
 
 	/**

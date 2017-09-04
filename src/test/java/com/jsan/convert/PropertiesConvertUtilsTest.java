@@ -73,6 +73,65 @@ public class PropertiesConvertUtilsTest {
 //		System.out.println(map);
 
 	}
+
+	@Test
+	public void bar() {
+
+		User user = PropertiesConvertUtils.getObjectEnhanced("/propbeantest.properties", User.class, "user.");
+		System.out.println(user);
+//		user.setSex(true);
+//		PropertiesConvertUtils.setObjectEnhanced(user, "/propbeantest.properties", "user."); // 输出目录在 jsan/target/test-classes
+//
+		User user0 = PropertiesConvertUtils.getObjectEnhanced("/propbeantest.properties", User.class, "person.user.");
+		System.out.println(user0);
+
+	}
+
+	public static class User {
+
+		Integer id;
+		String name;
+		Integer age;
+		Boolean sex;
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Integer getAge() {
+			return age;
+		}
+
+		public void setAge(Integer age) {
+			this.age = age;
+		}
+
+		public Boolean getSex() {
+			return sex;
+		}
+
+		public void setSex(Boolean sex) {
+			this.sex = sex;
+		}
+
+		@Override
+		public String toString() {
+			return "User [id=" + id + ", name=" + name + ", age=" + age + ", sex=" + sex + "]";
+		}
+
+	}
 }
 
 class PropBean {
