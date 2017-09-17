@@ -14,12 +14,14 @@ import com.jsan.mvc.resolve.Resolver;
 
 public class View {
 
-	public static final String VALUE = "value"; // 默认设置的 request 属性名
+	public static final String VALUE = "value"; // 默认设置的request属性名
 
 	private Map<String, Object> map = new LinkedHashMap<String, Object>();
 	private Map<String, Object> attribute;
 
 	private String url = ""; // 初始化为""，当被设置为null时，则表示人为的要求抛出404错误
+	private int statusCode; // http状态码
+
 	private Resolver resolver;
 
 	private String contentType;
@@ -40,6 +42,14 @@ public class View {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 
 	public Resolver getResolver() {
@@ -111,9 +121,9 @@ public class View {
 
 	@Override
 	public String toString() {
-		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", resolver=" + resolver
-				+ ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonSerializeConfigurator="
-				+ jsonSerializeConfigurator + "]";
+		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", statusCode=" + statusCode
+				+ ", resolver=" + resolver + ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback
+				+ ", jsonSerializeConfigurator=" + jsonSerializeConfigurator + "]";
 	}
 
 }

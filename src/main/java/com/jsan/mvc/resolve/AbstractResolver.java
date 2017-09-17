@@ -11,6 +11,13 @@ import com.jsan.mvc.json.JsonSerializeConfigurator;
 
 public abstract class AbstractResolver implements Resolver {
 
+	protected void setStatusCode(HttpServletResponse response, int statusCode) {
+
+		if (statusCode > 0) {
+			response.setStatus(statusCode);
+		}
+	}
+
 	protected void setContentType(HttpServletResponse response, String contentType, String defaultContentType) {
 
 		if (contentType == null) {
@@ -32,7 +39,6 @@ public abstract class AbstractResolver implements Resolver {
 		if (value != null) {
 			PrintWriter out = response.getWriter();
 			out.print(value);
-			out.flush();
 			out.close();
 		}
 	}
@@ -43,7 +49,6 @@ public abstract class AbstractResolver implements Resolver {
 			byte[] bytes = (byte[]) value;
 			OutputStream out = response.getOutputStream();
 			out.write(bytes);
-			out.flush();
 			out.close();
 		}
 	}
@@ -60,7 +65,6 @@ public abstract class AbstractResolver implements Resolver {
 				while ((len = in.read(buffer)) != -1) {
 					out.write(buffer, 0, len);
 				}
-				out.flush();
 				out.close();
 			} catch (Exception e) {
 				throw new RuntimeException(e);

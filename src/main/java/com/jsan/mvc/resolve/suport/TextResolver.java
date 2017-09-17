@@ -17,6 +17,8 @@ public class TextResolver extends AbstractResolver {
 	public void execute(View view, MvcConfig mvcConfig, MappingInfo mappingInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
+		setStatusCode(response, view.getStatusCode());
+		
 		setContentType(response, view.getContentType(), "text/plain");
 
 		print(response, view.getValue());

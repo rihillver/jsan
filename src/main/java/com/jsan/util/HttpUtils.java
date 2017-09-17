@@ -35,7 +35,7 @@ public class HttpUtils {
 
 	private static final int READ_TIMEOUT = 30000; // 传递数据的超时时间为30秒
 
-	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
+	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
 
 	/**
 	 * 返回 URL 请求的字符串形式（GET 方式，自动分析字符编码）。
@@ -302,7 +302,7 @@ public class HttpUtils {
 			if (params != null && POST.equals(method)) {
 				PrintWriter writer = new PrintWriter(conn.getOutputStream());
 				writer.write(convertParamToString(params));
-				writer.flush();
+				writer.close();
 			}
 
 			if (conn.getResponseCode() == 200) {

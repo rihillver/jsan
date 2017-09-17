@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.jsan.mvc.MappingInfo;
 import com.jsan.mvc.MvcConfig;
 import com.jsan.mvc.View;
+import com.jsan.mvc.resolve.AbstractResolver;
 import com.jsan.mvc.resolve.Resolver;
 import com.jsan.mvc.resolve.annotation.RegisterName;
 
@@ -23,11 +24,15 @@ import com.jsan.mvc.resolve.annotation.RegisterName;
  */
 
 @RegisterName(Resolver.FORWARD)
-public class ForwardResolver implements Resolver {
+public class ForwardResolver extends AbstractResolver {
 
 	@Override
 	public void execute(View view, MvcConfig mvcConfig, MappingInfo mappingInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
+
+		setStatusCode(response, view.getStatusCode());
+
+		setContentType(response, view.getContentType(), "text/html");
 
 		String url = view.getUrl();
 

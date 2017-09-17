@@ -8,6 +8,8 @@ import javax.xml.bind.DatatypeConverter;
 
 /**
  * 随机数生成工具类。
+ * <p>
+ * jdk1.7 后请使用 java.util.concurrent.ThreadLocalRandom，保证了多线程下线程安全。
  *
  */
 
