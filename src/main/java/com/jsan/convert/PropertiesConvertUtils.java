@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -216,10 +217,13 @@ public class PropertiesConvertUtils {
 	public static void setObjectEnhanced(Object obj, String path, String keyPrefix) {
 
 		Properties properties;
-		if (keyPrefix != null && keyPrefix.length() > 0) {
+		try {
 			properties = loadProperties(path);
-		} else {
+		} catch (Exception e) {
 			properties = new Properties();
+		}
+
+		if (keyPrefix == null) {
 			keyPrefix = "";
 		}
 
@@ -227,8 +231,8 @@ public class PropertiesConvertUtils {
 			for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {
 				Object key = entry.getKey();
 				Object value = entry.getValue();
-				if (key != null && value != null) {
-					properties.setProperty(keyPrefix + key.toString(), value.toString());
+				if (key != null) {
+					handlePropertiesItem(properties, keyPrefix + entry.getKey(), value);
 				}
 			}
 		} else { // Bean 的情况下
@@ -240,13 +244,20 @@ public class PropertiesConvertUtils {
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
-				if (value != null) {
-					properties.setProperty(keyPrefix + entry.getKey(), value.toString());
-				}
+				handlePropertiesItem(properties, keyPrefix + entry.getKey(), value);
 			}
 		}
 
 		storeProperties(properties, path);
+	}
+
+	private static void handlePropertiesItem(Properties properties, String key, Object value) {
+
+		if (value != null) {
+			properties.setProperty(key, value.toString());
+		} else {
+			properties.remove(key); // 若值为null时则移除对应的key
+		}
 	}
 
 	public static void setObject(Object obj, String dirPath, String fileName) {
@@ -300,6 +311,75 @@ public class PropertiesConvertUtils {
 		dirPath = getQualifiedDirPath(dirPath);
 
 		return loadProperties(dirPath + fileName);
+	}
+
+	public static Map<String, Object> getMap(String path) {
+
+		return getMapEnhanced(path, null);
+	}
+
+	public static Map<String, Object> getMap(String dirPath, String fileName) {
+
+		return getMapEnhanced(dirPath, fileName, null);
+	}
+
+	public static Map<String, Object> getMapEnhanced(String path, String keyPrefix) {
+
+		Properties properties = loadProperties(path);
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		if (keyPrefix != null && keyPrefix.length() > 0) {
+			int len = keyPrefix.length();
+			for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+				String key = entry.getKey().toString();
+				if (key.startsWith(keyPrefix)) {
+					map.put(key.substring(len), entry.getValue());
+				}
+			}
+		} else {
+			for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+				map.put(entry.getKey().toString(), entry.getValue());
+			}
+		}
+
+		return map;
+	}
+
+	public static Map<String, Object> getMapEnhanced(String dirPath, String fileName, String keyPrefix) {
+
+		dirPath = getQualifiedDirPath(dirPath);
+
+		return getMapEnhanced(dirPath + fileName, keyPrefix);
+	}
+
+	public static void setMap(Map<?, ?> map, String path) {
+
+		setMapEnhanced(map, path, null);
+	}
+
+	public static void setMap(Map<?, ?> map, String dirPath, String fileName) {
+
+		setMapEnhanced(map, dirPath, fileName, null);
+	}
+
+	public static void setMapEnhanced(Map<?, ?> map, String path, String keyPrefix) {
+
+		setObjectEnhanced(map, path, keyPrefix);
+	}
+
+	/**
+	 * 如果要将一个键从properties文件中移除，将其值设置为null即可移除（使用remove()方法移除键将无法从properties文件中移除）。
+	 * 
+	 * @param map
+	 * @param dirPath
+	 * @param fileName
+	 * @param keyPrefix
+	 */
+	public static void setMapEnhanced(Map<?, ?> map, String dirPath, String fileName, String keyPrefix) {
+
+		dirPath = getQualifiedDirPath(dirPath);
+
+		setMapEnhanced(map, dirPath + fileName, keyPrefix);
 	}
 
 	private static String getQualifiedDirPath(String dirPath) {

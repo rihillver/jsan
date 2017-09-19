@@ -69,6 +69,7 @@ public class PropertiesConvertUtilsTest {
 //		obj.setMap(map);
 //
 //		PropertiesConvertUtils.setObject(obj); // 输出目录在 jsan/target/test-classes
+//		PropertiesConvertUtils.setObjectEnhanced(obj,"abc."); // 输出目录在 jsan/target/test-classes
 //
 //		System.out.println(map);
 
@@ -79,12 +80,54 @@ public class PropertiesConvertUtilsTest {
 
 		User user = PropertiesConvertUtils.getObjectEnhanced("/propbeantest.properties", User.class, "user.");
 		System.out.println(user);
+		
 //		user.setSex(true);
 //		PropertiesConvertUtils.setObjectEnhanced(user, "/propbeantest.properties", "user."); // 输出目录在 jsan/target/test-classes
-//
+
 		User user0 = PropertiesConvertUtils.getObjectEnhanced("/propbeantest.properties", User.class, "person.user.");
 		System.out.println(user0);
 
+	}
+	
+	@Test
+	public void baz() throws InterruptedException {
+
+//		Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+//		map.put("one", 1);
+//		map.put("two", 2);
+//		map.put("three", 3);
+//
+//		String dirPath = "config";
+//		String fileName = "configmap.properties";
+//		String keyPrefix = "project.abc.";
+//
+//		PropertiesConvertUtils.setMap(map, dirPath, fileName); // 输出目录在jsan/target/test-classes/config
+//		PropertiesConvertUtils.setMapEnhanced(map, dirPath, fileName, keyPrefix); // 输出目录在jsan/target/test-classes/config
+//
+//		Thread.sleep(10000);
+//
+//		Map<String, Object> m1 = PropertiesConvertUtils.getMap(dirPath, fileName);
+//		System.out.println(m1);
+//		m1.put("three", null); // 将其值设置为null可将该键从properties文件中移除
+//		// m1.remove("three"); // 使用remove是无法该键从properties文件中移除的
+//		m1.put("four", 4);
+//		PropertiesConvertUtils.setMap(m1, dirPath, fileName); // 输出目录在jsan/target/test-classes/config
+//		m1 = PropertiesConvertUtils.getMap(dirPath, fileName);
+//		System.out.println(m1);
+//		ConvertWrapper cw1 = new ConvertWrapper(m1);
+//		System.out.println("two=" + cw1.toInt("two"));
+//
+//		Map<String, Object> m2 = PropertiesConvertUtils.getMapEnhanced(dirPath, fileName, keyPrefix);
+//		System.out.println(m2);
+//		m2.put("one", null); // 将其值设置为null可将该键从properties文件中移除
+//		// m2.remove("one"); // 使用remove是无法该键从properties文件中移除的
+//		m2.put("two", 888);
+//		PropertiesConvertUtils.setMapEnhanced(m2, dirPath, fileName, keyPrefix); // 输出目录在jsan/target/test-classes/config
+//		m2 = PropertiesConvertUtils.getMapEnhanced(dirPath, fileName, keyPrefix);
+//		System.out.println(m2);
+//		ConvertWrapper cw2 = new ConvertWrapper(m2);
+//		System.out.println("two=" + cw2.toInt("two"));
+		
 	}
 
 	public static class User {
