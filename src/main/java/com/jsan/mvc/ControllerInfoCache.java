@@ -15,6 +15,7 @@ import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
+import com.jsan.mvc.annotation.Delete;
 import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.Get;
 import com.jsan.mvc.annotation.JsonConvert;
@@ -22,6 +23,7 @@ import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.Post;
+import com.jsan.mvc.annotation.Put;
 import com.jsan.mvc.annotation.Render;
 
 /**
@@ -207,7 +209,14 @@ public class ControllerInfoCache {
 	}
 
 	/**
-	 * 将方法名加上 POST 或 GET 形式作为 key 的 MethodInfo 放入 Map。
+	 * 将方法名加上 POST、 GET、PUT、DELETE 形式作为 key 的 MethodInfo 放入 Map。
+	 * <p>
+	 * 1、当控制器上的映射方法上没有使用 @Get、@Post、@Put、@Delete 中的任何注解时，只有 POST 和 GET
+	 * 这两种只读的请求方法才会被匹配到。<br>
+	 * 2、 对于 PUT 和 DELETE 请求方法必须显式的在映射方法上使用 @Put 和 @Delete 注解才能被匹配到。<br>
+	 * 3、其他 OPTIONS、HEAD、TRACE、CONNECT 这些请求方法均无法被匹配到映射方法上。<br>
+	 * 4、目前绝大多数浏览器对页面表单仅支持 GET 和 POST，但可以通过 jQuery 的 Ajax 来执行 PUT 和 DELETE
+	 * 等其他请求方法。
 	 * 
 	 * @param map
 	 * @param method
@@ -216,21 +225,31 @@ public class ControllerInfoCache {
 	private static void putMethodInfoToMap(Map<String, MethodInfo> map, Method method, MethodInfo mInfo) {
 
 		String methodName = method.getName();
-		String keyNameByGet = getMethodInfoMapKey(methodName, "get");
-		String keyNameByPost = getMethodInfoMapKey(methodName, "post");
 
-		if (method.isAnnotationPresent(Get.class)) {
-			map.put(keyNameByGet, mInfo);
-		} else if (method.isAnnotationPresent(Post.class)) {
-			map.put(keyNameByPost, mInfo);
-		} else {
-			if (!map.containsKey(keyNameByGet)) {
-				map.put(keyNameByGet, mInfo);
+		if (method.isAnnotationPresent(Put.class) || method.isAnnotationPresent(Delete.class)) {
+			if (method.isAnnotationPresent(Put.class)) {
+				map.put(getMethodInfoMapKey(methodName, "put"), mInfo);
+			} else {
+				map.put(getMethodInfoMapKey(methodName, "delete"), mInfo);
 			}
-			if (!map.containsKey(keyNameByPost)) {
+		} else {
+			String keyNameByGet = getMethodInfoMapKey(methodName, "get");
+			String keyNameByPost = getMethodInfoMapKey(methodName, "post");
+
+			if (method.isAnnotationPresent(Get.class)) {
+				map.put(keyNameByGet, mInfo);
+			} else if (method.isAnnotationPresent(Post.class)) {
 				map.put(keyNameByPost, mInfo);
+			} else {
+				if (!map.containsKey(keyNameByGet)) {
+					map.put(keyNameByGet, mInfo);
+				}
+				if (!map.containsKey(keyNameByPost)) {
+					map.put(keyNameByPost, mInfo);
+				}
 			}
 		}
+
 	}
 
 	/**
