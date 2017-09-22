@@ -98,16 +98,6 @@ public class ContextUtils implements ApplicationContextAware {
 	}
 
 	/**
-	 * 返回 Spring IOC 容器中的 Bean 列表。
-	 * 
-	 * @return
-	 */
-	public static String[] getBeanDefinitionNames() {
-
-		return getApplicationContext().getBeanDefinitionNames();
-	}
-
-	/**
 	 * 返回当前 Web 根目录路径。
 	 * 
 	 * @return
