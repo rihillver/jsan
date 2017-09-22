@@ -18,7 +18,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * Spring 的 ApplicationContext、BeanDefinitionRegistry 工具类。
  * <p>
  * 实现了 ApplicationContextAware 接口，用于在非 Spring 框架管理的类中获取 Spring 管理的类，以及获取
- * ApplicationContext 和 BeanDefinitionRegistry。
+ * ApplicationContext 和 BeanDefinitionRegistry 等。
  * <p>
  * 需要在 Spring 配置文件中加入 &lt;bean
  * class="com.jsan.spring.ContextUtils"&gt;&lt;/bean&gt;
@@ -87,9 +87,24 @@ public class ContextUtils implements ApplicationContextAware {
 		return getDefaultListableBeanFactory();
 	}
 
+	/**
+	 * 返回 DefaultListableBeanFactory。
+	 * 
+	 * @return
+	 */
 	public static DefaultListableBeanFactory getDefaultListableBeanFactory() {
 
-		return (DefaultListableBeanFactory) ((ConfigurableApplicationContext) context).getBeanFactory();
+		return (DefaultListableBeanFactory) ((ConfigurableApplicationContext) getApplicationContext()).getBeanFactory();
+	}
+
+	/**
+	 * 返回 Spring IOC 容器中的 Bean 列表。
+	 * 
+	 * @return
+	 */
+	public static String[] getBeanDefinitionNames() {
+
+		return getApplicationContext().getBeanDefinitionNames();
 	}
 
 	/**
