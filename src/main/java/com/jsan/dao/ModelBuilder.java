@@ -14,7 +14,7 @@ import com.jsan.convert.ConvertService;
 public class ModelBuilder extends MapModelBuilder implements Model {
 
 	protected Map<String, Object> paramMap;
-	protected Map<String, Boolean> orderByMap;
+	protected Map<String, Object> orderByMap;
 
 	protected Object[] primaryValue;
 	protected int rowCount;
@@ -180,25 +180,25 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public Map<String, Boolean> getOrderByMap() {
+	public Map<String, Object> getOrderByMap() {
 		return orderByMap;
 	}
 
 	@Override
-	public void setOrderByMap(Map<String, Boolean> orderByMap) {
+	public void setOrderByMap(Map<String, Object> orderByMap) {
 		this.orderByMap = orderByMap;
 	}
 
 	@Override
-	public void setOrderBy(String field, boolean desc) {
+	public void setOrderBy(String field, boolean order) {
 
 		if (orderByMap == null) {
-			orderByMap = new LinkedHashMap<String, Boolean>();
+			orderByMap = new LinkedHashMap<String, Object>();
 		}
 		if (orderByMap.containsKey(field)) {
 			orderByMap.remove(field);
 		}
-		orderByMap.put(field, desc);
+		orderByMap.put(field, order);
 	}
 
 	@Override

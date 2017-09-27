@@ -69,11 +69,11 @@ public interface Model extends MapModel {
 
 	void setParamMap(Map<String, Object> paramMap);
 	
-	Map<String, Boolean> getOrderByMap();
+	Map<String, Object> getOrderByMap();
 
-	void setOrderByMap(Map<String, Boolean> orderByMap);
+	void setOrderByMap(Map<String, Object> orderByMap);
 	
-	void setOrderBy(String field, boolean desc);
+	void setOrderBy(String field, boolean order);
 
 	Object[] getPrimaryValue();
 

@@ -385,7 +385,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected String getFieldProcessed(String field, Param param) {
 
-		if (param.isFieldCaseInsensitive()) {
+		if (param.isFieldInSnakeCase()) {
 			return DaoFuncUtils.parseToSnakeCase(field);
 		} else {
 			return field;
@@ -771,12 +771,12 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected String getOrderByProcessed(String sql, Param param) {
 
-		Map<String, Boolean> orderByMap = param.getOrderByMap();
+		Map<String, Object> orderByMap = param.getOrderByMap();
 		if (orderByMap != null) {
 
 			int offset = getLastOrderByOffset(sql);
 
-			Map<String, Boolean> map = new LinkedHashMap<String, Boolean>();
+			Map<String, Object> map = new LinkedHashMap<String, Object>();
 			if (offset > 0) {
 				String orderByStr = sql.substring(offset);
 				sql = sql.substring(0, offset);
@@ -817,14 +817,26 @@ public abstract class AbstractSqlx implements Sqlx {
 			sb.append(" order by ");
 
 			int i = 0;
-			for (Map.Entry<String, Boolean> entry : map.entrySet()) {
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
 				if (i++ > 0) {
 					sb.append(",");
 				}
 				String field = getFieldProcessed(entry.getKey(), param);
 				sb.append(field);
 				sb.append(" ");
-				sb.append(entry.getValue() ? "desc" : "asc");
+
+				Object value = entry.getValue();
+				String order;
+				if (value == null) {
+					order = "asc";
+				} else if (value instanceof Boolean) {
+					order = (boolean) value ? "desc" : "asc";
+				} else if (value instanceof Number) {
+					order = ((Number) value).intValue() == 1 ? "desc" : "asc";
+				} else {
+					order = value.toString().equalsIgnoreCase("desc") ? "desc" : "asc";
+				}
+				sb.append(order);
 			}
 			sql = sb.toString();
 		}

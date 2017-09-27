@@ -16,7 +16,7 @@ public class Param {
 	private FieldHandler fieldHandler;
 
 	private Map<String, Object> paramMap;
-	private Map<String, Boolean> orderByMap;
+	private Map<String, Object> orderByMap;
 
 	private String[] primaryKey;
 	private Object[] primaryValue;
@@ -124,28 +124,28 @@ public class Param {
 		paramMap.put(name, object);
 	}
 
-	public Map<String, Boolean> getOrderByMap() {
+	public Map<String, Object> getOrderByMap() {
 		return orderByMap;
 	}
 
-	public void setOrderByMap(Map<String, Boolean> orderByMap) {
+	public void setOrderByMap(Map<String, Object> orderByMap) {
 		this.orderByMap = orderByMap;
 	}
 
 	/**
 	 * @param field
-	 * @param desc
-	 *            false 表示升序， ture 表示降序
+	 * @param order
+	 *            null/asc/false/0 表示升序， desc/ture/1 表示降序
 	 */
-	public void setOrderBy(String field, boolean desc) {
+	public void setOrderBy(String field, Object order) {
 
 		if (orderByMap == null) {
-			orderByMap = new LinkedHashMap<String, Boolean>();
+			orderByMap = new LinkedHashMap<String, Object>();
 		}
 		if (orderByMap.containsKey(field)) {
 			orderByMap.remove(field);
 		}
-		orderByMap.put(field, desc);
+		orderByMap.put(field, order);
 	}
 
 	public String[] getPrimaryKey() {
@@ -317,7 +317,7 @@ public class Param {
 	public String fixApos(String str) {
 
 		if (str != null) {
-			str = str.replace("'", "''");
+			str = DaoFuncUtils.replaceAposToDouble(str);
 		}
 
 		return str;

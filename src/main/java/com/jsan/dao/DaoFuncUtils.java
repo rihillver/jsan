@@ -88,7 +88,7 @@ public class DaoFuncUtils {
 	}
 
 	/**
-	 * 下划线
+	 * 下划线。
 	 * 
 	 * @param str
 	 * @return
@@ -118,7 +118,7 @@ public class DaoFuncUtils {
 	}
 
 	/**
-	 * 小驼峰
+	 * 小驼峰。
 	 * 
 	 * @param str
 	 * @return
@@ -129,7 +129,7 @@ public class DaoFuncUtils {
 	}
 
 	/**
-	 * 大驼峰
+	 * 大驼峰。
 	 * 
 	 * @param str
 	 * @return
@@ -140,7 +140,7 @@ public class DaoFuncUtils {
 	}
 
 	/**
-	 * 驼峰
+	 * 驼峰。
 	 * 
 	 * @param str
 	 * @return
@@ -160,7 +160,8 @@ public class DaoFuncUtils {
 
 			StringBuilder sb = new StringBuilder();
 			boolean nextUpperCase = false;
-			for (int i = 0; i < str.length(); i++) {
+			int len = str.length();
+			for (int i = 0; i < len; i++) {
 				char c = str.charAt(i);
 				if (c == '_') {
 					nextUpperCase = true;
@@ -200,6 +201,31 @@ public class DaoFuncUtils {
 		return str;
 	}
 
+	/**
+	 * 将单引号替换成双单引号，避免使用 str.replace("'", "''") 这种正则表达式的方式。
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String replaceAposToDouble(String str) {
+	
+		if (str == null) {
+			return null;
+		}
+	
+		StringBuilder sb = new StringBuilder();
+		int len = str.length();
+		for (int i = 0; i < len; i++) {
+			char c = str.charAt(i);
+			if (c == '\'') {
+				sb.append(c);
+			}
+			sb.append(c);
+		}
+	
+		return sb.toString();
+	}
+
 	public static String buildBeanFieldDefinition(List<RowMetaData> list) {
 
 		return buildBeanFieldDefinition(list, false);
@@ -229,8 +255,8 @@ public class DaoFuncUtils {
 			String columnName = rmd.getColumnLabel();
 			if (columnName == null || columnName.length() == 0) {
 				columnName = rmd.getColumnName();
-			}			
-			
+			}
+
 			String fieldName = columnName;
 			if (fieldToLowerCase) {
 				fieldName = fieldName.toLowerCase();

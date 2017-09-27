@@ -15,7 +15,7 @@ import com.jsan.convert.annotation.NumberPattern;
 public class BeanConvertUtilsTest {
 
 	@Test
-	public void test() {
+	public void testFoo() {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 
@@ -55,6 +55,83 @@ public class BeanConvertUtilsTest {
 
 		System.out.println(testBean);
 
+	}
+	
+	/**
+	 * 转换成枚举类型的时候如果第一次转换不成功，第二次将转换成大写再试一次。
+	 * 
+	 */
+	@Test
+	public void testBar() {
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", 123);
+		map.put("name", "Jack");
+		map.put("color", "red"); // 可以转换
+
+		BarBean barBean = BeanConvertUtils.getObject(BarBean.class, map);
+		System.out.println(barBean);
+
+		barBean.setName("Tom");
+
+		System.out.println(BeanConvertUtils.getMap(barBean));
+		System.out.println(BeanConvertUtils.getMapBaseOnReadMethod(barBean));
+
+		long s = System.nanoTime();
+
+		for (int i = 0; i < 10000; i++) {
+			BeanConvertUtils.getMap(barBean);
+		}
+
+		long e = System.nanoTime() - s;
+
+		System.out.println(e);
+	}
+
+}
+
+enum Color {
+	GREEN, BLUE, RED
+}
+
+class BarBean {
+
+	int id;
+	String name;
+	Color color;
+
+	public boolean getSex() {
+
+		return true;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	@Override
+	public String toString() {
+		return "BarBean [id=" + id + ", name=" + name + ", color=" + color + "]";
 	}
 
 }

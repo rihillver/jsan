@@ -5,6 +5,11 @@ import java.lang.reflect.Type;
 
 import com.jsan.convert.AbstractRecursiveableConverter;
 
+/**
+ * 转换成枚举类型的时候如果第一次转换不成功，第二次将转换成大写再试一次。
+ *
+ */
+
 public class EnumConverter extends AbstractRecursiveableConverter {
 
 	@Override
@@ -37,7 +42,11 @@ public class EnumConverter extends AbstractRecursiveableConverter {
 			try {
 				e = Enum.valueOf(enumType, source.toString());
 			} catch (Exception ex) {
-				logger.warn("Cannot convert to Enum: {}", source);
+				try {
+					e = Enum.valueOf(enumType, source.toString().toUpperCase()); // 转换成大写再试一次
+				} catch (Exception exc) {
+					logger.warn("Cannot convert to Enum: {}", source);
+				}
 			}
 		}
 
