@@ -1,16 +1,14 @@
 package com.jsan.dao;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jsan.convert.BeanConvertUtils;
 import com.jsan.convert.BeanProxyUtils;
-import com.jsan.convert.cache.BeanInformationCache;
 import com.jsan.dao.handler.support.BeanListHandler;
 import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
@@ -29,17 +27,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 
 	protected Map<String, Object> getBeanMap(B bean) {
 
-		Map<String, Object> beanMap = new HashMap<String, Object>();
-		Map<String, Method> readMethodMap = BeanInformationCache.getReadMethodMap(beanClass);
-		for (Map.Entry<String, Method> entry : readMethodMap.entrySet()) {
-			try {
-				beanMap.put(entry.getKey(), entry.getValue().invoke(bean));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return beanMap;
+		return BeanConvertUtils.getMapBaseOnReadMethod(bean);
 	}
 
 	@Override

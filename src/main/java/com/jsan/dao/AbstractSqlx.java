@@ -386,7 +386,7 @@ public abstract class AbstractSqlx implements Sqlx {
 	protected String getFieldProcessed(String field, Param param) {
 
 		if (param.isFieldInSnakeCase()) {
-			return DaoFuncUtils.parseToSnakeCase(field);
+			return DaoFuncUtils.parseToSnakeCase(field); // 转换为下划线命名规范
 		} else {
 			return field;
 		}
@@ -827,13 +827,13 @@ public abstract class AbstractSqlx implements Sqlx {
 
 				Object value = entry.getValue();
 				String order;
-				if (value == null) {
+				if (value == null) { // 值为null时升序
 					order = "asc";
-				} else if (value instanceof Boolean) {
+				} else if (value instanceof Boolean) { // 值为true时降序，值为false时升序
 					order = (boolean) value ? "desc" : "asc";
-				} else if (value instanceof Number) {
+				} else if (value instanceof Number) { // 值为1时降序，其他值时为升序
 					order = ((Number) value).intValue() == 1 ? "desc" : "asc";
-				} else {
+				} else { // 值为desc时降序，其他值时为升序
 					order = value.toString().equalsIgnoreCase("desc") ? "desc" : "asc";
 				}
 				sb.append(order);
