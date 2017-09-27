@@ -73,7 +73,7 @@ public interface Model extends MapModel {
 
 	void setOrderByMap(Map<String, Object> orderByMap);
 	
-	void setOrderBy(String field, boolean order);
+	void setOrderBy(String field, Object order);
 
 	Object[] getPrimaryValue();
 

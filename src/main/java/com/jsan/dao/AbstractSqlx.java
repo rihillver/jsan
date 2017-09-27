@@ -1120,6 +1120,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		extendedResultSetHandler.setFieldHandler(param.getFieldHandler());
 		extendedResultSetHandler.setCaseInsensitive(param.isFieldCaseInsensitive());
 		extendedResultSetHandler.setToLowerCase(param.isFieldToLowerCase());
+		extendedResultSetHandler.setToCamelCase(param.isFieldToCamelCase());
 
 		return extendedResultSetHandler;
 	}

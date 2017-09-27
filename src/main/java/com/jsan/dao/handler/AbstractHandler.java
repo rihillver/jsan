@@ -31,6 +31,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	protected FieldHandler fieldHandler;
 	protected boolean caseInsensitive;
 	protected boolean toLowerCase;
+	protected boolean toCamelCase;
 
 	@Override
 	public void setConvertService(ConvertService convertService) {
@@ -54,6 +55,12 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	public void setToLowerCase(boolean toLowerCase) {
 
 		this.toLowerCase = toLowerCase;
+	}
+	
+	@Override
+	public void setToCamelCase(boolean toCamelCase) {
+		
+		this.toCamelCase = toCamelCase;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -103,7 +110,9 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				columnName = columnName.toLowerCase();
 			}
 
-			columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+			if (toCamelCase) {
+				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+			}
 
 			Object obj = handleColumnValue(rs, rsmd, i);
 			obj = fieldHandle(i, columnName, obj);

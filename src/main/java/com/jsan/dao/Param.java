@@ -38,6 +38,7 @@ public class Param {
 	private boolean fieldInSnakeCase;
 	private boolean tableInSnakeCase;
 	private boolean fieldToLowerCase; // 结果集的字段名是否转换为小写，主要为了 Oracle
+	private boolean FieldToCamelCase; // 结果集的字段是否转换为驼峰形式，主要是为了 Map 结果集
 	private boolean fieldCaseInsensitive; // 结果集的字段名是否不区分大小写
 
 	private boolean include;
@@ -260,6 +261,14 @@ public class Param {
 
 	public void setFieldToLowerCase(boolean fieldToLowerCase) {
 		this.fieldToLowerCase = fieldToLowerCase;
+	}
+
+	public boolean isFieldToCamelCase() {
+		return FieldToCamelCase;
+	}
+
+	public void setFieldToCamelCase(boolean fieldToCamelCase) {
+		FieldToCamelCase = fieldToCamelCase;
 	}
 
 	public boolean isFieldCaseInsensitive() {

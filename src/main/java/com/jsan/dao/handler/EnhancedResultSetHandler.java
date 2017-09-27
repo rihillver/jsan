@@ -12,5 +12,7 @@ public interface EnhancedResultSetHandler<T> extends ResultSetHandler<T> {
 	void setCaseInsensitive(boolean caseInsensitive);
 
 	void setToLowerCase(boolean toLowerCase);
+	
+	void setToCamelCase(boolean toCamelCase);
 
 }

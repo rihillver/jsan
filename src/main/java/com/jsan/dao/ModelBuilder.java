@@ -190,7 +190,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public void setOrderBy(String field, boolean order) {
+	public void setOrderBy(String field, Object order) {
 
 		if (orderByMap == null) {
 			orderByMap = new LinkedHashMap<String, Object>();

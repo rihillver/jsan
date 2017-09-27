@@ -13,6 +13,7 @@ import com.jsan.dao.annotation.FieldCaseInsensitive;
 import com.jsan.dao.annotation.FieldHandlerRegister;
 import com.jsan.dao.annotation.FieldToLowerCase;
 import com.jsan.dao.annotation.FieldInSnakeCase;
+import com.jsan.dao.annotation.FieldToCamelCase;
 import com.jsan.dao.annotation.Table;
 import com.jsan.dao.annotation.TablePrefix;
 import com.jsan.dao.annotation.TableInSnakeCase;
@@ -44,6 +45,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	protected boolean fieldInSnakeCase;
 	protected boolean tableInSnakeCase;
 	protected boolean fieldToLowerCase;
+	protected boolean fieldToCamelCase;
 	protected boolean fieldCaseInsensitive;
 
 	{
@@ -60,6 +62,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		FieldInSnakeCase fieldInSnakeCase = clazz.getAnnotation(FieldInSnakeCase.class);
 		TableInSnakeCase tableInSnakeCase = clazz.getAnnotation(TableInSnakeCase.class);
 		FieldToLowerCase fieldToLowerCase = clazz.getAnnotation(FieldToLowerCase.class);
+		FieldToCamelCase fieldToCamelCase = clazz.getAnnotation(FieldToCamelCase.class);
 		FieldCaseInsensitive fieldCaseInsensitive = clazz.getAnnotation(FieldCaseInsensitive.class);
 
 		ConvertServiceRegister convertServiceRegister = clazz.getAnnotation(ConvertServiceRegister.class);
@@ -107,6 +110,10 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		if (fieldToLowerCase != null) {
 			this.fieldToLowerCase = fieldToLowerCase.value();
+		}
+		
+		if (fieldToCamelCase != null) {
+			this.fieldToCamelCase = fieldToCamelCase.value();
 		}
 
 		if (fieldCaseInsensitive != null) {
@@ -235,6 +242,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		param.setTableInSnakeCase(tableInSnakeCase);
 		param.setFieldInSnakeCase(fieldInSnakeCase);
 		param.setFieldToLowerCase(fieldToLowerCase);
+		param.setFieldToCamelCase(fieldToCamelCase);
 		param.setFieldCaseInsensitive(fieldCaseInsensitive);
 
 		return param;
