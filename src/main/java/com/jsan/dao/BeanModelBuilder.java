@@ -3,6 +3,7 @@ package com.jsan.dao;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 
 	protected Map<String, Object> getBeanMap(B bean) {
 
-		return BeanConvertUtils.getMapBaseOnReadMethod(bean);
+		return BeanConvertUtils.getMapBaseOnReadMethod(bean, fieldInSnakeCase);
 	}
 
 	@Override
@@ -86,10 +87,14 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 		if (set == null) {
 			return excludeFields;
 		} else {
-			for (String field : excludeFields) {
-				set.add(field);
+			Set<String> tmpSet = new LinkedHashSet<String>();
+			for (String str : set) {
+				tmpSet.add(fieldInSnakeCase ? DaoFuncUtils.parseToSnakeCase(str) : str);
 			}
-			return set.toArray(new String[set.size()]);
+			for (String field : excludeFields) {
+				tmpSet.add(field);
+			}
+			return tmpSet.toArray(new String[tmpSet.size()]);
 		}
 	}
 

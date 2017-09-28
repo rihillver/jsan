@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.jsan.convert.cache.BeanInformationCache;
+
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
-
-import com.jsan.convert.cache.BeanInformationCache;
 
 /**
  * 基于 Cglib 的动态代理。
@@ -95,9 +95,27 @@ public class BeanProxyUtils {
 		return isProxyClass(obj.getClass());
 	}
 
+	/**
+	 * 返回 daoBean 排除字段的 Set 结果集，请勿直接对这里返回的 Set 结果集进行增删操作。
+	 * 
+	 * @param obj
+	 * @return
+	 */
 	public static Set<String> getDaoBeanExcludeFieldSet(Object obj) {
 
 		return daoBeanExcludeFieldSetMap.get(obj);
+	}
+
+	/**
+	 * 返回 daoBean 排除字段的 Set 结果集的克隆副本。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Set<String> getDaoBeanExcludeFieldSetClone(Object obj) {
+
+		return (Set<String>) ((LinkedHashSet<String>) daoBeanExcludeFieldSetMap.get(obj)).clone();
 	}
 
 	private static void setDaoBeanExcludeFieldSet(Object obj, Set<String> set) {
