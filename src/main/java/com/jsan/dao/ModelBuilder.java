@@ -68,13 +68,13 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public FieldHandler getFieldHandler() {
-		return fieldHandler;
+	public FieldValueHandler getFieldHandler() {
+		return fieldValueHandler;
 	}
 
 	@Override
-	public void setFieldHandler(FieldHandler fieldHandler) {
-		this.fieldHandler = fieldHandler;
+	public void setFieldHandler(FieldValueHandler fieldHandler) {
+		this.fieldValueHandler = fieldHandler;
 	}
 
 	@Override
@@ -106,25 +106,28 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	public void setAutoIncrementValue(String[] autoIncrementValue) {
 		this.autoIncrementValue = autoIncrementValue;
 	}
-
+	
+	/**
+	 * 这里需要覆盖父类的方法已达到更精确的表达。
+	 * 
+	 */
 	@Override
-	public String getTable() {
-		return table;
+	public String getTableName() {
+
+		if (tableName != null) {
+			return tableName;
+		} else {
+			String name = DaoFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
+			if (tableInSnakeCase) {
+				name = DaoFuncUtils.parseToSnakeCase(name); // 转换为下划线命名规范
+			}
+			return name;
+		}
 	}
-
+	
 	@Override
-	public void setTable(String table) {
-		this.table = table;
-	}
-
-	@Override
-	public String getTablePrefix() {
-		return tablePrefix;
-	}
-
-	@Override
-	public void setTablePrefix(String tablePrefix) {
-		this.tablePrefix = tablePrefix;
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 
 	@Override

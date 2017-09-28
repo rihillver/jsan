@@ -208,11 +208,11 @@ public class DaoFuncUtils {
 	 * @return
 	 */
 	public static String replaceAposToDouble(String str) {
-	
+
 		if (str == null) {
 			return null;
 		}
-	
+
 		StringBuilder sb = new StringBuilder();
 		int len = str.length();
 		for (int i = 0; i < len; i++) {
@@ -222,22 +222,23 @@ public class DaoFuncUtils {
 			}
 			sb.append(c);
 		}
-	
+
 		return sb.toString();
 	}
 
 	public static String buildBeanFieldDefinition(List<RowMetaData> list) {
 
-		return buildBeanFieldDefinition(list, false);
-	}
-
-	public static String buildBeanFieldDefinition(List<RowMetaData> list, boolean fieldToLowerCase) {
-
-		return buildBeanFieldDefinition(list, fieldToLowerCase, null);
+		return buildBeanFieldDefinition(list, false, false);
 	}
 
 	public static String buildBeanFieldDefinition(List<RowMetaData> list, boolean fieldToLowerCase,
-			Map<String, String> fieldCommentMap) {
+			boolean fieldToCamelCase) {
+
+		return buildBeanFieldDefinition(list, fieldToLowerCase, fieldToCamelCase, null);
+	}
+
+	public static String buildBeanFieldDefinition(List<RowMetaData> list, boolean fieldToLowerCase,
+			boolean fieldToCamelCase, Map<String, String> fieldCommentMap) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -261,7 +262,9 @@ public class DaoFuncUtils {
 			if (fieldToLowerCase) {
 				fieldName = fieldName.toLowerCase();
 			}
-			fieldName = parseToCamelCase(fieldName, false); // 转为小驼峰形式
+			if (fieldToCamelCase) {
+				fieldName = parseToCamelCase(fieldName); // 转为驼峰形式
+			}
 
 			sb.append(fieldName);
 			sb.append(";");

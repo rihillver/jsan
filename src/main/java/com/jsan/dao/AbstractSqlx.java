@@ -364,24 +364,24 @@ public abstract class AbstractSqlx implements Sqlx {
 		return result;
 	}
 
-	protected String getTableProcessed(Param param) {
-
-		String table = param.getTable();
-		if (table == null) {
-			return null;
-		}
-
-		if (param.isTableInSnakeCase()) {
-			table = DaoFuncUtils.parseToSnakeCase(table); // 转换为下划线命名规范
-		}
-
-		String tablePrefix = param.getTablePrefix();
-		if (tablePrefix != null) {
-			table = tablePrefix + table;
-		}
-
-		return table;
-	}
+//	protected String getTableProcessed(Param param) {
+//
+//		String table = param.getTableName();
+//		if (table == null) {
+//			return null;
+//		}
+//
+//		if (param.isTableInSnakeCase()) {
+//			table = DaoFuncUtils.parseToSnakeCase(table); // 转换为下划线命名规范
+//		}
+//
+////		String tablePrefix = param.getTablePrefix();
+////		if (tablePrefix != null) {
+////			table = tablePrefix + table;
+////		}
+//
+//		return table;
+//	}
 
 	protected String getFieldProcessed(String field, Param param) {
 
@@ -461,7 +461,6 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		// insert into user (name,sex,birth) values (?,?,?);
 
-		String table = getTableProcessed(param);
 		Map<String, Object> paramMap = getParamMapProcessed(param);
 
 		List<Object> paramList = new ArrayList<Object>();
@@ -483,7 +482,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append("insert into ");
-		sqlBuilder.append(table);
+		sqlBuilder.append(param.getTableName());
 		sqlBuilder.append(" (");
 		sqlBuilder.append(fieldBuilder.toString());
 		sqlBuilder.append(") values (");
@@ -505,7 +504,6 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		// update user set sex=?,name=?,birth=? where id=?
 
-		String table = getTableProcessed(param);
 		Map<String, Object> paramMap = getParamMapProcessed(param);
 
 		String[] primaryKey = param.getPrimaryKey();
@@ -550,7 +548,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append("update ");
-		sqlBuilder.append(table);
+		sqlBuilder.append(param.getTableName());
 		sqlBuilder.append(" set ");
 		sqlBuilder.append(fieldBuilder.toString());
 		sqlBuilder.append(" where ");
@@ -574,9 +572,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		// select * from user
 		// select * from user where id=? and name=?
 
-		String table = getTableProcessed(param);
-
-		String sqlPrefix = "select * from " + table + " where ";
+		String sqlPrefix = "select * from " + param.getTableName() + " where ";
 
 		handleParamByAssembleForDeleteAndQuery(sqlPrefix, param);
 	}
@@ -594,9 +590,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		// delete from user where id=?
 		// delete from user where sex=? and name=?
 
-		String table = getTableProcessed(param);
-
-		String sqlPrefix = "delete from " + table + " where ";
+		String sqlPrefix = "delete from " + param.getTableName() + " where ";
 
 		handleParamByAssembleForDeleteAndQuery(sqlPrefix, param);
 	}
@@ -666,7 +660,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		// ==================================================
 
 		// sql 语句前缀判断处理，无前缀的加上前缀
-		sql = getSqlPrefixProcessed(sql, getTableProcessed(param), crud);
+		sql = getSqlPrefixProcessed(sql, param.getTableName(), crud);
 		// ==================================================
 		// if (rowCountSql != null) {
 		// rowCountSql = getSqlPrefixProcessed(rowCountSql,
@@ -970,7 +964,7 @@ public abstract class AbstractSqlx implements Sqlx {
 			// 语句前缀作判断处理，因为如果使用 rowCountSql 的情况一定会是完整的查询语句的 sql
 			// 语句前缀判断处理，无前缀的加上前缀
 			// ==================================================
-			initializedSql = getSqlPrefixProcessed(initializedSql, getTableProcessed(param), crud);
+			initializedSql = getSqlPrefixProcessed(initializedSql, param.getTableName(), crud);
 			param.setInitializedSql(initializedSql);
 		}
 	}
@@ -1117,10 +1111,11 @@ public abstract class AbstractSqlx implements Sqlx {
 			convertService = DaoConfig.getConvertService();
 		}
 		extendedResultSetHandler.setConvertService(convertService);
-		extendedResultSetHandler.setFieldHandler(param.getFieldHandler());
-		extendedResultSetHandler.setCaseInsensitive(param.isFieldCaseInsensitive());
-		extendedResultSetHandler.setToLowerCase(param.isFieldToLowerCase());
-		extendedResultSetHandler.setToCamelCase(param.isFieldToCamelCase());
+		extendedResultSetHandler.setFieldNameHandler(param.getFieldNameHandler());
+		extendedResultSetHandler.setFieldValueHandler(param.getFieldValueHandler());
+		extendedResultSetHandler.setFieldCaseInsensitive(param.isFieldCaseInsensitive());
+		extendedResultSetHandler.setFieldToLowerCase(param.isFieldToLowerCase());
+		extendedResultSetHandler.setFieldInSnakeCase(param.isFieldInSnakeCase());
 
 		return extendedResultSetHandler;
 	}

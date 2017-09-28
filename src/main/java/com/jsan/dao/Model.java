@@ -22,9 +22,9 @@ public interface Model extends MapModel {
 
 	void setConvertService(ConvertService convertService);
 	
-	FieldHandler getFieldHandler();
+	FieldValueHandler getFieldHandler();
 	
-	void setFieldHandler(FieldHandler fieldHandler);
+	void setFieldHandler(FieldValueHandler fieldHandler);
 
 	String[] getPrimaryKey();
 
@@ -38,13 +38,7 @@ public interface Model extends MapModel {
 
 	void setAutoIncrementValue(String[] autoIncrementValue);
 
-	String getTable();
-
-	void setTable(String table);
-
-	String getTablePrefix();
-
-	void setTablePrefix(String tablePrefix);
+	void setTableName(String tableName);
 
 	boolean isFieldInSnakeCase();
 

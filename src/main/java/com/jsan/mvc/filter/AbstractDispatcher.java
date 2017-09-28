@@ -57,6 +57,7 @@ import com.jsan.mvc.adapter.MappingAdapter;
 import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
+import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.Render;
@@ -1040,8 +1041,8 @@ public abstract class AbstractDispatcher implements Filter {
 
 		// 判断是否使用daoBean模式，这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
 		// 创建表单Bean实例对象过程中当类的访问权限不足时（比如实例化在控制器类内创建的表单Bean类）自动通过Cglib动态代理的方式创建实例对象
-		T bean = pInfo.getFormConvert().value() ? BeanProxyUtils.getDaoBean(beanClass)
-				: BeanProxyUtils.newInstance(beanClass);
+		FormConvert formConvert = pInfo.getFormConvert();
+		T bean = formConvert.value() ? BeanProxyUtils.getDaoBean(beanClass) : BeanProxyUtils.newInstance(beanClass);
 
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
@@ -1059,6 +1060,10 @@ public abstract class AbstractDispatcher implements Filter {
 
 			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
 				continue;
+			}
+
+			if (formConvert.quirkMode()) {
+				key = ConvertFuncUtils.parseToCamelCase(key); // 将key转换为驼峰命名规范
 			}
 
 			Method method = writeMethodMap.get(key);

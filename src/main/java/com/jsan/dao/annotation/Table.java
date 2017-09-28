@@ -10,13 +10,20 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Table {
-
+	
 	/**
 	 * 表名。
 	 * 
 	 * @return
 	 */
 	String value() default "";
+
+	/**
+	 * 表名（优先级高）。
+	 * 
+	 * @return
+	 */
+	String name() default "";
 
 	/**
 	 * 主键。

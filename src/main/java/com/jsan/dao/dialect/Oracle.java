@@ -157,8 +157,6 @@ public class Oracle extends AbstractSqlx {
 		// insert into user (id,name,sex,birth) values
 		// (user_auto.nextval,?,?,?);
 
-		String table = getTableProcessed(param);
-
 		Map<String, Object> paramMap = getParamMapProcessed(param);
 
 		// 对于已定义了 autoIncrementValue 的情况下，则把自增键和值重新放入参数 map
@@ -201,7 +199,7 @@ public class Oracle extends AbstractSqlx {
 
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append("insert into ");
-		sqlBuilder.append(table);
+		sqlBuilder.append(param.getTableName());
 		sqlBuilder.append(" (");
 		sqlBuilder.append(fieldBuilder.toString());
 		sqlBuilder.append(") values (");

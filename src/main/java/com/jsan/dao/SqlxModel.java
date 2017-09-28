@@ -29,6 +29,8 @@ public interface SqlxModel {
 
 	
 	Sqlx getSqlx();
+	
+	String getTableName();
 
 	Param createParam();
 

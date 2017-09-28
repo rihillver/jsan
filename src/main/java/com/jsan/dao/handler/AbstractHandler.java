@@ -22,16 +22,18 @@ import com.jsan.convert.cache.BeanConvertServiceCache;
 import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
 import com.jsan.dao.DaoFuncUtils;
-import com.jsan.dao.FieldHandler;
+import com.jsan.dao.FieldNameHandler;
+import com.jsan.dao.FieldValueHandler;
 import com.jsan.dao.map.CaseInsensitiveMap;
 
 public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> {
 
 	protected ConvertService convertService;
-	protected FieldHandler fieldHandler;
-	protected boolean caseInsensitive;
-	protected boolean toLowerCase;
-	protected boolean toCamelCase;
+	protected FieldNameHandler fieldNameHandler;
+	protected FieldValueHandler fieldValueHandler;
+	protected boolean fieldCaseInsensitive;
+	protected boolean fieldToLowerCase;
+	protected boolean fieldInSnakeCase;
 
 	@Override
 	public void setConvertService(ConvertService convertService) {
@@ -40,27 +42,33 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	}
 
 	@Override
-	public void setFieldHandler(FieldHandler fieldHandler) {
+	public void setFieldNameHandler(FieldNameHandler fieldNameHandler) {
 
-		this.fieldHandler = fieldHandler;
+		this.fieldNameHandler = fieldNameHandler;
 	}
 
 	@Override
-	public void setCaseInsensitive(boolean caseInsensitive) {
+	public void setFieldValueHandler(FieldValueHandler fieldValueHandler) {
 
-		this.caseInsensitive = caseInsensitive;
+		this.fieldValueHandler = fieldValueHandler;
 	}
 
 	@Override
-	public void setToLowerCase(boolean toLowerCase) {
+	public void setFieldCaseInsensitive(boolean fieldCaseInsensitive) {
 
-		this.toLowerCase = toLowerCase;
+		this.fieldCaseInsensitive = fieldCaseInsensitive;
 	}
-	
+
 	@Override
-	public void setToCamelCase(boolean toCamelCase) {
-		
-		this.toCamelCase = toCamelCase;
+	public void setFieldToLowerCase(boolean fieldToLowerCase) {
+
+		this.fieldToLowerCase = fieldToLowerCase;
+	}
+
+	@Override
+	public void setFieldInSnakeCase(boolean fieldInSnakeCase) {
+
+		this.fieldInSnakeCase = fieldInSnakeCase;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,7 +80,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnIndex);
-		obj = fieldHandle(columnIndex, null, obj);
+		obj = fieldValueHandle(columnIndex, null, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -87,7 +95,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnName);
-		obj = fieldHandle(0, columnName, obj);
+		obj = fieldValueHandle(0, columnName, obj);
 		obj = converter.convert(obj, type);
 
 		return (O) obj; // 不能使用 type.cast(obj)，因为type 可能会是基本数据类型
@@ -97,7 +105,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int cols = rsmd.getColumnCount();
-		Map<String, Object> map = caseInsensitive ? new CaseInsensitiveMap<Object>(cols)
+		Map<String, Object> map = fieldCaseInsensitive ? new CaseInsensitiveMap<Object>(cols)
 				: new LinkedHashMap<String, Object>(cols);
 
 		for (int i = 1; i <= cols; i++) {
@@ -106,52 +114,18 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				columnName = rsmd.getColumnName(i);
 			}
 
-			if (toLowerCase) {
+			if (fieldToLowerCase) {
 				columnName = columnName.toLowerCase();
 			}
 
-			if (toCamelCase) {
-				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
-			}
-
 			Object obj = handleColumnValue(rs, rsmd, i);
-			obj = fieldHandle(i, columnName, obj);
+			columnName = fieldNameHandle(i, columnName, obj);
+			obj = fieldValueHandle(i, columnName, obj);
 			map.put(columnName, obj);
 		}
 
 		return map;
 	}
-
-//	protected <B> B getBean(ResultSet rs, Class<B> beanClass, ConvertService service) throws SQLException {
-//
-//		B bean = newInstance(beanClass);
-//
-//		ResultSetMetaData rsmd = rs.getMetaData();
-//		int cols = rsmd.getColumnCount();
-//
-//		try {
-//			for (int i = 1; i <= cols; i++) {
-//				String columnName = rsmd.getColumnLabel(i);
-//				if (columnName == null || columnName.length() == 0) {
-//					columnName = rsmd.getColumnName(i);
-//				}
-//
-//				if (toLowerCase) {
-//					columnName = columnName.toLowerCase();
-//				}
-//
-//				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
-//
-//				Object obj = handleColumnValue(rs, rsmd, i);
-//				obj = fieldHandle(i, columnName, obj);
-//				BeanConvertUtils.convertBeanElement(Mold.DAO, bean, beanClass, service, columnName, obj);
-//			}
-//		} catch (Exception e) {
-//			throw new SQLException(e);
-//		}
-//
-//		return bean;
-//	}
 
 	protected <B> B getBean(ResultSet rs, Class<B> beanClass, ConvertService service) throws SQLException {
 
@@ -171,17 +145,20 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 					columnName = rsmd.getColumnName(i);
 				}
 
-				if (toLowerCase) {
+				if (fieldToLowerCase) {
 					columnName = columnName.toLowerCase();
 				}
 
-				columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+				if (fieldInSnakeCase) {
+					columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+				}
 
 				Method method = writeMethodMap.get(columnName);
 				if (method != null) {
 
 					Object obj = handleColumnValue(rs, rsmd, i);
-					obj = fieldHandle(i, columnName, obj);
+					columnName = fieldNameHandle(i, columnName, obj);
+					obj = fieldValueHandle(i, columnName, obj);
 
 					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, obj);
 				}
@@ -360,15 +337,29 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	}
 
 	/**
-	 * 字段处理器的相关操作。
+	 * 字段名处理器的相关操作。
 	 * 
-	 * @param obj
+	 * @param columnIndex
 	 * @param columnName
+	 * @param obj
 	 * @return
 	 */
-	protected Object fieldHandle(int columnIndex, String columnName, Object obj) {
+	protected String fieldNameHandle(int columnIndex, String columnName, Object obj) {
 
-		return fieldHandler == null ? obj : fieldHandler.handle(columnIndex, columnName, obj);
+		return fieldNameHandler == null ? columnName : fieldNameHandler.handle(columnIndex, columnName, obj);
+	}
+
+	/**
+	 * 字段值处理器的相关操作。
+	 * 
+	 * @param columnIndex
+	 * @param columnName
+	 * @param obj
+	 * @return
+	 */
+	protected Object fieldValueHandle(int columnIndex, String columnName, Object obj) {
+
+		return fieldValueHandler == null ? obj : fieldValueHandler.handle(columnIndex, columnName, obj);
 	}
 
 }

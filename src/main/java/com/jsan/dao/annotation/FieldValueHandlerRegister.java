@@ -7,8 +7,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.jsan.dao.FieldValueHandler;
+
 /**
- * 结果集的字段是否转换为驼峰形式，主要作用于 Map 结果集，因为 Bean 结果集的字段是肯定会转换为驼峰形式的。
+ * 字段值处理器注册注解。
  *
  */
 
@@ -16,7 +18,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface FieldToCamelCase {
+public @interface FieldValueHandlerRegister {
 
-	boolean value();
+	Class<? extends FieldValueHandler> value();
+
 }

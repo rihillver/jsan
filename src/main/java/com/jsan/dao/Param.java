@@ -13,7 +13,8 @@ import com.jsan.convert.ConvertService;
 public class Param {
 
 	private ConvertService convertService;
-	private FieldHandler fieldHandler;
+	private FieldNameHandler fieldNameHandler;
+	private FieldValueHandler fieldValueHandler;
 
 	private Map<String, Object> paramMap;
 	private Map<String, Object> orderByMap;
@@ -32,13 +33,11 @@ public class Param {
 	// ==================================================
 	// private String rowCountSql;
 	// ==================================================
-	private String table; // 表名
-	private String tablePrefix; // 表名前缀，比如 tb_
+	private String tableName; // 表名
 
 	private boolean fieldInSnakeCase;
 	private boolean tableInSnakeCase;
 	private boolean fieldToLowerCase; // 结果集的字段名是否转换为小写，主要为了 Oracle
-	private boolean FieldToCamelCase; // 结果集的字段是否转换为驼峰形式，主要是为了 Map 结果集
 	private boolean fieldCaseInsensitive; // 结果集的字段名是否不区分大小写
 
 	private boolean include;
@@ -88,12 +87,20 @@ public class Param {
 		this.convertService = convertService;
 	}
 
-	public FieldHandler getFieldHandler() {
-		return fieldHandler;
+	public FieldNameHandler getFieldNameHandler() {
+		return fieldNameHandler;
 	}
 
-	public void setFieldHandler(FieldHandler fieldHandler) {
-		this.fieldHandler = fieldHandler;
+	public void setFieldNameHandler(FieldNameHandler fieldNameHandler) {
+		this.fieldNameHandler = fieldNameHandler;
+	}
+
+	public FieldValueHandler getFieldValueHandler() {
+		return fieldValueHandler;
+	}
+
+	public void setFieldValueHandler(FieldValueHandler fieldValueHandler) {
+		this.fieldValueHandler = fieldValueHandler;
 	}
 
 	public Map<String, Object> getParamMap() {
@@ -223,20 +230,12 @@ public class Param {
 	// }
 	// ==================================================
 
-	public String getTable() {
-		return table;
+	public String getTableName() {
+		return tableName;
 	}
 
-	public void setTable(String table) {
-		this.table = table;
-	}
-
-	public String getTablePrefix() {
-		return tablePrefix;
-	}
-
-	public void setTablePrefix(String tablePrefix) {
-		this.tablePrefix = tablePrefix;
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 
 	public boolean isFieldInSnakeCase() {
@@ -261,14 +260,6 @@ public class Param {
 
 	public void setFieldToLowerCase(boolean fieldToLowerCase) {
 		this.fieldToLowerCase = fieldToLowerCase;
-	}
-
-	public boolean isFieldToCamelCase() {
-		return FieldToCamelCase;
-	}
-
-	public void setFieldToCamelCase(boolean fieldToCamelCase) {
-		FieldToCamelCase = fieldToCamelCase;
 	}
 
 	public boolean isFieldCaseInsensitive() {

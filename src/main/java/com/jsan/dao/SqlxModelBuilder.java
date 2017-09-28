@@ -10,12 +10,11 @@ import com.jsan.convert.ConvertService;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.dao.annotation.Connecter;
 import com.jsan.dao.annotation.FieldCaseInsensitive;
-import com.jsan.dao.annotation.FieldHandlerRegister;
-import com.jsan.dao.annotation.FieldToLowerCase;
+import com.jsan.dao.annotation.FieldValueHandlerRegister;
 import com.jsan.dao.annotation.FieldInSnakeCase;
-import com.jsan.dao.annotation.FieldToCamelCase;
+import com.jsan.dao.annotation.FieldNameHandlerRegister;
+import com.jsan.dao.annotation.FieldToLowerCase;
 import com.jsan.dao.annotation.Table;
-import com.jsan.dao.annotation.TablePrefix;
 import com.jsan.dao.annotation.TableInSnakeCase;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
@@ -32,20 +31,19 @@ public class SqlxModelBuilder implements SqlxModel {
 	protected String dataSourceName;
 
 	protected ConvertService convertService;
-	protected FieldHandler fieldHandler;
+	protected FieldNameHandler fieldNameHandler;
+	protected FieldValueHandler fieldValueHandler;
 
 	protected String[] primaryKey;
 
 	protected String[] autoIncrementKey;
 	protected String[] autoIncrementValue;
 
-	protected String table;
-	protected String tablePrefix;
+	protected String tableName;
 
 	protected boolean fieldInSnakeCase;
 	protected boolean tableInSnakeCase;
 	protected boolean fieldToLowerCase;
-	protected boolean fieldToCamelCase;
 	protected boolean fieldCaseInsensitive;
 
 	{
@@ -58,18 +56,19 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		Connecter connecter = clazz.getAnnotation(Connecter.class);
 		Table table = clazz.getAnnotation(Table.class);
-		TablePrefix tablePrefix = clazz.getAnnotation(TablePrefix.class);
 		FieldInSnakeCase fieldInSnakeCase = clazz.getAnnotation(FieldInSnakeCase.class);
 		TableInSnakeCase tableInSnakeCase = clazz.getAnnotation(TableInSnakeCase.class);
 		FieldToLowerCase fieldToLowerCase = clazz.getAnnotation(FieldToLowerCase.class);
-		FieldToCamelCase fieldToCamelCase = clazz.getAnnotation(FieldToCamelCase.class);
 		FieldCaseInsensitive fieldCaseInsensitive = clazz.getAnnotation(FieldCaseInsensitive.class);
 
 		ConvertServiceRegister convertServiceRegister = clazz.getAnnotation(ConvertServiceRegister.class);
-		FieldHandlerRegister fieldHandlerRegister = clazz.getAnnotation(FieldHandlerRegister.class);
+		FieldNameHandlerRegister fieldNameHandlerRegister = clazz.getAnnotation(FieldNameHandlerRegister.class);
+		FieldValueHandlerRegister fieldValueHandlerRegister = clazz.getAnnotation(FieldValueHandlerRegister.class);
 
 		if (connecter != null) {
-			if (!connecter.value().isEmpty()) {
+			if (!connecter.name().isEmpty()) {
+				this.dataSourceName = connecter.name();
+			} else if (!connecter.value().isEmpty()) {
 				this.dataSourceName = connecter.value();
 			}
 			if (connecter.sqlx() != Sqlx.class) {
@@ -78,10 +77,10 @@ public class SqlxModelBuilder implements SqlxModel {
 		}
 
 		if (table != null) {
-			if (table.value().isEmpty()) {
-				this.table = DaoFuncUtils.parseFirstCharToLowerCase(clazz.getSimpleName());
-			} else {
-				this.table = table.value();
+			if (!table.name().isEmpty()) {
+				this.tableName = table.name();
+			} else if (!table.value().isEmpty()) {
+				this.tableName = table.value();
 			}
 			if (table.key().length > 0) {
 				this.primaryKey = table.key();
@@ -91,12 +90,6 @@ public class SqlxModelBuilder implements SqlxModel {
 			}
 			if (table.autoValue().length > 0) {
 				this.autoIncrementValue = table.autoValue();
-			}
-		}
-
-		if (tablePrefix != null) {
-			if (!tablePrefix.value().isEmpty()) {
-				this.tablePrefix = tablePrefix.value();
 			}
 		}
 
@@ -111,10 +104,6 @@ public class SqlxModelBuilder implements SqlxModel {
 		if (fieldToLowerCase != null) {
 			this.fieldToLowerCase = fieldToLowerCase.value();
 		}
-		
-		if (fieldToCamelCase != null) {
-			this.fieldToCamelCase = fieldToCamelCase.value();
-		}
 
 		if (fieldCaseInsensitive != null) {
 			this.fieldCaseInsensitive = fieldCaseInsensitive.value();
@@ -124,8 +113,12 @@ public class SqlxModelBuilder implements SqlxModel {
 			convertService = ModelConvertServiceCache.getConvertService(clazz, convertServiceRegister.value()); // 从缓存中获取
 		}
 
-		if (fieldHandlerRegister != null) {
-			fieldHandler = FieldHandlerCache.getFieldHandler(clazz, fieldHandlerRegister.value()); // 从缓存中获取
+		if (fieldNameHandlerRegister != null) {
+			fieldNameHandler = FieldHandlerCache.getNameHandler(clazz, fieldNameHandlerRegister.value()); // 从缓存中获取
+		}
+
+		if (fieldValueHandlerRegister != null) {
+			fieldValueHandler = FieldHandlerCache.getValueHandler(clazz, fieldValueHandlerRegister.value()); // 从缓存中获取
 		}
 
 	}
@@ -210,6 +203,20 @@ public class SqlxModelBuilder implements SqlxModel {
 	}
 
 	@Override
+	public String getTableName() {
+
+		if (tableName == null) {
+			String name = DaoFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
+			if (tableInSnakeCase) {
+				name = DaoFuncUtils.parseToSnakeCase(name); // 转换为下划线命名规范
+			}
+			return name;
+		}
+
+		return tableName;
+	}
+
+	@Override
 	public Param createParam() {
 
 		return createParam(null);
@@ -233,16 +240,15 @@ public class SqlxModelBuilder implements SqlxModel {
 		Param param = new Param(sql, pageSize, pageNumber);
 
 		param.setConvertService(convertService);
-		param.setFieldHandler(fieldHandler);
+		param.setFieldNameHandler(fieldNameHandler);
+		param.setFieldValueHandler(fieldValueHandler);
 		param.setPrimaryKey(primaryKey);
 		param.setAutoIncrementKey(autoIncrementKey);
 		param.setAutoIncrementValue(autoIncrementValue);
-		param.setTable(table);
-		param.setTablePrefix(tablePrefix);
+		param.setTableName(getTableName());
 		param.setTableInSnakeCase(tableInSnakeCase);
 		param.setFieldInSnakeCase(fieldInSnakeCase);
 		param.setFieldToLowerCase(fieldToLowerCase);
-		param.setFieldToCamelCase(fieldToCamelCase);
 		param.setFieldCaseInsensitive(fieldCaseInsensitive);
 
 		return param;
@@ -282,10 +288,10 @@ public class SqlxModelBuilder implements SqlxModel {
 	public String buildBeanFieldDefinition() throws SQLException {
 
 		Param param = new Param();
-		param.setInitializedSql("select * from " + table + " where 1=2");
+		param.setInitializedSql("select * from " + getTableName() + " where 1=2");
 		List<RowMetaData> list = queryForRowMetaData(param);
 
-		return DaoFuncUtils.buildBeanFieldDefinition(list, fieldToLowerCase);
+		return DaoFuncUtils.buildBeanFieldDefinition(list, fieldToLowerCase, fieldInSnakeCase);
 	}
 
 	@Override

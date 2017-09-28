@@ -9,6 +9,7 @@ import java.util.Set;
 import com.jsan.convert.cache.BeanConvertServiceCache;
 import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
+import com.jsan.dao.DaoFuncUtils;
 
 /**
  * Bean 与 Map 互转换的工具类。
@@ -21,10 +22,20 @@ public class BeanConvertUtils {
 
 	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map) {
 
-		return getObject(beanClass, map, defaultConvertService);
+		return getObject(beanClass, map, false);
+	}
+
+	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, boolean keyToCamelCase) {
+
+		return getObject(beanClass, map, defaultConvertService, keyToCamelCase);
 	}
 
 	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, ConvertService service) {
+
+		return getObject(beanClass, map, service, false);
+	}
+
+	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, ConvertService service, boolean keyToCamelCase) {
 
 		T bean = createBeanInstance(beanClass);
 
@@ -34,7 +45,11 @@ public class BeanConvertUtils {
 
 		try {
 			for (Map.Entry<?, ?> entry : map.entrySet()) {
-				Method method = writeMethodMap.get(entry.getKey().toString());
+				String key = entry.getKey().toString();
+				if (keyToCamelCase) {
+					key = DaoFuncUtils.parseToCamelCase(key); // 转换为驼峰命名规范
+				}
+				Method method = writeMethodMap.get(key);
 				if (method != null) {
 					convertBeanElement(bean, beanClass, service, container, method, entry.getValue());
 				}
@@ -48,15 +63,25 @@ public class BeanConvertUtils {
 
 	public static <T> Map<String, Object> getMap(T bean) {
 
-		return convertBeanToMap(bean, false);
+		return getMap(bean, false);
+	}
+
+	public static <T> Map<String, Object> getMap(T bean, boolean keyToSnakeCase) {
+
+		return convertBeanToMap(bean, false, keyToSnakeCase);
 	}
 
 	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean) {
 
-		return convertBeanToMap(bean, true);
+		return getMapBaseOnReadMethod(bean, false);
 	}
 
-	private static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnReadMethod) {
+	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean, boolean keyToSnakeCase) {
+
+		return convertBeanToMap(bean, true, keyToSnakeCase);
+	}
+
+	private static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnReadMethod, boolean keyToSnakeCase) {
 
 		Class<?> beanClass = bean.getClass();
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
@@ -69,6 +94,9 @@ public class BeanConvertUtils {
 				String key = entry.getKey();
 				if (!baseOnReadMethod && !fieldSet.contains(key)) {
 					continue;
+				}
+				if (keyToSnakeCase) {
+					key = DaoFuncUtils.parseToSnakeCase(key); // 转换为下划线命名规范
 				}
 				map.put(key, entry.getValue().invoke(bean));
 			}

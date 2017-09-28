@@ -7,33 +7,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.jsan.dao.Sqlx;
+import com.jsan.dao.FieldNameHandler;
+
+/**
+ * 字段名处理器注册注解。
+ *
+ */
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface Connecter {
+public @interface FieldNameHandlerRegister {
 
-	/**
-	 * 数据源标识名。
-	 * 
-	 * @return
-	 */
-	String value() default "";
-	
-	/**
-	 * 数据源标识名（优先级高）。
-	 * 
-	 * @return
-	 */
-	String name() default "";
-
-	/**
-	 * Sql 方言。
-	 * 
-	 * @return
-	 */
-	Class<? extends Sqlx> sqlx() default Sqlx.class;
+	Class<? extends FieldNameHandler> value();
 
 }

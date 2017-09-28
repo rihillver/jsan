@@ -1,18 +1,21 @@
 package com.jsan.dao.handler;
 
 import com.jsan.convert.ConvertService;
-import com.jsan.dao.FieldHandler;
+import com.jsan.dao.FieldNameHandler;
+import com.jsan.dao.FieldValueHandler;
 
 public interface EnhancedResultSetHandler<T> extends ResultSetHandler<T> {
 
 	void setConvertService(ConvertService convertService);
 
-	void setFieldHandler(FieldHandler fieldHandler);
+	void setFieldValueHandler(FieldValueHandler fieldValueHandler);
 
-	void setCaseInsensitive(boolean caseInsensitive);
+	void setFieldNameHandler(FieldNameHandler fieldNameHandler);
 
-	void setToLowerCase(boolean toLowerCase);
+	void setFieldCaseInsensitive(boolean fieldCaseInsensitive);
+
+	void setFieldToLowerCase(boolean fieldToLowerCase);
 	
-	void setToCamelCase(boolean toCamelCase);
+	void setFieldInSnakeCase(boolean fieldInSnakeCase);
 
 }
