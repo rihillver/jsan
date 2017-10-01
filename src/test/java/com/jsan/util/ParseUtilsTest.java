@@ -7,7 +7,7 @@ public class ParseUtilsTest extends TestCase {
 	public void testFoo() {
 
 		// 构建大于16位的unicode码点
-		int codePiont = Integer.parseInt("1D306", 16);
+		int codePiont = Integer.parseInt("20073", 16);
 		System.out.println(codePiont);
 
 		String s = new String(new int[] { codePiont }, 0, 1);
