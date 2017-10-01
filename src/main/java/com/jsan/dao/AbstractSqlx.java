@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
@@ -364,8 +365,19 @@ public abstract class AbstractSqlx implements Sqlx {
 		return result;
 	}
 
+	protected String getFieldProcessed(String field, Param param) {
+
+		if (param.isFieldInSnakeCase()) {
+			return ConvertFuncUtils.parseCamelCaseToSnakeCase(field); // 转换为下划线命名规范
+		} else {
+			return field;
+		}
+	}
+
 	/**
 	 * 该方法主要是除去自增字段，留下包含的字段，除去排除的字段。
+	 * <p>
+	 * <strong>这里对指定的字段名目前只能是表字段的实际字段名，是否要进行 下划线及驼峰的判断处理，后期再做决定。</strong>
 	 * 
 	 * @param param
 	 * @return
@@ -388,7 +400,7 @@ public abstract class AbstractSqlx implements Sqlx {
 				lable: for (String field : markFields) {
 					if (autoIncrementKey != null) { // 如果存在自增键则除去
 						for (String key : autoIncrementKey) {
-							if (key.equals(field)) {
+							if (key.equals(field)) { // 是否要进行 下划线及驼峰的判断处理，后期再做决定
 								continue lable;
 							}
 						}
@@ -400,14 +412,14 @@ public abstract class AbstractSqlx implements Sqlx {
 			lable: for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
 				if (autoIncrementKey != null) { // 如果存在自增键则除去
 					for (String key : autoIncrementKey) {
-						if (key.equals(entry.getKey())) {
+						if (key.equals(entry.getKey())) { // 是否要进行下划线及驼峰的判断处理，后期再做决定
 							continue lable;
 						}
 					}
 				}
 				if (markFields != null) {
 					for (String field : markFields) {
-						if (field.equals(entry.getKey())) {
+						if (field.equals(entry.getKey())) { // 是否要进行下划线及驼峰的判断处理，后期再做决定
 							continue lable;
 						}
 					}
@@ -444,7 +456,8 @@ public abstract class AbstractSqlx implements Sqlx {
 				fieldBuilder.append(",");
 				placeholderBuilder.append(",");
 			}
-			fieldBuilder.append(entry.getKey());
+			String field = getFieldProcessed(entry.getKey(), param);
+			fieldBuilder.append(field);
 			placeholderBuilder.append("?");
 			paramList.add(entry.getValue());
 		}
@@ -499,7 +512,8 @@ public abstract class AbstractSqlx implements Sqlx {
 			if (i > 0) {
 				fieldBuilder.append(",");
 			}
-			fieldBuilder.append(entry.getKey());
+			String field = getFieldProcessed(entry.getKey(), param);
+			fieldBuilder.append(field);
 			fieldBuilder.append("=?");
 			params[i++] = entry.getValue();
 		}
@@ -586,7 +600,8 @@ public abstract class AbstractSqlx implements Sqlx {
 				if (i > 0) {
 					sqlBuilder.append(" and ");
 				}
-				sqlBuilder.append(primaryKey[i]);
+				String field = getFieldProcessed(primaryKey[i], param);
+				sqlBuilder.append(field);
 				sqlBuilder.append("=?");
 				params[i] = primaryValue[i];
 			}
@@ -597,7 +612,8 @@ public abstract class AbstractSqlx implements Sqlx {
 				if (i > 0) {
 					sqlBuilder.append(" and ");
 				}
-				sqlBuilder.append(entry.getKey());
+				String field = getFieldProcessed(entry.getKey(), param);
+				sqlBuilder.append(field);
 				sqlBuilder.append("=?");
 				params[i++] = entry.getValue();
 			}
@@ -781,7 +797,8 @@ public abstract class AbstractSqlx implements Sqlx {
 				if (i++ > 0) {
 					sb.append(",");
 				}
-				sb.append(entry.getKey());
+				String field = getFieldProcessed(entry.getKey(), param);
+				sb.append(field);
 				sb.append(" ");
 
 				Object value = entry.getValue();

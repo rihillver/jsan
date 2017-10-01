@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 
 /**
@@ -117,9 +118,9 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 		if (tableName != null) {
 			return tableName;
 		} else {
-			String name = DaoFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
+			String name = ConvertFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
 			if (tableInSnakeCase) {
-				name = DaoFuncUtils.parseToSnakeCase(name); // 转换为下划线命名规范
+				name = ConvertFuncUtils.parseCamelCaseToSnakeCase(name); // 转换为下划线命名规范
 			}
 			return name;
 		}

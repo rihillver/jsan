@@ -9,7 +9,6 @@ import java.util.Set;
 import com.jsan.convert.cache.BeanConvertServiceCache;
 import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
-import com.jsan.dao.DaoFuncUtils;
 
 /**
  * Bean 与 Map 互转换的工具类。
@@ -47,7 +46,7 @@ public class BeanConvertUtils {
 			for (Map.Entry<?, ?> entry : map.entrySet()) {
 				String key = entry.getKey().toString();
 				if (keyToCamelCase) {
-					key = DaoFuncUtils.parseToCamelCase(key); // 转换为驼峰命名规范
+					key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 转换为驼峰命名规范
 				}
 				Method method = writeMethodMap.get(key);
 				if (method != null) {
@@ -96,7 +95,7 @@ public class BeanConvertUtils {
 					continue;
 				}
 				if (keyToSnakeCase) {
-					key = DaoFuncUtils.parseToSnakeCase(key); // 转换为下划线命名规范
+					key = ConvertFuncUtils.parseCamelCaseToSnakeCase(key); // 转换为下划线命名规范
 				}
 				map.put(key, entry.getValue().invoke(bean));
 			}

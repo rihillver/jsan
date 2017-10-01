@@ -1,7 +1,5 @@
 package com.jsan.util;
 
-import java.math.BigInteger;
-
 /**
  * 常用转换工具类。
  *
@@ -20,9 +18,9 @@ public class ParseUtils {
 		if (str != null && str.length() > 0) {
 			char firstChar = str.charAt(0);
 			if (firstChar >= 'A' && firstChar <= 'Z') {
-				char[] arr = str.toCharArray();
-				arr[0] += ('a' - 'A');
-				return new String(arr);
+				char[] charArray = str.toCharArray();
+				charArray[0] += ('a' - 'A');
+				return new String(charArray);
 			}
 		}
 
@@ -40,9 +38,9 @@ public class ParseUtils {
 		if (str != null && str.length() > 0) {
 			char firstChar = str.charAt(0);
 			if (firstChar >= 'a' && firstChar <= 'z') {
-				char[] arr = str.toCharArray();
-				arr[0] -= ('a' - 'A');
-				return new String(arr);
+				char[] charArray = str.toCharArray();
+				charArray[0] -= ('a' - 'A');
+				return new String(charArray);
 			}
 		}
 
@@ -95,66 +93,6 @@ public class ParseUtils {
 		}
 
 		return result;
-	}
-
-	/**
-	 * 将 16 进制字符串转换成大整数。
-	 * 
-	 * @param hexString
-	 * @return
-	 */
-	public static BigInteger parseHexStringToBigInteger(String hexString) {
-
-		try {
-			return new BigInteger(hexString, 16);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * 将大整数转换成 16 进制字符串。
-	 * 
-	 * @param bigInteger
-	 * @return
-	 */
-	public static String parseBigIntegerToHexString(BigInteger bigInteger) {
-
-		if (bigInteger == null) {
-			return null;
-		}
-
-		return bigInteger.toString(16);
-	}
-
-	/**
-	 * 将 10 进制字符串转换成大整数。
-	 * 
-	 * @param hexString
-	 * @return
-	 */
-	public static BigInteger parseStringToBigInteger(String str) {
-
-		try {
-			return new BigInteger(str);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * 将大整数转换成 10 进制字符串。
-	 * 
-	 * @param bigInteger
-	 * @return
-	 */
-	public static String parseBigIntegerToString(BigInteger bigInteger) {
-
-		if (bigInteger == null) {
-			return null;
-		}
-
-		return bigInteger.toString();
 	}
 
 	/**
@@ -236,7 +174,7 @@ public class ParseUtils {
 	 */
 	public static String parseCamelCaseToSnakeCase(String str) {
 
-		return parseCamelCaseTo(str, '_');
+		return parseCamelCaseToGivenCase(str, '_');
 	}
 
 	/**
@@ -247,7 +185,7 @@ public class ParseUtils {
 	 */
 	public static String parseCamelCaseToKebabCase(String str) {
 
-		return parseCamelCaseTo(str, '-');
+		return parseCamelCaseToGivenCase(str, '-');
 	}
 
 	/**
@@ -258,7 +196,7 @@ public class ParseUtils {
 	 */
 	public static String parseSnakeCaseToCamelCase(String str) {
 
-		return parseToCamelCase(str, '_', null);
+		return parseGivenCaseToCamelCase(str, '_', null);
 	}
 
 	/**
@@ -269,7 +207,7 @@ public class ParseUtils {
 	 */
 	public static String parseSnakeCaseToLowerCamelCase(String str) {
 
-		return parseToCamelCase(str, '_', false);
+		return parseGivenCaseToCamelCase(str, '_', false);
 	}
 
 	/**
@@ -280,7 +218,7 @@ public class ParseUtils {
 	 */
 	public static String parseSnakeCaseToUpperCamelCase(String str) {
 
-		return parseToCamelCase(str, '_', true);
+		return parseGivenCaseToCamelCase(str, '_', true);
 	}
 
 	/**
@@ -291,7 +229,7 @@ public class ParseUtils {
 	 */
 	public static String parseKebabCaseToCamelCase(String str) {
 
-		return parseToCamelCase(str, '-', null);
+		return parseGivenCaseToCamelCase(str, '-', null);
 	}
 
 	/**
@@ -302,7 +240,7 @@ public class ParseUtils {
 	 */
 	public static String parseKebabCaseToLowerCamelCase(String str) {
 
-		return parseToCamelCase(str, '-', false);
+		return parseGivenCaseToCamelCase(str, '-', false);
 	}
 
 	/**
@@ -313,7 +251,7 @@ public class ParseUtils {
 	 */
 	public static String parseKebabCaseToUpperCamelCase(String str) {
 
-		return parseToCamelCase(str, '-', true);
+		return parseGivenCaseToCamelCase(str, '-', true);
 	}
 
 	/**
@@ -325,54 +263,46 @@ public class ParseUtils {
 	 * @param c
 	 * @return
 	 */
-	public static String parseToCamelCase(String str, char c, Boolean firstCharacterUpperCase) {
+	public static String parseGivenCaseToCamelCase(String str, char c, Boolean firstCharacterUpperCase) {
 
-		if (str == null) {
-			return null;
+		if (str == null || str.isEmpty()) {
+			return str;
 		}
 
-		if (str.indexOf(c) > -1) { // 存在指定字符的情况才进行
+		if (str.indexOf(c) == -1 && firstCharacterUpperCase == null) {
+			return str;
+		}
 
-			StringBuilder sb = new StringBuilder();
-			boolean nextUpperCase = false;
-			for (int i = 0; i < str.length(); i++) {
-				char ch = str.charAt(i);
-				if (ch == c) {
-					nextUpperCase = true;
-					continue;
-				}
+		char[] fromArray = str.toCharArray();
+		int len = fromArray.length;
+		char[] toArray = new char[len];
 
-				if (nextUpperCase) {
-					sb.append(Character.toUpperCase(ch));
-					nextUpperCase = false;
-				} else {
-					sb.append(ch);
-				}
+		int j = 0;
+		boolean flag = false;
+		for (int i = 0; i < len; i++) {
+			if (fromArray[i] == c) {
+				flag = true;
+				continue;
 			}
-
-			// 如果 firstCharacterUpperCase 为 null 则不对首字母做转换处理
-			if (firstCharacterUpperCase != null) {
-				if (firstCharacterUpperCase) {
-					sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-				} else {
-					sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+			if (flag) {
+				if (i < len) {
+					toArray[j++] = Character.toUpperCase(fromArray[i]);
 				}
-			}
-
-			str = sb.toString();
-
-		} else {
-			// 如果 firstCharacterUpperCase 为 null 或 str 为空则不对首字母做转换处理
-			if (firstCharacterUpperCase != null && !str.isEmpty()) {
-				if (firstCharacterUpperCase) {
-					str = Character.toUpperCase(str.charAt(0)) + str.substring(1);
-				} else {
-					str = Character.toLowerCase(str.charAt(0)) + str.substring(1);
-				}
+				flag = false;
+			} else {
+				toArray[j++] = fromArray[i];
 			}
 		}
 
-		return str;
+		if (firstCharacterUpperCase != null) {
+			if (firstCharacterUpperCase) {
+				toArray[0] = Character.toUpperCase(toArray[0]);
+			} else {
+				toArray[0] = Character.toLowerCase(toArray[0]);
+			}
+		}
+
+		return new String(toArray, 0, j);
 	}
 
 	/**
@@ -382,28 +312,59 @@ public class ParseUtils {
 	 * @param c
 	 * @return
 	 */
-	public static String parseCamelCaseTo(String str, char c) {
+	public static String parseCamelCaseToGivenCase(String str, char c) {
 
 		if (str == null) {
 			return null;
 		}
 
-		int length = str.length();
-		StringBuilder sb = new StringBuilder();
+		char[] fromArray = str.toCharArray();
+		char[] toArray = new char[fromArray.length * 2];
 
-		for (int i = 0; i < length; i++) {
-			char ch = str.charAt(i);
-			if (Character.isUpperCase(ch)) {
+		int j = 0;
+		for (int i = 0; i < fromArray.length; i++) {
+
+			if (Character.isUpperCase(fromArray[i])) {
 				if (i > 0) {
-					sb.append(c);
+					toArray[j++] = c;
 				}
-				sb.append(Character.toLowerCase(ch));
+				toArray[j++] = Character.toLowerCase(fromArray[i]);
 			} else {
-				sb.append(ch);
+				toArray[j++] = fromArray[i];
 			}
 		}
 
-		return sb.toString();
+		return new String(toArray, 0, j);
+	}
+
+	/**
+	 * 将单引号替换成双单引号，避免使用 str.replace("'", "''") 这种正则表达式的方式。
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String parseAposFromSingleToDouble(String str) {
+
+		if (str == null) {
+			return null;
+		}
+
+		if (str.indexOf('\'') == -1) {
+			return str;
+		}
+
+		char[] fromArray = str.toCharArray();
+		char[] toArray = new char[fromArray.length * 2];
+
+		int j = 0;
+		for (int i = 0; i < fromArray.length; i++) {
+			if (fromArray[i] == '\'') {
+				toArray[j++] = '\'';
+			}
+			toArray[j++] = fromArray[i];
+		}
+
+		return new String(toArray, 0, j);
 	}
 
 }

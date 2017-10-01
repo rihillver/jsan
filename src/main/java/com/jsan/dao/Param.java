@@ -3,6 +3,7 @@ package com.jsan.dao;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 
 /**
@@ -317,7 +318,7 @@ public class Param {
 	public String fixApos(String str) {
 
 		if (str != null) {
-			str = DaoFuncUtils.replaceAposToDouble(str);
+			str = ConvertFuncUtils.parseAposFromSingleToDouble(str);
 		}
 
 		return str;

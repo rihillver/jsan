@@ -40,6 +40,8 @@ public interface SqlxModel {
 	
 	Param createParam(String sql, int pageSize, int pageNumber);
 	
+	String createBeanDefinition() throws SQLException;
+	
 	
 	// ==================================================
 	
@@ -48,9 +50,6 @@ public interface SqlxModel {
 
 	boolean deleteByIds(String ids, Object... primaryValue) throws SQLException;
 
-	
-	String buildBeanFieldDefinition() throws SQLException;
-	
 	
 	// ==================================================
 	

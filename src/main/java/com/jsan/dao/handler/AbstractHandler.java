@@ -15,13 +15,13 @@ import java.util.Map;
 
 import com.jsan.convert.BeanConvertUtils;
 import com.jsan.convert.BeanProxyUtils;
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.Converter;
 import com.jsan.convert.Mold;
 import com.jsan.convert.cache.BeanConvertServiceCache;
 import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
-import com.jsan.dao.DaoFuncUtils;
 import com.jsan.dao.FieldNameHandler;
 import com.jsan.dao.FieldValueHandler;
 import com.jsan.dao.map.CaseInsensitiveMap;
@@ -150,7 +150,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				}
 
 				if (fieldInSnakeCase) {
-					columnName = DaoFuncUtils.parseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
+					columnName = ConvertFuncUtils.parseSnakeCaseToCamelCase(columnName); // 如果列名含有下划线，则将其转为驼峰形式的命名规范，注意这里不会对首字母做大小写处理
 				}
 
 				Method method = writeMethodMap.get(columnName);

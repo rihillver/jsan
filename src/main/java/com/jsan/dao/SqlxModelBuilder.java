@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.dao.annotation.Connecter;
@@ -206,9 +207,9 @@ public class SqlxModelBuilder implements SqlxModel {
 	public String getTableName() {
 
 		if (tableName == null) {
-			String name = DaoFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
+			String name = ConvertFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
 			if (tableInSnakeCase) {
-				name = DaoFuncUtils.parseToSnakeCase(name); // 转换为下划线命名规范
+				name = ConvertFuncUtils.parseCamelCaseToSnakeCase(name); // 转换为下划线命名规范
 			}
 			return name;
 		}
@@ -285,13 +286,13 @@ public class SqlxModelBuilder implements SqlxModel {
 	}
 
 	@Override
-	public String buildBeanFieldDefinition() throws SQLException {
+	public String createBeanDefinition() throws SQLException {
 
 		Param param = new Param();
 		param.setInitializedSql("select * from " + getTableName() + " where 1=2");
 		List<RowMetaData> list = queryForRowMetaData(param);
 
-		return DaoFuncUtils.buildBeanFieldDefinition(list, fieldToLowerCase, fieldInSnakeCase);
+		return DaoFuncUtils.createBeanDefinition(list, fieldToLowerCase, fieldInSnakeCase);
 	}
 
 	@Override

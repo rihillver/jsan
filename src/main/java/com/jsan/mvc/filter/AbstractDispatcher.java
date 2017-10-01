@@ -35,6 +35,7 @@ import com.jsan.convert.Converter;
 import com.jsan.convert.Formatter;
 import com.jsan.convert.GeneralConvertService;
 import com.jsan.convert.Mold;
+import com.jsan.convert.PropertiesConvertUtils;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
@@ -48,7 +49,6 @@ import com.jsan.mvc.ControllerInfoCache;
 import com.jsan.mvc.MappingInfo;
 import com.jsan.mvc.MethodInfo;
 import com.jsan.mvc.MvcConfig;
-import com.jsan.mvc.MvcFuncUtils;
 import com.jsan.mvc.ParameterInfo;
 import com.jsan.mvc.View;
 import com.jsan.mvc.adapter.CacheAdapter;
@@ -216,14 +216,14 @@ public abstract class AbstractDispatcher implements Filter {
 
 		if (configFile != null && !configFile.isEmpty()) {
 			try {
-				configProperties = MvcFuncUtils.getProperties(configFile);
+				configProperties = PropertiesConvertUtils.getProperties(configFile);
 			} catch (IOException e) {
 				logger.error("Cannot load the custom configuration file: {}", configFile);
 				throw new RuntimeException(e);
 			}
 		} else {
 			try {
-				configProperties = MvcFuncUtils.getProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
+				configProperties = PropertiesConvertUtils.getProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
 			} catch (IOException e) {
 				logger.warn("Cannot load the default configuration file: {}", DEFAULT_CONFIG_FILE);
 			}
@@ -256,7 +256,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 	protected void initMappingAdapter() {
 
-		mappingAdapter = (MappingAdapter) MvcFuncUtils.getObjectByProperties(configProperties,
+		mappingAdapter = (MappingAdapter) ConvertFuncUtils.getInstanceByProperties(configProperties,
 				MappingAdapter.class.getName());
 
 		if (mappingAdapter == null) {
@@ -271,7 +271,7 @@ public abstract class AbstractDispatcher implements Filter {
 	protected void initCacheAdapter() {
 
 		if (mvcConfig.isCacheable()) {
-			cacheAdapter = (CacheAdapter) MvcFuncUtils.getObjectByProperties(configProperties,
+			cacheAdapter = (CacheAdapter) ConvertFuncUtils.getInstanceByProperties(configProperties,
 					CacheAdapter.class.getName());
 			if (cacheAdapter == null) {
 				cacheAdapter = new EhcacheCacheAdapter();
@@ -282,7 +282,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 	protected void initJsonSerializeConfigurator() {
 
-		jsonSerializeConfigurator = (JsonSerializeConfigurator) MvcFuncUtils.getObjectByProperties(configProperties,
+		jsonSerializeConfigurator = (JsonSerializeConfigurator) ConvertFuncUtils.getInstanceByProperties(configProperties,
 				JsonSerializeConfigurator.class.getName());
 		if (jsonSerializeConfigurator == null) {
 			jsonSerializeConfigurator = new GeneralJsonSerializeConfigurator();
@@ -291,7 +291,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 	protected void initJsonParserConfigurator() {
 
-		jsonParserConfigurator = (JsonParserConfigurator) MvcFuncUtils.getObjectByProperties(configProperties,
+		jsonParserConfigurator = (JsonParserConfigurator) ConvertFuncUtils.getInstanceByProperties(configProperties,
 				JsonParserConfigurator.class.getName());
 		if (jsonParserConfigurator == null) {
 			jsonParserConfigurator = new GeneralJsonParserConfigurator();
@@ -321,7 +321,7 @@ public abstract class AbstractDispatcher implements Filter {
 	@SuppressWarnings("unchecked")
 	protected void fillListByCustom(Class<?> type) {
 
-		String[] customs = MvcFuncUtils.getStringArrayByProperties(configProperties, type.getName());
+		String[] customs = ConvertFuncUtils.getStringArrayByProperties(configProperties, type.getName());
 
 		if (customs != null) {
 			for (String className : customs) {
@@ -363,7 +363,7 @@ public abstract class AbstractDispatcher implements Filter {
 	@SuppressWarnings("unchecked")
 	private Class<? extends InterceptService> createInterceptServiceClass() {
 
-		Class<? extends InterceptService> interceptServiceClass = (Class<? extends InterceptService>) MvcFuncUtils
+		Class<? extends InterceptService> interceptServiceClass = (Class<? extends InterceptService>) ConvertFuncUtils
 				.getClassByProperties(configProperties, InterceptService.class.getName());
 
 		if (interceptServiceClass == null) {
@@ -398,7 +398,7 @@ public abstract class AbstractDispatcher implements Filter {
 	@SuppressWarnings("unchecked")
 	private Class<? extends ResolveService> createResolveServiceClass() {
 
-		Class<? extends ResolveService> resolveServiceClass = (Class<? extends ResolveService>) MvcFuncUtils
+		Class<? extends ResolveService> resolveServiceClass = (Class<? extends ResolveService>) ConvertFuncUtils
 				.getClassByProperties(configProperties, ResolveService.class.getName());
 
 		if (resolveServiceClass == null) {
@@ -437,7 +437,7 @@ public abstract class AbstractDispatcher implements Filter {
 	@SuppressWarnings("unchecked")
 	private Class<? extends ConvertService> createConvertServiceClass() {
 
-		Class<? extends ConvertService> convertServiceClass = (Class<? extends ConvertService>) MvcFuncUtils
+		Class<? extends ConvertService> convertServiceClass = (Class<? extends ConvertService>) ConvertFuncUtils
 				.getClassByProperties(configProperties, ConvertService.class.getName());
 
 		if (convertServiceClass == null) {
@@ -1063,7 +1063,7 @@ public abstract class AbstractDispatcher implements Filter {
 			}
 
 			if (formConvert.quirkMode()) {
-				key = ConvertFuncUtils.parseToCamelCase(key); // 将key转换为驼峰命名规范
+				key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
 			}
 
 			Method method = writeMethodMap.get(key);

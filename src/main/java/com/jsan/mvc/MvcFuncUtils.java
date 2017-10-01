@@ -16,7 +16,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -26,86 +25,6 @@ import java.util.jar.JarFile;
  */
 
 public class MvcFuncUtils {
-
-	public static Class<?> getClassByProperties(Properties properties, String key) {
-
-		Class<?> clazz = null;
-		String className = null;
-
-		if (properties != null) {
-			className = properties.getProperty(key);
-		}
-
-		if (className != null && !className.isEmpty()) {
-			try {
-				clazz = Class.forName(className);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return clazz;
-	}
-
-	public static Object getObjectByProperties(Properties properties, String key) {
-
-		Object object = null;
-
-		Class<?> clazz = getClassByProperties(properties, key);
-		if (clazz != null) {
-			try {
-				object = clazz.newInstance();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return object;
-	}
-
-	public static String[] getStringArrayByProperties(Properties properties, String key) {
-
-		String[] strs = null;
-		String str = null;
-
-		if (properties != null) {
-			str = properties.getProperty(key);
-		}
-
-		if (str != null && !str.isEmpty()) {
-			strs = str.split(",");
-			for (int i = 0; i < strs.length; i++) {
-				strs[i] = strs[i].trim(); // 去除首尾空白
-			}
-		}
-
-		return strs;
-	}
-
-	public static Properties getProperties(String path) throws IOException {
-
-		InputStream inputStream = MvcFuncUtils.class.getResourceAsStream(path);
-
-		if (inputStream == null) {
-			throw new IOException("failed to open the file: " + path);
-		}
-
-		Properties properties = new Properties();
-
-		try {
-			properties.load(inputStream);
-		} catch (Exception e) {
-			throw new IOException("failed to read the file: " + path);
-		} finally {
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return properties;
-	}
 
 	// ==================================================
 	// 扫描包下的 class 文件，以下代码来复制于互联网。

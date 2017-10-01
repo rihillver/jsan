@@ -1,7 +1,5 @@
 package com.jsan.convert;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import com.jsan.convert.annotation.ConverterRegister;
@@ -65,57 +63,83 @@ public class ConvertFuncUtils {
 		}
 	}
 
-//	public static String parseFirstCharToLowerCase(String str) {
-//
-//		if (str == null) {
-//			return null;
-//		}
-//
-//		char firstChar = str.charAt(0);
-//
-//		if (firstChar >= 'A' && firstChar <= 'Z') {
-//			char[] arr = str.toCharArray();
-//			arr[0] += ('a' - 'A');
-//			return new String(arr);
-//		}
-//
-//		return str;
-//	}
+	// =============================================================
 
-	public static Properties getProperties(String path) throws IOException {
+	public static Class<?> getClassByProperties(Properties properties, String key) {
 
-		InputStream inputStream = ConvertFuncUtils.class.getResourceAsStream(path);
+		Class<?> clazz = null;
+		String className = getStringByProperties(properties, key);
 
-		if (inputStream == null) {
-			throw new IOException("failed to open the file: " + path);
-		}
-
-		Properties properties = new Properties();
-
-		try {
-			properties.load(inputStream);
-		} catch (Exception e) {
-			throw new IOException("failed to read the file: " + path);
-		} finally {
+		if (className != null && !className.isEmpty()) {
 			try {
-				inputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+				clazz = Class.forName(className);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
 
-		return properties;
+		return clazz;
 	}
-	
 
+	public static Object getInstanceByProperties(Properties properties, String key) {
+
+		Object object = null;
+
+		Class<?> clazz = getClassByProperties(properties, key);
+		if (clazz != null) {
+			try {
+				object = clazz.newInstance();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		return object;
+	}
+
+	public static String[] getStringArrayByProperties(Properties properties, String key) {
+
+		String[] strs = null;
+		String str = null;
+
+		if (properties != null) {
+			str = properties.getProperty(key);
+		}
+
+		if (str != null && !str.isEmpty()) {
+			strs = str.split(",");
+			for (int i = 0; i < strs.length; i++) {
+				strs[i] = strs[i].trim(); // 去除首尾空白
+			}
+		}
+
+		return strs;
+	}
+
+	public static String getStringByProperties(Properties properties, String key) {
+
+		if (properties != null) {
+			return properties.getProperty(key);
+		} else {
+			return null;
+		}
+
+	}
+
+	/**
+	 * 首字母小写。
+	 * 
+	 * @param str
+	 * @return
+	 */
 	public static String parseFirstCharToLowerCase(String str) {
 
 		if (str != null && str.length() > 0) {
 			char firstChar = str.charAt(0);
 			if (firstChar >= 'A' && firstChar <= 'Z') {
-				char[] arr = str.toCharArray();
-				arr[0] += ('a' - 'A');
-				return new String(arr);
+				char[] charArray = str.toCharArray();
+				charArray[0] += ('a' - 'A');
+				return new String(charArray);
 			}
 		}
 
@@ -128,28 +152,9 @@ public class ConvertFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToSnakeCase(String str) {
+	public static String parseCamelCaseToSnakeCase(String str) {
 
-		if (str == null) {
-			return null;
-		}
-
-		int length = str.length();
-		StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < length; i++) {
-			char c = str.charAt(i);
-			if (Character.isUpperCase(c)) {
-				if (i > 0) {
-					sb.append('_');
-				}
-				sb.append(Character.toLowerCase(c));
-			} else {
-				sb.append(c);
-			}
-		}
-
-		return sb.toString();
+		return parseCamelCaseToGivenCase(str, '_');
 	}
 
 	/**
@@ -158,20 +163,9 @@ public class ConvertFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToLowerCamelCase(String str) {
+	public static String parseSnakeCaseToLowerCamelCase(String str) {
 
-		return parseToCamelCase(str, false);
-	}
-
-	/**
-	 * 大驼峰。
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public static String parseToUpperCamelCase(String str) {
-
-		return parseToCamelCase(str, true);
+		return parseGivenCaseToCamelCase(str, '_', false);
 	}
 
 	/**
@@ -180,61 +174,100 @@ public class ConvertFuncUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseToCamelCase(String str) {
+	public static String parseSnakeCaseToCamelCase(String str) {
 
-		return parseToCamelCase(str, null);
+		return parseGivenCaseToCamelCase(str, '_', null);
 	}
 
-	public static String parseToCamelCase(String str, Boolean firstCharacterUpperCase) {
+	private static String parseGivenCaseToCamelCase(String str, char c, Boolean firstCharacterUpperCase) {
+
+		if (str == null || str.isEmpty()) {
+			return str;
+		}
+
+		if (str.indexOf(c) == -1 && firstCharacterUpperCase == null) {
+			return str;
+		}
+
+		char[] fromArray = str.toCharArray();
+		int len = fromArray.length;
+		char[] toArray = new char[len];
+
+		int j = 0;
+		boolean flag = false;
+		for (int i = 0; i < len; i++) {
+			if (fromArray[i] == c) {
+				flag = true;
+				continue;
+			}
+			if (flag) {
+				if (i < len) {
+					toArray[j++] = Character.toUpperCase(fromArray[i]);
+				}
+				flag = false;
+			} else {
+				toArray[j++] = fromArray[i];
+			}
+		}
+
+		if (firstCharacterUpperCase != null) {
+			if (firstCharacterUpperCase) {
+				toArray[0] = Character.toUpperCase(toArray[0]);
+			} else {
+				toArray[0] = Character.toLowerCase(toArray[0]);
+			}
+		}
+
+		return new String(toArray, 0, j);
+	}
+
+	private static String parseCamelCaseToGivenCase(String str, char c) {
 
 		if (str == null) {
 			return null;
 		}
 
-		if (str.indexOf('_') > -1) { // 存在下划线的情况才进行
+		char[] fromArray = str.toCharArray();
+		char[] toArray = new char[fromArray.length * 2];
 
-			StringBuilder sb = new StringBuilder();
-			boolean nextUpperCase = false;
-			int len = str.length();
-			for (int i = 0; i < len; i++) {
-				char c = str.charAt(i);
-				if (c == '_') {
-					nextUpperCase = true;
-					continue;
+		int j = 0;
+		for (int i = 0; i < fromArray.length; i++) {
+
+			if (Character.isUpperCase(fromArray[i])) {
+				if (i > 0) {
+					toArray[j++] = c;
 				}
-
-				if (nextUpperCase) {
-					sb.append(Character.toUpperCase(c));
-					nextUpperCase = false;
-				} else {
-					sb.append(c);
-				}
-			}
-
-			// 如果 firstCharacterUpperCase 为 null 则不对首字母做转换处理
-			if (firstCharacterUpperCase != null) {
-				if (firstCharacterUpperCase) {
-					sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-				} else {
-					sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-				}
-			}
-
-			str = sb.toString();
-
-		} else {
-			// 如果 firstCharacterUpperCase 为 null 或 str 为空则不对首字母做转换处理
-			if (firstCharacterUpperCase != null && !str.isEmpty()) {
-				if (firstCharacterUpperCase) {
-					str = Character.toUpperCase(str.charAt(0)) + str.substring(1);
-				} else {
-					str = Character.toLowerCase(str.charAt(0)) + str.substring(1);
-				}
+				toArray[j++] = Character.toLowerCase(fromArray[i]);
+			} else {
+				toArray[j++] = fromArray[i];
 			}
 		}
 
-		return str;
+		return new String(toArray, 0, j);
 	}
-	
-	
+
+	public static String parseAposFromSingleToDouble(String str) {
+
+		if (str == null) {
+			return null;
+		}
+
+		if (str.indexOf('\'') == -1) {
+			return str;
+		}
+
+		char[] fromArray = str.toCharArray();
+		char[] toArray = new char[fromArray.length * 2];
+
+		int j = 0;
+		for (int i = 0; i < fromArray.length; i++) {
+			if (fromArray[i] == '\'') {
+				toArray[j++] = '\'';
+			}
+			toArray[j++] = fromArray[i];
+		}
+
+		return new String(toArray, 0, j);
+	}
+
 }

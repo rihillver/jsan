@@ -181,7 +181,8 @@ public class Oracle extends AbstractSqlx {
 				fieldBuilder.append(",");
 				placeholderBuilder.append(",");
 			}
-			fieldBuilder.append(entry.getKey());
+			String field = getFieldProcessed(entry.getKey(), param);
+			fieldBuilder.append(field);
 
 			// ========================================
 			Object value = entry.getValue();

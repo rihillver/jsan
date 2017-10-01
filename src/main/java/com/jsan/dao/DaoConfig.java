@@ -10,10 +10,12 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jsan.convert.ConvertFuncUtils;
 import com.jsan.convert.ConvertService;
 import com.jsan.convert.Converter;
 import com.jsan.convert.Formatter;
 import com.jsan.convert.GeneralConvertService;
+import com.jsan.convert.PropertiesConvertUtils;
 
 public class DaoConfig {
 
@@ -67,7 +69,7 @@ public class DaoConfig {
 	private static Properties createConfigProperties() {
 
 		try {
-			Properties properties = DaoFuncUtils.getProperties(DEFAULT_CONFIG_FILE);
+			Properties properties = PropertiesConvertUtils.getProperties(DEFAULT_CONFIG_FILE);
 			logger.info("Loaded ConfigProperties: {}", DEFAULT_CONFIG_FILE);
 			return properties;
 		} catch (IOException e) {
@@ -82,7 +84,7 @@ public class DaoConfig {
 
 		List<Class<? extends Converter>> list = new ArrayList<Class<? extends Converter>>();
 
-		String[] customs = DaoFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
+		String[] customs = ConvertFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
 		if (customs != null) {
 			for (String className : customs) {
 				Class<?> clazz;
@@ -107,7 +109,7 @@ public class DaoConfig {
 
 		List<Class<? extends Formatter>> list = new ArrayList<Class<? extends Formatter>>();
 
-		String[] customs = DaoFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
+		String[] customs = ConvertFuncUtils.getStringArrayByProperties(configProperties, Converter.class.getName());
 		if (customs != null) {
 			for (String className : customs) {
 				Class<?> clazz;

@@ -3,6 +3,7 @@ package com.jsan.convert;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
@@ -286,6 +287,57 @@ public class PropertiesConvertUtils {
 
 	/**
 	 * 读取指定路径的 properties 文件并转换成 Properties 对象（仅相对于 classes 目录下）。
+	 * <p>
+	 * 抛出 IOException 异常。
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public static Properties getProperties(String path) throws IOException {
+
+		InputStream inputStream = ConvertFuncUtils.class.getResourceAsStream(path);
+
+		if (inputStream == null) {
+			throw new IOException("failed to open the file: " + path);
+		}
+
+		Properties properties = new Properties();
+
+		try {
+			properties.load(inputStream);
+		} catch (Exception e) {
+			throw new IOException("failed to read the file: " + path);
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return properties;
+	}
+
+	/**
+	 * 读取指定路径目录和文件名的 properties 文件并转换成 Properties 对象（仅相对于 classes 目录下）。
+	 * <p>
+	 * 抛出 IOException 异常。
+	 * 
+	 * @param dirPath
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
+	public static Properties getProperties(String dirPath, String fileName) throws IOException {
+
+		dirPath = getQualifiedDirPath(dirPath);
+
+		return getProperties(dirPath + fileName);
+	}
+
+	/**
+	 * 读取指定路径的 properties 文件并转换成 Properties 对象（仅相对于 classes 目录下）。
 	 * 
 	 * @param path
 	 * @return
@@ -293,7 +345,7 @@ public class PropertiesConvertUtils {
 	public static Properties loadProperties(String path) {
 
 		try {
-			return ConvertFuncUtils.getProperties(path);
+			return getProperties(path);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -308,9 +360,11 @@ public class PropertiesConvertUtils {
 	 */
 	public static Properties loadProperties(String dirPath, String fileName) {
 
-		dirPath = getQualifiedDirPath(dirPath);
-
-		return loadProperties(dirPath + fileName);
+		try {
+			return getProperties(dirPath, fileName);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static Map<String, Object> getMap(String path) {
