@@ -64,7 +64,7 @@ public class BeanConvertUtilsTest {
 	@Test
 	public void testBar() {
 
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", 123);
 		map.put("name", "Jack");
 		map.put("color", "red"); // 可以转换

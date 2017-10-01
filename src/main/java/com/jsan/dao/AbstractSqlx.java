@@ -806,7 +806,7 @@ public abstract class AbstractSqlx implements Sqlx {
 				if (value == null) { // 值为null时升序
 					order = "asc";
 				} else if (value instanceof Boolean) { // 值为true时降序，值为false时升序
-					order = (boolean) value ? "desc" : "asc";
+					order = (Boolean) value ? "desc" : "asc";
 				} else if (value instanceof Number) { // 值为1时降序，其他值时为升序
 					order = ((Number) value).intValue() == 1 ? "desc" : "asc";
 				} else { // 值为desc时降序，其他值时为升序
