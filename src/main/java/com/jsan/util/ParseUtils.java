@@ -343,7 +343,7 @@ public class ParseUtils {
 	 * @param str
 	 * @return
 	 */
-	public static String parseAposFromSingleToDouble(String str) {
+	public static String parseAposToDouble(String str) {
 
 		if (str == null) {
 			return null;
@@ -360,6 +360,36 @@ public class ParseUtils {
 		for (int i = 0; i < fromArray.length; i++) {
 			if (fromArray[i] == '\'') {
 				toArray[j++] = '\'';
+			}
+			toArray[j++] = fromArray[i];
+		}
+
+		return new String(toArray, 0, j);
+	}
+
+	/**
+	 * 将单引号去除，避免使用 str.replace("'", "") 这种正则表达式的方式。
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String parseAposToNone(String str) {
+
+		if (str == null) {
+			return null;
+		}
+
+		if (str.indexOf('\'') == -1) {
+			return str;
+		}
+
+		char[] fromArray = str.toCharArray();
+		char[] toArray = new char[fromArray.length];
+
+		int j = 0;
+		for (int i = 0; i < fromArray.length; i++) {
+			if (fromArray[i] == '\'') {
+				continue;
 			}
 			toArray[j++] = fromArray[i];
 		}

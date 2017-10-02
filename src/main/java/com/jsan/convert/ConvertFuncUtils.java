@@ -246,7 +246,7 @@ public class ConvertFuncUtils {
 		return new String(toArray, 0, j);
 	}
 
-	public static String parseAposFromSingleToDouble(String str) {
+	public static String parseAposToDouble(String str) {
 
 		if (str == null) {
 			return null;

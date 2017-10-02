@@ -315,16 +315,16 @@ public class Param {
 
 	/***********************************************************************/
 
-	public String fixApos(String str) {
+	public static String fixApos(String str) {
 
 		if (str != null) {
-			str = ConvertFuncUtils.parseAposFromSingleToDouble(str);
+			str = ConvertFuncUtils.parseAposToDouble(str);
 		}
 
 		return str;
 	}
 
-	public String wrapApos(String str) {
+	public static String wrapApos(String str) {
 
 		if (str != null) {
 			str = "'" + str + "'";
@@ -333,7 +333,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapApos(String str, boolean fix) {
+	public static String wrapApos(String str, boolean fix) {
 
 		if (fix) {
 			str = fixApos(str);
@@ -342,7 +342,7 @@ public class Param {
 		return wrapApos(str);
 	}
 
-	public String wrapMate(String str) {
+	public static String wrapMate(String str) {
 
 		if (str != null) {
 			str = "%" + str + "%";
@@ -351,7 +351,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapMateApos(String str) {
+	public static String wrapMateApos(String str) {
 
 		if (str != null) {
 			str = "'%" + str + "%'";
@@ -360,7 +360,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapMateApos(String str, boolean fix) {
+	public static String wrapMateApos(String str, boolean fix) {
 
 		if (fix) {
 			str = fixApos(str);
@@ -369,7 +369,7 @@ public class Param {
 		return wrapMateApos(str);
 	}
 
-	public String wrapLeftMate(String str) {
+	public static String wrapLeftMate(String str) {
 
 		if (str != null) {
 			str = "%" + str;
@@ -378,7 +378,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapLeftMateApos(String str) {
+	public static String wrapLeftMateApos(String str) {
 
 		if (str != null) {
 			str = "'%" + str + "'";
@@ -387,7 +387,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapLeftMateApos(String str, boolean fix) {
+	public static String wrapLeftMateApos(String str, boolean fix) {
 
 		if (fix) {
 			str = fixApos(str);
@@ -396,7 +396,7 @@ public class Param {
 		return wrapLeftMateApos(str);
 	}
 
-	public String wrapRightMate(String str) {
+	public static String wrapRightMate(String str) {
 
 		if (str != null) {
 			str = str + "%";
@@ -405,7 +405,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapRightMateApos(String str) {
+	public static String wrapRightMateApos(String str) {
 
 		if (str != null) {
 			str = "'" + str + "%'";
@@ -414,7 +414,7 @@ public class Param {
 		return str;
 	}
 
-	public String wrapRightMateApos(String str, boolean fix) {
+	public static String wrapRightMateApos(String str, boolean fix) {
 
 		if (fix) {
 			str = fixApos(str);
