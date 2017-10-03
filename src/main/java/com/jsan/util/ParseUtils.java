@@ -368,18 +368,41 @@ public class ParseUtils {
 	}
 
 	/**
-	 * 将单引号去除，避免使用 str.replace("'", "") 这种正则表达式的方式。
+	 * 将单引号去除。
 	 * 
 	 * @param str
 	 * @return
 	 */
 	public static String parseAposToNone(String str) {
 
+		return parseGivenCharToNone(str, '\'');
+	}
+
+	/**
+	 * 将空格去除。
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String parseSpaceToNone(String str) {
+
+		return parseGivenCharToNone(str, ' ');
+	}
+
+	/**
+	 * 将指定字符去除，避免使用 str.replace("X", "") 这种正则表达式的方式。
+	 * 
+	 * @param str
+	 * @param c
+	 * @return
+	 */
+	public static String parseGivenCharToNone(String str, char c) {
+
 		if (str == null) {
 			return null;
 		}
 
-		if (str.indexOf('\'') == -1) {
+		if (str.indexOf(c) == -1) {
 			return str;
 		}
 
@@ -388,7 +411,7 @@ public class ParseUtils {
 
 		int j = 0;
 		for (int i = 0; i < fromArray.length; i++) {
-			if (fromArray[i] == '\'') {
+			if (fromArray[i] == c) {
 				continue;
 			}
 			toArray[j++] = fromArray[i];
