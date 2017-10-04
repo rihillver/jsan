@@ -57,9 +57,9 @@ import com.jsan.mvc.adapter.MappingAdapter;
 import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
-import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
+import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.annotation.Render;
 import com.jsan.mvc.intercept.GeneralInterceptService;
 import com.jsan.mvc.intercept.InterceptService;
@@ -282,8 +282,8 @@ public abstract class AbstractDispatcher implements Filter {
 
 	protected void initJsonSerializeConfigurator() {
 
-		jsonSerializeConfigurator = (JsonSerializeConfigurator) ConvertFuncUtils.getInstanceByProperties(configProperties,
-				JsonSerializeConfigurator.class.getName());
+		jsonSerializeConfigurator = (JsonSerializeConfigurator) ConvertFuncUtils
+				.getInstanceByProperties(configProperties, JsonSerializeConfigurator.class.getName());
 		if (jsonSerializeConfigurator == null) {
 			jsonSerializeConfigurator = new GeneralJsonSerializeConfigurator();
 		}
@@ -758,6 +758,29 @@ public abstract class AbstractDispatcher implements Filter {
 		return cache;
 	}
 
+	protected boolean isParameterQuirkMode(ControllerInfo cInfo, MethodInfo mInfo, ParameterInfo pInfo) {
+
+		QuirkMode quirkMode = pInfo.getQuirkMode();
+
+		if (quirkMode == null) {
+			synchronized (pInfo) {
+				quirkMode = pInfo.getQuirkMode();
+				if (quirkMode == null) {
+					quirkMode = mInfo.getMethod().getAnnotation(QuirkMode.class); // 从方法上寻找
+					if (quirkMode == null) {
+						quirkMode = cInfo.getType().getAnnotation(QuirkMode.class); // 从类上寻找
+						if (quirkMode == null) {
+							quirkMode = QuirkMode.class.getAnnotation(QuirkMode.class); // 如果都不存在@QuirkMode注解，则定义一个默认值为false的@QuirkMode放入pInfo中去
+						}
+					}
+					pInfo.setQuirkMode(quirkMode);
+				}
+			}
+		}
+
+		return quirkMode.value();
+	}
+
 	protected View getViewCache(Cache cache, MappingInfo mappingInfo, ControllerInfo cInfo, MethodInfo mInfo,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -900,6 +923,8 @@ public abstract class AbstractDispatcher implements Filter {
 			ParameterInfo pInfo = parameterInfos[i];
 			Class<?> type = pInfo.getType();
 			Type GenericType = pInfo.getGenericType();
+			boolean parameterQuirkMode = isParameterQuirkMode(cInfo, mInfo, pInfo);
+			boolean standardConvertFlag = false;
 
 			if (View.class.isAssignableFrom(type)) {
 				parameterObjects[i] = view;
@@ -915,22 +940,23 @@ public abstract class AbstractDispatcher implements Filter {
 
 				if (pInfo.getFormConvert() != null) {
 					if (Map.class.isAssignableFrom(type)) { // 表单转Map处理
-						parameterObjects[i] = getRequestFormToMap(service, pInfo, request);
+						parameterObjects[i] = getRequestFormToMap(service, pInfo, parameterQuirkMode, request);
 					} else { // 表单转Bean处理
-						parameterObjects[i] = getRequestFormToBean(service, pInfo, request);
+						parameterObjects[i] = getRequestFormToBean(service, pInfo, parameterQuirkMode, request);
 					}
 				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
-					parameterObjects[i] = getRequestJsonToObject(pInfo, request);
+					standardConvertFlag = true;
+					parameterObjects[i] = getRequestJsonToObject(pInfo, parameterQuirkMode, request);
 				} else {
+					standardConvertFlag = true;
 					Object parameterValue;
 					if (pInfo.getMethodValue() != null) {
 						parameterValue = mappingInfo.getMethodValue();
 					} else {
-						String requestParameterName = getRequestParameterName(pInfo);
 						if (pInfo.getMultiValue() != null) { // 是否为指定多值的参数
-							parameterValue = request.getParameterValues(requestParameterName);
+							parameterValue = getRequestParameterValues(pInfo, parameterQuirkMode, request);
 						} else {
-							parameterValue = request.getParameter(requestParameterName);
+							parameterValue = getRequestParameterValue(pInfo, parameterQuirkMode, request);
 						}
 					}
 					Converter converter = service.lookupConverter(type);
@@ -939,6 +965,7 @@ public abstract class AbstractDispatcher implements Filter {
 			}
 
 			if (message != null) {
+				String parameterName = pInfo.getName();
 				if (i == 0) {
 					message.append("\n");
 				}
@@ -946,11 +973,22 @@ public abstract class AbstractDispatcher implements Filter {
 				message.append("(");
 				message.append(type.getCanonicalName());
 				message.append(") ");
-				message.append(pInfo.getName());
-				if (pInfo.getParamName() != null) {
-					message.append(" [");
-					message.append(pInfo.getParamName().value());
-					message.append("]");
+				message.append(parameterName);
+				if (standardConvertFlag) {
+					if (pInfo.getParamName() != null) {
+						message.append(" [");
+						message.append(pInfo.getParamName().value());
+						message.append("]");
+					} else if (parameterQuirkMode) {
+						if (request.getParameterValues(parameterName) == null) {
+							String originalParameterName = ConvertFuncUtils.parseCamelCaseToSnakeCase(parameterName);
+							if (request.getParameterValues(originalParameterName) != null) {
+								message.append(" [");
+								message.append(originalParameterName);
+								message.append("]");
+							}
+						}
+					}
 				}
 				message.append(" : ");
 				if (type.isArray()) {
@@ -999,19 +1037,50 @@ public abstract class AbstractDispatcher implements Filter {
 		return parameterObjects;
 	}
 
+	protected String[] getRequestParameterValues(ParameterInfo pInfo, boolean parameterQuirkMode,
+			HttpServletRequest request) {
+
+		String requestParameterName = getRequestParameterName(pInfo, false);
+		String[] parameterValue = request.getParameterValues(requestParameterName);
+		if (parameterValue == null && parameterQuirkMode && pInfo.getParamName() == null) {
+			parameterValue = request.getParameterValues(getRequestParameterName(pInfo, true));
+		}
+
+		return parameterValue;
+	}
+
+	protected String getRequestParameterValue(ParameterInfo pInfo, boolean parameterQuirkMode,
+			HttpServletRequest request) {
+
+		String requestParameterName = getRequestParameterName(pInfo, false);
+		String parameterValue = request.getParameter(requestParameterName);
+		if (parameterValue == null && parameterQuirkMode && pInfo.getParamName() == null) {
+			parameterValue = request.getParameter(getRequestParameterName(pInfo, true));
+		}
+
+		return parameterValue;
+	}
+
 	/**
 	 * 返回请求参数名。
+	 * <p>
+	 * 当通过 @ParamName 注解明确指定参数名时将忽略兼容模式，即不会再转换成下划线的形式进行尝试。
 	 * 
 	 * @param pInfo
 	 * @return
 	 */
-	protected String getRequestParameterName(ParameterInfo pInfo) {
+	protected String getRequestParameterName(ParameterInfo pInfo, boolean parameterQuirkMode) {
 
 		ParamName paramName = pInfo.getParamName();
 		if (paramName != null) {
 			return paramName.value();
 		}
-		return pInfo.getName();
+
+		if (parameterQuirkMode) {
+			return ConvertFuncUtils.parseCamelCaseToSnakeCase(pInfo.getName());
+		} else {
+			return pInfo.getName();
+		}
 	}
 
 	/**
@@ -1022,10 +1091,10 @@ public abstract class AbstractDispatcher implements Filter {
 	 * @param jsonConvert
 	 * @return
 	 */
-	protected <T> T getRequestJsonToObject(ParameterInfo pInfo, HttpServletRequest request) {
+	protected <T> T getRequestJsonToObject(ParameterInfo pInfo, boolean parameterQuirkMode,
+			HttpServletRequest request) {
 
-		String requestParameterName = getRequestParameterName(pInfo);
-		String parameterValue = request.getParameter(requestParameterName);
+		String parameterValue = getRequestParameterValue(pInfo, parameterQuirkMode, request);
 		Type GenericType = pInfo.getGenericType();
 		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
 
@@ -1034,15 +1103,15 @@ public abstract class AbstractDispatcher implements Filter {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T> T getRequestFormToBean(ConvertService service, ParameterInfo pInfo, HttpServletRequest request)
-			throws Exception {
+	protected <T> T getRequestFormToBean(ConvertService service, ParameterInfo pInfo, boolean parameterQuirkMode,
+			HttpServletRequest request) throws Exception {
 
 		Class<T> beanClass = (Class<T>) pInfo.getType();
 
 		// 判断是否使用daoBean模式，这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
 		// 创建表单Bean实例对象过程中当类的访问权限不足时（比如实例化在控制器类内创建的表单Bean类）自动通过Cglib动态代理的方式创建实例对象
-		FormConvert formConvert = pInfo.getFormConvert();
-		T bean = formConvert.value() ? BeanProxyUtils.getDaoBean(beanClass) : BeanProxyUtils.newInstance(beanClass);
+		T bean = pInfo.getFormConvert().value() ? BeanProxyUtils.getDaoBean(beanClass)
+				: BeanProxyUtils.newInstance(beanClass);
 
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
@@ -1062,7 +1131,7 @@ public abstract class AbstractDispatcher implements Filter {
 				continue;
 			}
 
-			if (formConvert.quirkMode()) {
+			if (parameterQuirkMode) {
 				key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
 			}
 
@@ -1098,7 +1167,8 @@ public abstract class AbstractDispatcher implements Filter {
 		return obj;
 	}
 
-	protected Object getRequestFormToMap(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
+	protected Object getRequestFormToMap(ConvertService service, ParameterInfo pInfo, boolean parameterQuirkMode,
+			HttpServletRequest request) {
 
 		Type genericType = pInfo.getGenericType();
 		MultiValue multiValue = pInfo.getMultiValue();

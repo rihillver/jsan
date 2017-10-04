@@ -13,6 +13,7 @@ import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
+import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
@@ -34,6 +35,7 @@ public class ParameterInfo {
 	private ParamName paramName; // 指定的请求参数名
 	private FormConvert formConvert;
 	private JsonConvert jsonConvert;
+	private QuirkMode quirkMode;
 	private MethodValue methodValue;
 	private MultiValue multiValue;
 	private ConvertServiceRegister convertServiceRegister;
@@ -95,6 +97,14 @@ public class ParameterInfo {
 
 	public void setJsonConvert(JsonConvert jsonConvert) {
 		this.jsonConvert = jsonConvert;
+	}
+
+	public QuirkMode getQuirkMode() {
+		return quirkMode;
+	}
+
+	public void setQuirkMode(QuirkMode quirkMode) {
+		this.quirkMode = quirkMode;
 	}
 
 	public MethodValue getMethodValue() {

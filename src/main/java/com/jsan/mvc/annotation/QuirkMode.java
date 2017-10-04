@@ -8,20 +8,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * 控制器上的缓存注解。
+ * 兼容模式，即是否将含有下划线的表单字段转换成驼峰形式。
  *
  */
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
 
-@Cache("") // 定义一个默认的特殊注解，以便 AbstractDispatcher 的 getCacheAnnotation 方法获取。
-public @interface Cache {
+@QuirkMode(false) // 定义一个默认值为false的特殊注解，以便 AbstractDispatcher 的 getQuirkModeAnnotation 方法获取。
+public @interface QuirkMode {
 
-	String value();
-
-	boolean session() default false;
+	boolean value() default true;
 
 }

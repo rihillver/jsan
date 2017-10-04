@@ -34,11 +34,4 @@ public @interface FormConvert {
 	 * @return
 	 */
 	boolean value() default false;
-
-	/**
-	 * 兼容模式，即是否将含有下划线的表单字段转换成驼峰形式，仅对于 Bean 的转换类型才有效，对于 Map 的转换类型无效。
-	 * 
-	 * @return
-	 */
-	boolean quirkMode() default false;
 }
