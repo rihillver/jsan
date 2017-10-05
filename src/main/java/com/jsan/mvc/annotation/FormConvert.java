@@ -20,6 +20,20 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface FormConvert {
+	
+	/**
+	 * 声明是否使用动态代理的方式，仅对于 Bean 的转换类型才有效，对于 Map 的转换类型无效。
+	 * 
+	 * @return
+	 */
+	boolean value() default false;
+	
+	/**
+	 * 指定表单字段的前缀。
+	 * 
+	 * @return
+	 */
+	String prefix() default "";
 
 	/**
 	 * 指定参与表单转换的参数。
@@ -27,11 +41,4 @@ public @interface FormConvert {
 	 * @return
 	 */
 	String[] params() default {};
-
-	/**
-	 * 声明是否使用动态代理的方式，仅对于 Bean 的转换类型才有效，对于 Map 的转换类型无效。
-	 * 
-	 * @return
-	 */
-	boolean value() default false;
 }

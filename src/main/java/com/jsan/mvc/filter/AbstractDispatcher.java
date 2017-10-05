@@ -57,6 +57,7 @@ import com.jsan.mvc.adapter.MappingAdapter;
 import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
+import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.QuirkMode;
@@ -1110,8 +1111,8 @@ public abstract class AbstractDispatcher implements Filter {
 
 		// 判断是否使用daoBean模式，这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
 		// 创建表单Bean实例对象过程中当类的访问权限不足时（比如实例化在控制器类内创建的表单Bean类）自动通过Cglib动态代理的方式创建实例对象
-		T bean = pInfo.getFormConvert().value() ? BeanProxyUtils.getDaoBean(beanClass)
-				: BeanProxyUtils.newInstance(beanClass);
+		FormConvert formConvert = pInfo.getFormConvert();
+		T bean = formConvert.value() ? BeanProxyUtils.getDaoBean(beanClass) : BeanProxyUtils.newInstance(beanClass);
 
 		MultiValue multiValue = pInfo.getMultiValue();
 		Set<String> multiValueSet = pInfo.getMultiValueSet();
@@ -1123,9 +1124,18 @@ public abstract class AbstractDispatcher implements Filter {
 		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass,
 				service);
 
+		String prefix = formConvert.prefix();
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 			String key = entry.getKey();
+
+			if (!prefix.isEmpty()) {
+				if (key.startsWith(prefix)) {
+					key = key.substring(prefix.length());
+				} else {
+					continue;
+				}
+			}
 
 			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
 				continue;
@@ -1177,8 +1187,20 @@ public abstract class AbstractDispatcher implements Filter {
 
 		Map<String, String[]> requestParameterMap = request.getParameterMap();
 		Map<String, Object> map = new LinkedHashMap<String, Object>(requestParameterMap.size());
+
+		// 这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
+		String prefix = pInfo.getFormConvert().prefix();
 		for (Map.Entry<String, String[]> entry : requestParameterMap.entrySet()) {
+			
 			String key = entry.getKey();
+
+			if (!prefix.isEmpty()) {
+				if (key.startsWith(prefix)) {
+					key = key.substring(prefix.length());
+				} else {
+					continue;
+				}
+			}
 
 			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
 				continue;
