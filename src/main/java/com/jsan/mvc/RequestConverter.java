@@ -52,14 +52,10 @@ public class RequestConverter extends HttpServletRequestWrapper {
 
 		String[] values = request.getParameterValues(arg0);
 
-		// if (values != null) {
-		// for (int i = 0; i < values.length; i++) {
-		// values[i] = getConvert(values[i]);
-		// }
-		// }
-
-		for (int i = 0; i < values.length; i++) {
-			values[i] = getConvert(values[i]);
+		if (values != null) {
+			for (int i = 0; i < values.length; i++) {
+				values[i] = getConvert(values[i]);
+			}
 		}
 
 		return values;
