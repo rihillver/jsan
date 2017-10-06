@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
  * <p>
  * 在方法参数上标识此参数是否返回原始数组，即返回 request.getParameterValues()，而不是返回
  * request.getParameterValues() 的第一个元素。
+ * <p>
+ * 没有使用该注解的情况下默认按 request.getParameter("xxx") 取值。
  *
  */
 
@@ -20,7 +22,7 @@ import java.lang.annotation.Target;
 public @interface MultiValue {
 
 	/**
-	 * 可以指定多个字段值，一般用在把整个 form 转换成 Map 或 Bean 的情况下，指定的则直接返回原始数组（即
+	 * 可以指定多个字段值，当指定多个字段值时一般是用在把整个 form 转换成 Map 或 Bean 的情况下，指定的则直接返回原始数组（即
 	 * request.getParameterValues() ），未指定的则取原始数组的第一个值，如果在没有指定任何字段默认空的情况下，只要有
 	 * MultiValue 注解的则全部取原始数组。
 	 * 
