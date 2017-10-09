@@ -62,6 +62,7 @@ import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.annotation.Render;
+import com.jsan.mvc.annotation.SessionObject;
 import com.jsan.mvc.intercept.GeneralInterceptService;
 import com.jsan.mvc.intercept.InterceptService;
 import com.jsan.mvc.intercept.Interceptor;
@@ -945,6 +946,8 @@ public abstract class AbstractDispatcher implements Filter {
 					} else { // 表单转Bean处理
 						parameterObjects[i] = getRequestFormToBean(service, pInfo, parameterQuirkMode, request);
 					}
+				} else if (pInfo.getSessionObject() != null) { // session属性对象处理
+					parameterObjects[i] = getSessionObject(service, pInfo, request);
 				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
 					standardConvertFlag = true;
 					parameterObjects[i] = getRequestJsonToObject(pInfo, parameterQuirkMode, request);
@@ -1036,6 +1039,22 @@ public abstract class AbstractDispatcher implements Filter {
 		}
 
 		return parameterObjects;
+	}
+
+	protected Object getSessionObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
+
+		SessionObject sessionObject = pInfo.getSessionObject();
+		String attributeName = sessionObject.value();
+		if (attributeName.isEmpty()) {
+			attributeName = pInfo.getName();
+		}
+		Object object = request.getSession().getAttribute(attributeName);
+		if (pInfo.getType().isPrimitive()) {
+			Converter converter = service.lookupConverter(pInfo.getType());
+			object = converter.convert(object, pInfo.getGenericType());
+		}
+
+		return object;
 	}
 
 	protected String[] getRequestParameterValues(ParameterInfo pInfo, boolean parameterQuirkMode,
@@ -1191,7 +1210,7 @@ public abstract class AbstractDispatcher implements Filter {
 		// 这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
 		String prefix = pInfo.getFormConvert().prefix();
 		for (Map.Entry<String, String[]> entry : requestParameterMap.entrySet()) {
-			
+
 			String key = entry.getKey();
 
 			if (!prefix.isEmpty()) {

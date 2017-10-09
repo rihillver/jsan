@@ -26,6 +26,7 @@ import com.jsan.mvc.annotation.Post;
 import com.jsan.mvc.annotation.Put;
 import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.annotation.Render;
+import com.jsan.mvc.annotation.SessionObject;
 
 /**
  * ControllerInfo 缓存。
@@ -159,7 +160,6 @@ public class ControllerInfoCache {
 				pInfo.setJsonConvert((JsonConvert) annotation);
 			} else if (annotation instanceof QuirkMode) {
 				pInfo.setQuirkMode((QuirkMode) annotation);
-
 			} else if (annotation instanceof MethodValue) {
 				pInfo.setMethodValue((MethodValue) annotation);
 			} else if (annotation instanceof MultiValue) {
@@ -170,6 +170,8 @@ public class ControllerInfoCache {
 					Set<String> set = new HashSet<String>(Arrays.asList(value));
 					pInfo.setMultiValueSet(set); // 初始化 multiValueSet
 				}
+			} else if (annotation instanceof SessionObject) {
+				pInfo.setSessionObject((SessionObject) annotation);
 			} else if (annotation instanceof ConvertServiceRegister) {
 				pInfo.setConvertServiceRegister((ConvertServiceRegister) annotation);
 			} else if (annotation instanceof ConverterRegister) {

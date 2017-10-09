@@ -14,6 +14,7 @@ import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.QuirkMode;
+import com.jsan.mvc.annotation.SessionObject;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
@@ -38,6 +39,7 @@ public class ParameterInfo {
 	private QuirkMode quirkMode;
 	private MethodValue methodValue;
 	private MultiValue multiValue;
+	private SessionObject sessionObject;
 	private ConvertServiceRegister convertServiceRegister;
 	private ConverterRegister converterRegister;
 	private DateTimePattern dateTimePattern;
@@ -113,6 +115,14 @@ public class ParameterInfo {
 
 	public void setMethodValue(MethodValue methodValue) {
 		this.methodValue = methodValue;
+	}
+
+	public SessionObject getSessionObject() {
+		return sessionObject;
+	}
+
+	public void setSessionObject(SessionObject sessionObject) {
+		this.sessionObject = sessionObject;
 	}
 
 	public ConvertServiceRegister getConvertServiceRegister() {
