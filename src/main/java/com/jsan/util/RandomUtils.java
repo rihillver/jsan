@@ -98,7 +98,7 @@ public class RandomUtils {
 
 		int n = 0x9fa5 - 0x4e00 + 1;
 
-		Random random = new Random();
+		Random random = randomThreadLocal.get();
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < minLength; i++) {
@@ -167,7 +167,7 @@ public class RandomUtils {
 			char[] charArray = str.toCharArray();
 			int charLength = charArray.length;
 
-			Random random = new Random();
+			Random random = randomThreadLocal.get();
 			StringBuilder sb = new StringBuilder();
 
 			for (int i = 0; i < minLength; i++) {
