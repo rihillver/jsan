@@ -9,11 +9,20 @@ import javax.xml.bind.DatatypeConverter;
 /**
  * 随机数生成工具类。
  * <p>
- * jdk1.7 后请使用 java.util.concurrent.ThreadLocalRandom，保证了多线程下的高效率。
+ * jdk1.7 后可使用 java.util.concurrent.ThreadLocalRandom，同样保证了多线程下的高效率。
  *
  */
 
 public class RandomUtils {
+
+	private static final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<Random>() {
+
+		@Override
+		protected Random initialValue() {
+			return new Random();
+		}
+
+	};
 
 	public static final String NUMBER_STRING = "0123456789";
 	public static final String ENGLISH_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -29,7 +38,7 @@ public class RandomUtils {
 	 */
 	public static int getInt(int minValue, int maxValue) {
 
-		Random random = new Random();
+		Random random = randomThreadLocal.get();
 
 		int value = maxValue - minValue;
 		value = random.nextInt(value + 1);
@@ -89,7 +98,7 @@ public class RandomUtils {
 
 		int n = 0x9fa5 - 0x4e00 + 1;
 
-		Random random = new Random();
+		Random random = randomThreadLocal.get();
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < minLength; i++) {
@@ -158,7 +167,7 @@ public class RandomUtils {
 			char[] charArray = str.toCharArray();
 			int charLength = charArray.length;
 
-			Random random = new Random();
+			Random random = randomThreadLocal.get();
 			StringBuilder sb = new StringBuilder();
 
 			for (int i = 0; i < minLength; i++) {
