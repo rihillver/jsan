@@ -8,7 +8,12 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpUtilsTest {
+import org.junit.Ignore;
+
+import junit.framework.TestCase;
+
+@Ignore
+public class HttpUtilsTest extends TestCase {
 
 	public void testFoo() throws UnsupportedEncodingException {
 
