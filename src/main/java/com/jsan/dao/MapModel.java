@@ -4,11 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.jsan.dao.handler.support.BeanListHandler;
-import com.jsan.dao.handler.support.MapListHandler;
-import com.jsan.dao.map.ListMultiValueMap;
-import com.jsan.dao.map.SetMultiValueMap;
-
 public interface MapModel extends SqlxModel {
 	
 	Map<String, Object> findById(Object... primaryValue) throws SQLException;
@@ -38,53 +33,53 @@ public interface MapModel extends SqlxModel {
 	Page<Map<String, Object>> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException;
 	
 	
-	Map<String, Object> queryForMap(Param param) throws SQLException;
-
-	List<Map<String, Object>> queryForMapList(Param param) throws SQLException;
-
-	Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException;
-	
-	Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler) throws SQLException;
-	
-
-	<K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-
-	<K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-
-	<K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-	
-	
-	// ==================================================
-	
-
-	<T> T queryForBean(Param param, Class<T> beanClass) throws SQLException;
-
-	<T> List<T> queryForBeanList(Param param, Class<T> beanClass) throws SQLException;
-
-	<T> Page<T> queryForBeanPage(Param param, Class<T> beanClass) throws SQLException;
-	
-	<T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException;
-	
-	
-	<K, T> Map<K, T> queryForBeanKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	<T> Map<String, T> queryForBeanCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
-
-	<K, T> ListMultiValueMap<K, T> queryForBeanListMultiValueKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	<T> ListMultiValueMap<String, T> queryForBeanListMultiValueCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
-
-	<K, T> SetMultiValueMap<K, T> queryForBeanSetMultiValueKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
-	
-	<T> SetMultiValueMap<String, T> queryForBeanSetMultiValueCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
-	
-
-	// ==================================================
+//	Map<String, Object> queryForMap(Param param) throws SQLException;
+//
+//	List<Map<String, Object>> queryForMapList(Param param) throws SQLException;
+//
+//	Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException;
+//	
+//	Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler) throws SQLException;
+//	
+//
+//	<K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//	
+//	
+//	// ==================================================
+//	
+//
+//	<T> T queryForBean(Param param, Class<T> beanClass) throws SQLException;
+//
+//	<T> List<T> queryForBeanList(Param param, Class<T> beanClass) throws SQLException;
+//
+//	<T> Page<T> queryForBeanPage(Param param, Class<T> beanClass) throws SQLException;
+//	
+//	<T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException;
+//	
+//	
+//	<K, T> Map<K, T> queryForBeanKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	<T> Map<String, T> queryForBeanCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K, T> ListMultiValueMap<K, T> queryForBeanListMultiValueKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	<T> ListMultiValueMap<String, T> queryForBeanListMultiValueCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K, T> SetMultiValueMap<K, T> queryForBeanSetMultiValueKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass, String keyColumnName) throws SQLException;
+//	
+//	<T> SetMultiValueMap<String, T> queryForBeanSetMultiValueCombinationKeyedMap(Param param, Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException;
+//	
+//
+//	// ==================================================
 
 }

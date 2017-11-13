@@ -19,6 +19,8 @@ import com.jsan.dao.annotation.Table;
 import com.jsan.dao.annotation.TableInSnakeCase;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
+import com.jsan.dao.handler.support.BeanListHandler;
+import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 import com.jsan.dao.map.SetMultiValueMap;
 
@@ -566,6 +568,227 @@ public class SqlxModelBuilder implements SqlxModel {
 		sqlx.close();
 
 		return set;
+	}
+	
+
+	@Override
+	public Map<String, Object> queryForMap(Param param) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Map<String, Object> map = sqlx.queryForMap(param);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public List<Map<String, Object>> queryForMapList(Param param) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		List<Map<String, Object>> list = sqlx.queryForMapList(param);
+		sqlx.close();
+
+		return list;
+	}
+
+	@Override
+	public Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Page<Map<String, Object>> page = sqlx.queryForMapPage(param);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
+	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
+			throws SQLException {
+		
+		Sqlx sqlx = getSqlx();
+		Page<Map<String, Object>> page = sqlx.queryForMapPageEnhanced(param, mapListHandler);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
+	public <K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName)
+			throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Map<K, Map<String, Object>> map = sqlx.queryForMapKeyedMap(param, keyClass, keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator,
+			String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Map<String, Map<String, Object>> map = sqlx.queryForMapCombinationKeyedMap(param, separator, keyColumnNames);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param,
+			Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		ListMultiValueMap<K, Map<String, Object>> map = sqlx.queryForMapListMultiValueKeyedMap(param, keyClass,
+				keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param,
+			String separator, String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		ListMultiValueMap<String, Map<String, Object>> map = sqlx.queryForMapListMultiValueCombinationKeyedMap(param,
+				separator, keyColumnNames);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass,
+			String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		SetMultiValueMap<K, Map<String, Object>> map = sqlx.queryForMapSetMultiValueKeyedMap(param, keyClass,
+				keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param,
+			String separator, String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		SetMultiValueMap<String, Map<String, Object>> map = sqlx.queryForMapSetMultiValueCombinationKeyedMap(param,
+				separator, keyColumnNames);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <T> T queryForBean(Param param, Class<T> beanClass) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		T t = sqlx.queryForBean(param, beanClass);
+		sqlx.close();
+
+		return t;
+	}
+
+	@Override
+	public <T> List<T> queryForBeanList(Param param, Class<T> beanClass) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		List<T> list = sqlx.queryForBeanList(param, beanClass);
+		sqlx.close();
+
+		return list;
+	}
+
+	@Override
+	public <T> Page<T> queryForBeanPage(Param param, Class<T> beanClass) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Page<T> page = sqlx.queryForBeanPage(param, beanClass);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
+	public <T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Page<T> page = sqlx.queryForBeanPageEnhanced(param, beanListHandler);
+		sqlx.close();
+
+		return page;
+	}
+
+	@Override
+	public <K, T> Map<K, T> queryForBeanKeyedMap(Param param, Class<T> beanClass, Class<K> keyClass,
+			String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Map<K, T> map = sqlx.queryForBeanKeyedMap(param, beanClass, keyClass, keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <T> Map<String, T> queryForBeanCombinationKeyedMap(Param param, Class<T> beanClass, String separator,
+			String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		Map<String, T> map = sqlx.queryForBeanCombinationKeyedMap(param, beanClass, separator, keyColumnNames);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <K, T> ListMultiValueMap<K, T> queryForBeanListMultiValueKeyedMap(Param param, Class<T> beanClass,
+			Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		ListMultiValueMap<K, T> map = sqlx.queryForBeanListMultiValueKeyedMap(param, beanClass, keyClass,
+				keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <T> ListMultiValueMap<String, T> queryForBeanListMultiValueCombinationKeyedMap(Param param,
+			Class<T> beanClass, String separator, String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		ListMultiValueMap<String, T> map = sqlx.queryForBeanListMultiValueCombinationKeyedMap(param, beanClass,
+				separator, keyColumnNames);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <K, T> SetMultiValueMap<K, T> queryForBeanSetMultiValueKeyedMap(Param param, Class<T> beanClass,
+			Class<K> keyClass, String keyColumnName) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		SetMultiValueMap<K, T> map = sqlx.queryForBeanSetMultiValueKeyedMap(param, beanClass, keyClass, keyColumnName);
+		sqlx.close();
+
+		return map;
+	}
+
+	@Override
+	public <T> SetMultiValueMap<String, T> queryForBeanSetMultiValueCombinationKeyedMap(Param param, Class<T> beanClass,
+			String separator, String... keyColumnNames) throws SQLException {
+
+		Sqlx sqlx = getSqlx();
+		SetMultiValueMap<String, T> map = sqlx.queryForBeanSetMultiValueCombinationKeyedMap(param, beanClass, separator,
+				keyColumnNames);
+		sqlx.close();
+
+		return map;
 	}
 
 }

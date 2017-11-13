@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.jsan.dao.handler.support.BeanListHandler;
-import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 import com.jsan.dao.map.SetMultiValueMap;
 
@@ -48,7 +46,7 @@ public interface BeanModel<B> extends SqlxModel {
 
 	Page<B> queryForBeanPage(Param param) throws SQLException;
 	
-	Page<B> queryForBeanPageEnhanced(Param param, BeanListHandler<B> beanListHandler) throws SQLException;
+//	Page<B> queryForBeanPageEnhanced(Param param, BeanListHandler<B> beanListHandler) throws SQLException;
 	
 	
 	<K> Map<K, B> queryForBeanKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
@@ -64,30 +62,30 @@ public interface BeanModel<B> extends SqlxModel {
 	SetMultiValueMap<String, B> queryForBeanSetMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
 
 
-	// ==================================================
-	
-	
-	Map<String, Object> queryForMap(Param param) throws SQLException;
-
-	List<Map<String, Object>> queryForMapList(Param param) throws SQLException;
-
-	Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException;
-	
-	Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler) throws SQLException;
-	
-
-	<K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-
-	<K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-
-	<K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
-
-	SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
-	
-	
-	// ==================================================
+//	// ==================================================
+//	
+//	
+//	Map<String, Object> queryForMap(Param param) throws SQLException;
+//
+//	List<Map<String, Object>> queryForMapList(Param param) throws SQLException;
+//
+//	Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException;
+//	
+//	Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler) throws SQLException;
+//	
+//
+//	<K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//
+//	<K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass, String keyColumnName) throws SQLException;
+//
+//	SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param, String separator, String... keyColumnNames) throws SQLException;
+//	
+//	
+//	// ==================================================
 }
