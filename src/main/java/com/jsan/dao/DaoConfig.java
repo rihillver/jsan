@@ -69,7 +69,7 @@ public class DaoConfig {
 	private static Properties createConfigProperties() {
 
 		try {
-			Properties properties = PropertiesConvertUtils.getProperties(DEFAULT_CONFIG_FILE);
+			Properties properties = PropertiesConvertUtils.loadProperties(DEFAULT_CONFIG_FILE);
 			logger.info("Loaded ConfigProperties: {}", DEFAULT_CONFIG_FILE);
 			return properties;
 		} catch (IOException e) {

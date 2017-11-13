@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.convert.cache.BeanInformationCache;
 
 /**
@@ -24,6 +27,8 @@ import com.jsan.convert.cache.BeanInformationCache;
  */
 
 public class PropertiesConvertUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(PropertiesConvertUtils.class);
 
 	private static final String PROPERTIES_SUFFIX = ".properties";
 	private static final ConvertService defaultConvertService = new SplitTrimConvertService();
@@ -120,7 +125,10 @@ public class PropertiesConvertUtils {
 	 */
 	public static <T> T getObjectEnhanced(String path, Class<T> clazz, ConvertService service, String keyPrefix) {
 
-		Properties properties = loadProperties(path);
+		Properties properties = getProperties(path);
+		if (properties == null) {
+			properties = new Properties();
+		}
 
 		if (keyPrefix != null && keyPrefix.length() > 0) {
 			properties = handleProperties(properties, keyPrefix);
@@ -154,22 +162,23 @@ public class PropertiesConvertUtils {
 
 		if (fileName == null) { // 文件名未指定的情况下
 			fileName = clazz.getSimpleName();
-			try {
-				properties = loadProperties(dirPath, fileName + PROPERTIES_SUFFIX); // 文件名按原始的类名尝试
-			} catch (Exception e1) {
-				try {
-					properties = loadProperties(dirPath,
-							Character.toLowerCase(fileName.charAt(0)) + fileName.substring(1) + PROPERTIES_SUFFIX); // 文件名按第一个字母小写的类名尝试
-				} catch (Exception e2) {
-					try {
-						properties = loadProperties(dirPath, fileName.toLowerCase() + PROPERTIES_SUFFIX); // 文件名按小写的类名尝试
-					} catch (Exception e3) {
-						properties = loadProperties(dirPath, fileName.toUpperCase() + PROPERTIES_SUFFIX); // 文件名按大写的类名尝试
-					}
-				}
+			properties = getProperties(dirPath, fileName + PROPERTIES_SUFFIX); // 文件名按原始的类名尝试
+			if (properties == null) {
+				properties = getProperties(dirPath,
+						Character.toLowerCase(fileName.charAt(0)) + fileName.substring(1) + PROPERTIES_SUFFIX); // 文件名按第一个字母小写的类名尝试
+			}
+			if (properties == null) {
+				properties = getProperties(dirPath, fileName.toLowerCase() + PROPERTIES_SUFFIX); // 文件名按小写的类名尝试
+			}
+			if (properties == null) {
+				properties = getProperties(dirPath, fileName.toUpperCase() + PROPERTIES_SUFFIX); // 文件名按大写的类名尝试
 			}
 		} else {
-			properties = loadProperties(dirPath, fileName);
+			properties = getProperties(dirPath, fileName);
+		}
+
+		if (properties == null) {
+			properties = new Properties();
 		}
 
 		if (keyPrefix != null && keyPrefix.length() > 0) {
@@ -218,9 +227,8 @@ public class PropertiesConvertUtils {
 	public static void setObjectEnhanced(Object obj, String path, String keyPrefix) {
 
 		Properties properties;
-		try {
-			properties = loadProperties(path);
-		} catch (Exception e) {
+		properties = getProperties(path);
+		if (properties == null) {
 			properties = new Properties();
 		}
 
@@ -294,7 +302,7 @@ public class PropertiesConvertUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Properties getProperties(String path) throws IOException {
+	public static Properties loadProperties(String path) throws IOException {
 
 		InputStream inputStream = ConvertFuncUtils.class.getResourceAsStream(path);
 
@@ -329,41 +337,48 @@ public class PropertiesConvertUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Properties getProperties(String dirPath, String fileName) throws IOException {
+	public static Properties loadProperties(String dirPath, String fileName) throws IOException {
 
 		dirPath = getQualifiedDirPath(dirPath);
 
-		return getProperties(dirPath + fileName);
+		return loadProperties(dirPath + fileName);
 	}
 
 	/**
 	 * 读取指定路径的 properties 文件并转换成 Properties 对象（仅相对于 classes 目录下）。
+	 * <p>
+	 * IOException 异常时返回 null。
 	 * 
 	 * @param path
 	 * @return
 	 */
-	public static Properties loadProperties(String path) {
+	public static Properties getProperties(String path) {
 
 		try {
-			return getProperties(path);
+			return loadProperties(path);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			logger.warn("failed to open the file: {}", path);
+			return null;
 		}
 	}
 
 	/**
-	 * 读取指定路径目录和文件名的 properties 文件并转换成 Properties 对象（仅相对于 classes 目录下）。
+	 * 读取指定路径目录和文件名的 properties 文件并转换成 Properties 对象（仅相对于 classes
+	 * 目录下）。
+	 * <p>
+	 * IOException 异常时返回 null。
 	 * 
 	 * @param dirPath
 	 * @param fileName
 	 * @return
 	 */
-	public static Properties loadProperties(String dirPath, String fileName) {
+	public static Properties getProperties(String dirPath, String fileName) {
 
 		try {
-			return getProperties(dirPath, fileName);
+			return loadProperties(dirPath, fileName);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			logger.warn("failed to open the file: {}", getQualifiedDirPath(dirPath) + fileName);
+			return null;
 		}
 	}
 
@@ -379,7 +394,11 @@ public class PropertiesConvertUtils {
 
 	public static Map<String, Object> getMapEnhanced(String path, String keyPrefix) {
 
-		Properties properties = loadProperties(path);
+		Properties properties = getProperties(path);
+		if (properties == null) {
+			properties = new Properties();
+		}
+
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		if (keyPrefix != null && keyPrefix.length() > 0) {

@@ -218,14 +218,14 @@ public abstract class AbstractDispatcher implements Filter {
 
 		if (configFile != null && !configFile.isEmpty()) {
 			try {
-				configProperties = PropertiesConvertUtils.getProperties(configFile);
+				configProperties = PropertiesConvertUtils.loadProperties(configFile);
 			} catch (IOException e) {
 				logger.error("Cannot load the custom configuration file: {}", configFile);
 				throw new RuntimeException(e);
 			}
 		} else {
 			try {
-				configProperties = PropertiesConvertUtils.getProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
+				configProperties = PropertiesConvertUtils.loadProperties(DEFAULT_CONFIG_FILE);// 寻找默认配置文件
 			} catch (IOException e) {
 				logger.warn("Cannot load the default configuration file: {}", DEFAULT_CONFIG_FILE);
 			}
