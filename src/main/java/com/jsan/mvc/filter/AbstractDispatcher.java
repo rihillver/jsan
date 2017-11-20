@@ -863,7 +863,7 @@ public abstract class AbstractDispatcher implements Filter {
 					Render render = method.getAnnotation(Render.class);
 					url = render.url();
 					if (url.isEmpty()) {
-						url = method.getName(); // 如果url为空，则取其方法名，不需要在此将方法名转换为小写，方法内部运行时可将url设置为null
+						url = method.getName(); // 如果url为空，则取其方法名，方法内部运行时可将url设置为null
 					}
 					mInfo.setViewUrl(url);
 				}
