@@ -6,22 +6,58 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.jsan.convert.cache.BeanInformationCache;
+import com.jsan.convert.cache.BeanInformationCache.MethodHandler;
+
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
 
-import com.jsan.convert.cache.BeanInformationCache;
-
 /**
- * 基于 Cglib 的动态代理。
+ * 基于 Cglib 的动态代理工具类。
+ * <p>
+ * 特别注意：<br>
+ * 需要通过 Cglib 构建代理对象的原生类如果含有 callback 和 callbacks 字段对应的 Getter 和 Setter
+ * 方法，则在构建时可能发生异常，原因是通过 Cglib 构建出来的代理类内部含有专有方法
+ * setCallback(int,net.sf.cglib.proxy.Callback)、getCallback(int)、setCallbacks(net.sf.cglib.proxy.Callback[])、getCallbacks()
+ * 而导致方法冲突。另外还有三个重载的专有方法也需要留意潜在的冲突
+ * newInstance(net.sf.cglib.proxy.Callback[])、newInstance(java.lang.Class[],java.lang.Object[],net.sf.cglib.proxy.Callback[])、newInstance(net.sf.cglib.proxy.Callback)。
  *
  */
 
 public class BeanProxyUtils {
 
-	private static final Map<Object, Set<String>> daoBeanExcludeFieldSetMap = new WeakHashMap<Object, Set<String>>();
+	public static class DaoBeanExcludeFieldContainer {
+
+		Class<?> originalClass;
+		Set<String> fieldSet;
+
+		public DaoBeanExcludeFieldContainer(Class<?> originalClass, Set<String> fieldSet) {
+			this.originalClass = originalClass;
+			this.fieldSet = fieldSet;
+		}
+
+		public Class<?> getOriginalClass() {
+			return originalClass;
+		}
+
+		public void setOriginalClass(Class<?> originalClass) {
+			this.originalClass = originalClass;
+		}
+
+		public Set<String> getFieldSet() {
+			return fieldSet;
+		}
+
+		public void setFieldSet(Set<String> fieldSet) {
+			this.fieldSet = fieldSet;
+		}
+
+	}
+
+	private static final Map<Integer, DaoBeanExcludeFieldContainer> daoBeanExcludeFieldContainerMap = new WeakHashMap<Integer, DaoBeanExcludeFieldContainer>();
 
 	private static final MethodInterceptor daoBeanWriteMethodInterceptor = new MethodInterceptor() {
 
@@ -53,14 +89,75 @@ public class BeanProxyUtils {
 		}
 	}
 
+	/**
+	 * 通过传入类的方式构建一个新的代理对象（新的代理对象将会记录 Setter 的状态，主要用于 Dao 操作的 POJO）。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getDaoBean(Class<T> beanClass) {
 
 		T bean = getObject(beanClass, daoBeanWriteMethodInterceptor);
-		setDaoBeanExcludeFieldSet(bean,
-				(Set<String>) ((LinkedHashSet<String>) BeanInformationCache.getFieldSet(beanClass)).clone());
+
+		Set<String> fieldSet = (Set<String>) ((LinkedHashSet<String>) BeanInformationCache.getFieldSet(beanClass))
+				.clone();
+		DaoBeanExcludeFieldContainer container = new DaoBeanExcludeFieldContainer(beanClass, fieldSet);
+		setDaoBeanExcludeFieldContainer(bean, container);
 
 		return bean;
+	}
+
+	/**
+	 * 通过传入对象的方式构建一个新的代理对象，并且新的代理对象复制了原对象的状态（新的代理对象将会记录 Setter 的状态，主要用于 Dao 操作的
+	 * POJO）。
+	 * 
+	 * @param beanObject
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T getDaoBean(T beanObject) {
+
+		Class<T> beanClass = (Class<T>) beanObject.getClass();
+		T bean = getObject(beanClass, daoBeanWriteMethodInterceptor);
+
+		copyBean(bean, beanClass, beanObject); // 复制bean状态
+
+		Set<String> fieldSet = (Set<String>) ((LinkedHashSet<String>) BeanInformationCache.getFieldSet(beanClass))
+				.clone();
+		DaoBeanExcludeFieldContainer container = new DaoBeanExcludeFieldContainer(beanClass, fieldSet);
+		setDaoBeanExcludeFieldContainer(bean, container);
+
+		return bean;
+	}
+
+	/**
+	 * 将原始对象的状态值复制到代理对象中去（通过原始对象的 Getter 获取到的值，再通过代理对象的 Setter 设置进去）。
+	 * 
+	 * @param bean
+	 * @param beanClass
+	 * @param beanObject
+	 * @throws Exception
+	 */
+	private static <T> void copyBean(final T bean, Class<T> beanClass, final T beanObject) {
+
+		final Map<String, Method> beanObjectReadMethodMap = BeanInformationCache.getReadMethodMap(beanClass);
+
+		BeanInformationCache.handleWriteMethodMap(bean.getClass(), new MethodHandler() {
+
+			@Override
+			public void handle(String key, Method method) {
+				Method beanObjectReadMethod = beanObjectReadMethodMap.get(key);
+				if (beanObjectReadMethod != null) {
+					try {
+						Object beanObjectReadMethodReturnValue = beanObjectReadMethod.invoke(beanObject);
+						method.invoke(bean, beanObjectReadMethodReturnValue);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		});
 	}
 
 	public static boolean isDaoBean(Object obj) {
@@ -97,18 +194,47 @@ public class BeanProxyUtils {
 
 	public static Set<String> getDaoBeanExcludeFieldSet(Object obj) {
 
-		return daoBeanExcludeFieldSetMap.get(obj);
+		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(obj);
+		if (container != null) {
+			return container.getFieldSet();
+		}
+		return null;
 	}
 
-	private static void setDaoBeanExcludeFieldSet(Object obj, Set<String> set) {
+	public static Class<?> getDaoBeanOriginalClass(Object obj) {
 
-		daoBeanExcludeFieldSetMap.put(obj, set);
+		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(obj);
+		if (container != null) {
+			return container.getOriginalClass();
+		}
+		return null;
+	}
+
+	// private static void setDaoBeanExcludeFieldSet(Object obj, Set<String>
+	// set) {
+	//
+	// // daoBeanExcludeFieldSetMap.put(obj, set);
+	// }
+
+	public static DaoBeanExcludeFieldContainer getDaoBeanExcludeFieldContainer(Object obj) {
+
+		int key = System.identityHashCode(obj);
+		return daoBeanExcludeFieldContainerMap.get(key);
+	}
+
+	private static void setDaoBeanExcludeFieldContainer(Object obj, DaoBeanExcludeFieldContainer container) {
+
+		int key = System.identityHashCode(obj);
+		daoBeanExcludeFieldContainerMap.put(key, container);
 	}
 
 	private static void removeIncludeField(Object obj, String methodName) {
 
-		Set<String> set = getDaoBeanExcludeFieldSet(obj);
-		set.remove(ConvertFuncUtils.parseFirstCharToLowerCase(methodName.substring(3)));
+		Set<String> fieldSet = getDaoBeanExcludeFieldSet(obj);
+		if (fieldSet != null) {
+			String key = ConvertFuncUtils.parseFirstCharToLowerCase(methodName.substring(3));
+			fieldSet.remove(key);
+		}
 	}
 
 }

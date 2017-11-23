@@ -60,21 +60,48 @@ public class BeanConvertUtils {
 		return bean;
 	}
 
+	/**
+	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段。
+	 * 
+	 * @param bean
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMap(T bean) {
 
 		return getMap(bean, false);
 	}
 
+	/**
+	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段（将驼峰形式的字段名转换为下划线形式）。
+	 * 
+	 * @param bean
+	 * @param keyToSnakeCase
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMap(T bean, boolean keyToSnakeCase) {
 
 		return convertBeanToMap(bean, false, keyToSnakeCase);
 	}
 
+	/**
+	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param bean
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean) {
 
 		return getMapBaseOnReadMethod(bean, false);
 	}
 
+	/**
+	 * 基于 bean 的 Getter 方法，通过 Getter
+	 * 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
+	 * 
+	 * @param bean
+	 * @param keyToSnakeCase
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean, boolean keyToSnakeCase) {
 
 		return convertBeanToMap(bean, true, keyToSnakeCase);

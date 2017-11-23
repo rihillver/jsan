@@ -103,7 +103,20 @@ public class BeanInformationCache {
 
 	private static Map<String, Method> createReadMethodMap(Class<?> beanClass) {
 
-		Map<String, Method> map = new HashMap<String, Method>();
+		final Map<String, Method> map = new HashMap<String, Method>();
+
+		handleReadMethodMap(beanClass, new MethodHandler() {
+
+			@Override
+			public void handle(String key, Method method) {
+				map.put(key, method);
+			}
+		});
+
+		return map;
+	}
+
+	public static void handleReadMethodMap(Class<?> beanClass, MethodHandler methodHandler) {
 
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
 		for (Method method : methods) {
@@ -132,29 +145,42 @@ public class BeanInformationCache {
 				if (methodName.length() > 3) {
 					char c = methodName.charAt(3);
 					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第四个字母必须为大写，或下划线，或美元符
-						key = methodName.substring(3);
+						key = methodName.substring(3); // 将方法名的前面get去掉
 					}
 				}
 			} else if (methodName.startsWith("is")) {
 				if (methodName.length() > 2 && method.getReturnType() == Boolean.TYPE) {
 					char c = methodName.charAt(2);
 					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第三个字母必须为大写，或下划线，或美元符
-						key = methodName.substring(2);
+						key = methodName.substring(2); // 将方法名的前面is去掉
 					}
 				}
 			}
 
 			if (key != null) {
-				map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);// 将方法名的前面get或is去掉，然后将第一个字母转为小写
+				key = ConvertFuncUtils.parseFirstCharToLowerCase(key); // 将第一个字母转为小写
+
+				methodHandler.handle(key, method);
 			}
 		}
-
-		return map;
 	}
 
 	private static Map<String, Method> createWriteMethodMap(Class<?> beanClass) {
 
-		Map<String, Method> map = new HashMap<String, Method>();
+		final Map<String, Method> map = new HashMap<String, Method>();
+
+		handleWriteMethodMap(beanClass, new MethodHandler() {
+
+			@Override
+			public void handle(String key, Method method) {
+				map.put(key, method);
+			}
+		});
+
+		return map;
+	}
+
+	public static void handleWriteMethodMap(Class<?> beanClass, MethodHandler methodHandler) {
 
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
 		for (Method method : methods) {
@@ -177,14 +203,19 @@ public class BeanInformationCache {
 				if (methodName.length() > 3) {
 					char c = methodName.charAt(3);
 					if (Character.isUpperCase(c) || (c == '_') || (c == '$')) { // 第四个字母必须为大写，或下划线，或美元符
-						String key = methodName.substring(3); // 将方法名的前面set去掉，然后将第一个字符转为小写
-						map.put(ConvertFuncUtils.parseFirstCharToLowerCase(key), method);
+						String key = methodName.substring(3); // 将方法名的前面set去掉
+						key = ConvertFuncUtils.parseFirstCharToLowerCase(key); // 将第一个字符转为小写
+
+						methodHandler.handle(key, method);
 					}
 				}
 			}
 		}
+	}
 
-		return map;
+	public static interface MethodHandler {
+
+		void handle(String key, Method method);
 	}
 
 }

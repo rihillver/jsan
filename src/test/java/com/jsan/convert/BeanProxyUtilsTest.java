@@ -1,5 +1,6 @@
 package com.jsan.convert;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 
 import org.junit.Test;
@@ -31,12 +32,61 @@ public class BeanProxyUtilsTest {
 		System.out.println(user);
 	}
 
+	@Test
+	public void TestBaz() throws NoSuchMethodException, SecurityException {
+
+		User user = new User();
+		user.setId(123);
+		user.setName("Jack");
+		user.setBirth(new Date());
+
+		System.out.println(user);
+
+		User user2 = BeanProxyUtils.getDaoBean(user);
+
+		long start = System.nanoTime();
+		User user3 = BeanProxyUtils.getDaoBean(user);
+		User user4 = BeanProxyUtils.getDaoBean(user);
+		long end = System.nanoTime() - start;
+		System.out.println(end);
+
+		System.out.println(user2);
+		System.out.println(user3);
+		System.out.println(user4);
+
+		user2.setName("shan");
+		user2.setAge(30);
+
+		System.out.println(user2);
+		System.out.println(BeanProxyUtils.getDaoBeanExcludeFieldSet(user2));
+
+		// printMethods(user2);
+
+	}
+
+	private void printMethods(Object obj) {
+
+		for (Method method : obj.getClass().getMethods()) {
+			System.out.println("----" + method);
+		}
+	}
+
 	public static class User {
 
 		int id;
 		String name;
 		boolean sex;
 		Date birth;
+		
+		//int age;
+
+		public int getAge() {
+			return 20;
+		}
+
+		public void setAge(int age) {
+			//this.age = age;
+		}
 
 		public int getId() {
 			return id;
