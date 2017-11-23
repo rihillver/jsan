@@ -192,6 +192,12 @@ public class BeanProxyUtils {
 		return isProxyClass(obj.getClass());
 	}
 
+	/**
+	 * 返回 daoBean 排除字段的 Set 结果集，请勿直接对这里返回的 Set 结果集进行增删操作。
+	 * 
+	 * @param obj
+	 * @return
+	 */
 	public static Set<String> getDaoBeanExcludeFieldSet(Object obj) {
 
 		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(obj);
@@ -201,6 +207,28 @@ public class BeanProxyUtils {
 		return null;
 	}
 
+	/**
+	 * 返回 daoBean 排除字段的 Set 结果集的克隆副本。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Set<String> getDaoBeanExcludeFieldSetClone(Object obj) {
+
+		Set<String> fieldSet = getDaoBeanExcludeFieldSet(obj);
+		if (fieldSet != null) {
+			return (Set<String>) ((LinkedHashSet<String>) fieldSet).clone();
+		}
+		return null;
+	}
+
+	/**
+	 * 返回代理对象的原始类型（原型类型/父类型）。
+	 * 
+	 * @param obj
+	 * @return
+	 */
 	public static Class<?> getDaoBeanOriginalClass(Object obj) {
 
 		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(obj);
@@ -209,12 +237,6 @@ public class BeanProxyUtils {
 		}
 		return null;
 	}
-
-	// private static void setDaoBeanExcludeFieldSet(Object obj, Set<String>
-	// set) {
-	//
-	// // daoBeanExcludeFieldSetMap.put(obj, set);
-	// }
 
 	public static DaoBeanExcludeFieldContainer getDaoBeanExcludeFieldContainer(Object obj) {
 
