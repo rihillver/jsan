@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRequestAccess implements Filter {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String redirect;
 	protected int statusCode = 403;

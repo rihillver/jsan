@@ -13,8 +13,8 @@ import com.jsan.convert.ConvertFuncUtils;
 /**
  * BeanInformation 缓存。
  * <p>
- * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，<br>
- * fieldSet 则不含父类的字段。
+ * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，fieldSet
+ * 则不含父类的字段。
  *
  */
 
@@ -43,13 +43,55 @@ public class BeanInformationCache {
 
 		BeanInformationContainer container = new BeanInformationContainer();
 
-		container.setFieldSet(createFieldSet(beanClass));
-		container.setReadMethodMap(createReadMethodMap(beanClass));
-		container.setWriteMethodMap(createWriteMethodMap(beanClass));
+		final Set<String> fieldSet = new LinkedHashSet<String>();
+
+		for (Field field : beanClass.getDeclaredFields()) { // 仅当前类内部的所有字段，不包括继承的字段
+			fieldSet.add(field.getName());
+		}
+
+		final Map<String, Method> readMethodMap = new HashMap<String, Method>();
+		final Map<String, Method> readMethodMapBaseOnField = new HashMap<String, Method>();
+
+		handleReadMethodMap(beanClass, new MethodHandler() {
+
+			@Override
+			public void handle(String key, Method method) {
+				readMethodMap.put(key, method);
+				if (fieldSet.contains(key)) {
+					readMethodMapBaseOnField.put(key, method);
+				}
+			}
+		});
+
+		final Map<String, Method> writeMethodMap = new HashMap<String, Method>();
+		final Map<String, Method> writeMethodMapBaseOnField = new HashMap<String, Method>();
+
+		handleWriteMethodMap(beanClass, new MethodHandler() {
+
+			@Override
+			public void handle(String key, Method method) {
+				writeMethodMap.put(key, method);
+				if (fieldSet.contains(key)) {
+					writeMethodMapBaseOnField.put(key, method);
+				}
+			}
+		});
+
+		container.setFieldSet(fieldSet);
+		container.setReadMethodMap(readMethodMap);
+		container.setReadMethodMapBaseOnField(readMethodMapBaseOnField);
+		container.setWriteMethodMap(writeMethodMap);
+		container.setWriteMethodMapBaseOnField(writeMethodMapBaseOnField);
 
 		return container;
 	}
 
+	/**
+	 * 返回 Bean 的所有字段名，仅含自身的所有字段，不含父类的任何字段。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
 	public static Set<String> getFieldSet(Class<?> beanClass) {
 
 		return getBeanInformationContainer(beanClass).getFieldSet();
@@ -80,42 +122,56 @@ public class BeanInformationCache {
 		return getWriteMethodMap(beanClass).get(key);
 	}
 
+	/**
+	 * 返回 Bean 的所有 Getter 方法，key 为字段名，含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
 	public static Map<String, Method> getReadMethodMap(Class<?> beanClass) {
 
 		return getBeanInformationContainer(beanClass).getReadMethodMap();
 	}
 
+	/**
+	 * 返回 Bean 的所有与自身字段相对应的 Getter 方法，key 为字段名，不含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
+	public static Map<String, Method> getReadMethodMapBaseOnField(Class<?> beanClass) {
+
+		return getBeanInformationContainer(beanClass).getReadMethodMapBaseOnField();
+	}
+
+	/**
+	 * 返回 Bean 的所有 Setter 方法，key 为字段名，含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
 	public static Map<String, Method> getWriteMethodMap(Class<?> beanClass) {
 
 		return getBeanInformationContainer(beanClass).getWriteMethodMap();
 	}
 
-	private static Set<String> createFieldSet(Class<?> beanClass) {
+	/**
+	 * 返回 Bean 的所有与自身字段相对应的 Setter 方法，key 为字段名，不含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
+	public static Map<String, Method> getWriteMethodMapBaseOnField(Class<?> beanClass) {
 
-		Set<String> set = new LinkedHashSet<String>();
-
-		for (Field field : beanClass.getDeclaredFields()) { // 仅当前类内部的所有字段，不包括继承的字段
-			set.add(field.getName());
-		}
-
-		return set;
+		return getBeanInformationContainer(beanClass).getWriteMethodMapBaseOnField();
 	}
 
-	private static Map<String, Method> createReadMethodMap(Class<?> beanClass) {
-
-		final Map<String, Method> map = new HashMap<String, Method>();
-
-		handleReadMethodMap(beanClass, new MethodHandler() {
-
-			@Override
-			public void handle(String key, Method method) {
-				map.put(key, method);
-			}
-		});
-
-		return map;
-	}
-
+	/**
+	 * 该方法针对所有公共的 Getter 方法，包括父类的公共的 Getter 方法。
+	 * 
+	 * @param beanClass
+	 * @param methodHandler
+	 */
 	public static void handleReadMethodMap(Class<?> beanClass, MethodHandler methodHandler) {
 
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
@@ -160,26 +216,17 @@ public class BeanInformationCache {
 			if (key != null) {
 				key = ConvertFuncUtils.parseFirstCharToLowerCase(key); // 将第一个字母转为小写
 
-				methodHandler.handle(key, method);
+				methodHandler.handle(key, method); // MethodHandler
 			}
 		}
 	}
 
-	private static Map<String, Method> createWriteMethodMap(Class<?> beanClass) {
-
-		final Map<String, Method> map = new HashMap<String, Method>();
-
-		handleWriteMethodMap(beanClass, new MethodHandler() {
-
-			@Override
-			public void handle(String key, Method method) {
-				map.put(key, method);
-			}
-		});
-
-		return map;
-	}
-
+	/**
+	 * 该方法针对所有公共的 Setter 方法，包括父类的公共的 Setter 方法。
+	 * 
+	 * @param beanClass
+	 * @param methodHandler
+	 */
 	public static void handleWriteMethodMap(Class<?> beanClass, MethodHandler methodHandler) {
 
 		Method[] methods = beanClass.getMethods(); // 只获取公共的方法，包括父类的公共方法
@@ -206,7 +253,7 @@ public class BeanInformationCache {
 						String key = methodName.substring(3); // 将方法名的前面set去掉
 						key = ConvertFuncUtils.parseFirstCharToLowerCase(key); // 将第一个字符转为小写
 
-						methodHandler.handle(key, method);
+						methodHandler.handle(key, method); // MethodHandler
 					}
 				}
 			}

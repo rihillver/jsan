@@ -62,7 +62,7 @@ import com.jsan.dao.map.SetMultiValueMap;
 
 public abstract class AbstractSqlx implements Sqlx {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected abstract String getPageSqlProcessed(String sql, int pageSize, int pageNumber);
 

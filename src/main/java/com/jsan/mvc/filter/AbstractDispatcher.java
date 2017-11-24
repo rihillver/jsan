@@ -85,7 +85,7 @@ import com.jsan.mvc.resolve.Resolver;
 
 public abstract class AbstractDispatcher implements Filter {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected static final String DEFAULT_CONFIG_FILE = "/jsanmvc.properties"; // 默认配置文件
 

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jsan.convert.BeanConvertUtils;
 import com.jsan.convert.BeanProxyUtils;
 import com.jsan.convert.ConvertFuncUtils;
@@ -18,18 +21,36 @@ import com.jsan.dao.map.SetMultiValueMap;
 
 public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B> {
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	private final Class<B> beanClass = initModelBeanClass();
 
 	@SuppressWarnings("unchecked")
 	private Class<B> initModelBeanClass() {
 
-		Type type = getClass().getGenericSuperclass();
-		return (Class<B>) ((ParameterizedType) type).getActualTypeArguments()[0];
+		try {
+			Type type = getClass().getGenericSuperclass();
+			return (Class<B>) ((ParameterizedType) type).getActualTypeArguments()[0];
+		} catch (Exception e) {
+			logger.warn("Generic undefined");
+			return (Class<B>) Object.class; // 应付B为?的时候可实例化，仅为了便于测试
+		}
 	}
 
+	/**
+	 * 基于 Bean 的字段对应的 Getter 进行转换。
+	 * 
+	 * @param bean
+	 * @return
+	 */
 	protected Map<String, Object> getBeanMap(B bean) {
 
-		return BeanConvertUtils.getMapBaseOnReadMethod(bean, fieldInSnakeCase);
+		if (BeanProxyUtils.isDaoBean(bean)) {
+			Class<B> beanClass = BeanProxyUtils.getDaoBeanOriginalClass(bean);
+			return BeanConvertUtils.convertBeanToMap(beanClass, bean, true, fieldInSnakeCase);
+		} else {
+			return BeanConvertUtils.convertBeanToMap(bean, true, fieldInSnakeCase);
+		}
 	}
 
 	@Override

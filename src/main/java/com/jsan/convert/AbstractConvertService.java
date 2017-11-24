@@ -48,7 +48,7 @@ import com.jsan.convert.support.StringConverter;
 
 public abstract class AbstractConvertService implements ConvertService, Cloneable {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Map<Class<?>, Converter> converterMap = new HashMap<Class<?>, Converter>();
 	private Map<Class<?>, Formatter> formatterMap = new HashMap<Class<?>, Formatter>();

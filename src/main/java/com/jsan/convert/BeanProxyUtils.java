@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.jsan.convert.cache.BeanInformationCache;
-import com.jsan.convert.cache.BeanInformationCache.MethodHandler;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -95,17 +94,9 @@ public class BeanProxyUtils {
 	 * @param beanClass
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T getDaoBean(Class<T> beanClass) {
 
-		T bean = getObject(beanClass, daoBeanWriteMethodInterceptor);
-
-		Set<String> fieldSet = (Set<String>) ((LinkedHashSet<String>) BeanInformationCache.getFieldSet(beanClass))
-				.clone();
-		DaoBeanExcludeFieldContainer container = new DaoBeanExcludeFieldContainer(beanClass, fieldSet);
-		setDaoBeanExcludeFieldContainer(bean, container);
-
-		return bean;
+		return getDaoBean(beanClass, null);
 	}
 
 	/**
@@ -118,10 +109,17 @@ public class BeanProxyUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> T getDaoBean(T beanObject) {
 
-		Class<T> beanClass = (Class<T>) beanObject.getClass();
+		return getDaoBean((Class<T>) beanObject.getClass(), beanObject);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T getDaoBean(Class<T> beanClass, T beanObject) {
+
 		T bean = getObject(beanClass, daoBeanWriteMethodInterceptor);
 
-		copyBean(bean, beanClass, beanObject); // 复制bean状态
+		if (beanObject != null) {
+			copyBean(beanObject, bean); // 复制bean状态
+		}
 
 		Set<String> fieldSet = (Set<String>) ((LinkedHashSet<String>) BeanInformationCache.getFieldSet(beanClass))
 				.clone();
@@ -133,31 +131,30 @@ public class BeanProxyUtils {
 
 	/**
 	 * 将原始对象的状态值复制到代理对象中去（通过原始对象的 Getter 获取到的值，再通过代理对象的 Setter 设置进去）。
+	 * <p>
+	 * 通过 Cglib 构建出来的代理对象是继承自原始对象的，即原始对象是代理对象的父类。
 	 * 
-	 * @param bean
-	 * @param beanClass
-	 * @param beanObject
-	 * @throws Exception
+	 * @param originalBean
+	 * @param proxyBean
 	 */
-	private static <T> void copyBean(final T bean, Class<T> beanClass, final T beanObject) {
+	private static <T> void copyBean(T originalBean, T proxyBean) {
 
-		final Map<String, Method> beanObjectReadMethodMap = BeanInformationCache.getReadMethodMap(beanClass);
+		Class<?> beanClass = originalBean.getClass();
+		Map<String, Method> readMethodMapBaseOnField = BeanInformationCache.getReadMethodMapBaseOnField(beanClass);
+		Map<String, Method> writeMethodMapBaseOnField = BeanInformationCache.getWriteMethodMapBaseOnField(beanClass);
 
-		BeanInformationCache.handleWriteMethodMap(bean.getClass(), new MethodHandler() {
-
-			@Override
-			public void handle(String key, Method method) {
-				Method beanObjectReadMethod = beanObjectReadMethodMap.get(key);
-				if (beanObjectReadMethod != null) {
-					try {
-						Object beanObjectReadMethodReturnValue = beanObjectReadMethod.invoke(beanObject);
-						method.invoke(bean, beanObjectReadMethodReturnValue);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+		try {
+			for (Map.Entry<String, Method> entry : readMethodMapBaseOnField.entrySet()) {
+				Method readMethod = entry.getValue();
+				Method writeMethod = writeMethodMapBaseOnField.get(entry.getKey());
+				if (writeMethod != null) {
+					Object readMethodReturnValue = readMethod.invoke(originalBean);
+					writeMethod.invoke(proxyBean, readMethodReturnValue);
 				}
 			}
-		});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static boolean isDaoBean(Object obj) {
@@ -193,7 +190,7 @@ public class BeanProxyUtils {
 	}
 
 	/**
-	 * 返回 daoBean 排除字段的 Set 结果集，请勿直接对这里返回的 Set 结果集进行增删操作。
+	 * 返回 daoBean 排除字段的 Set 结果集，请勿直接对这里返回的 Set 结果集进行增删改操作。
 	 * 
 	 * @param obj
 	 * @return
@@ -226,18 +223,25 @@ public class BeanProxyUtils {
 	/**
 	 * 返回代理对象的原始类型（原型类型/父类型）。
 	 * 
-	 * @param obj
+	 * @param bean
 	 * @return
 	 */
-	public static Class<?> getDaoBeanOriginalClass(Object obj) {
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> getDaoBeanOriginalClass(T bean) {
 
-		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(obj);
+		DaoBeanExcludeFieldContainer container = getDaoBeanExcludeFieldContainer(bean);
 		if (container != null) {
-			return container.getOriginalClass();
+			return (Class<T>) container.getOriginalClass();
 		}
 		return null;
 	}
 
+	/**
+	 * 返回 DaoBeanExcludeFieldContainer，请勿直接对这里返回的对象进行任何增删改操作。
+	 * 
+	 * @param obj
+	 * @return
+	 */
 	public static DaoBeanExcludeFieldContainer getDaoBeanExcludeFieldContainer(Object obj) {
 
 		int key = System.identityHashCode(obj);

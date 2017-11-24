@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class AccessForbiddenFilter implements Filter {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected int statusCode = 403;
 

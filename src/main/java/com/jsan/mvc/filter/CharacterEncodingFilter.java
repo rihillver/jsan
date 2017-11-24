@@ -35,7 +35,7 @@ import com.jsan.mvc.RequestConverter;
 
 public class CharacterEncodingFilter implements Filter {
 	
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String encoding;
 	protected boolean forceEncoding;

@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.jsan.convert.cache.BeanConvertServiceCache;
 import com.jsan.convert.cache.BeanConvertServiceContainer;
@@ -66,13 +65,37 @@ public class BeanConvertUtils {
 	 * @param bean
 	 * @return
 	 */
+	public static <T> Map<String, Object> getMapBaseOnField(T bean) {
+
+		return getMapBaseOnField(bean, false);
+	}
+
+	/**
+	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段（将驼峰形式的字段名转换为下划线形式）。
+	 * 
+	 * @param bean
+	 * @param keyToSnakeCase
+	 * @return
+	 */
+	public static <T> Map<String, Object> getMapBaseOnField(T bean, boolean keyToSnakeCase) {
+
+		return convertBeanToMap(bean, true, keyToSnakeCase);
+	}
+
+	/**
+	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法。
+	 * 
+	 * @param bean
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMap(T bean) {
 
 		return getMap(bean, false);
 	}
 
 	/**
-	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段（将驼峰形式的字段名转换为下划线形式）。
+	 * 基于 bean 的 Getter 方法，通过 Getter
+	 * 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
 	 * 
 	 * @param bean
 	 * @param keyToSnakeCase
@@ -84,47 +107,50 @@ public class BeanConvertUtils {
 	}
 
 	/**
-	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法。
+	 * 将 Bean 转换成 Map。
 	 * 
 	 * @param bean
+	 * @param baseOnField
+	 *            true：基于自身字段相对于的Getter方法，false：基于所有Getter方法
+	 * @param keyToSnakeCase
+	 *            true：将key转换为下划线形式，false：默认key不做任何转换
 	 * @return
 	 */
-	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean) {
+	@SuppressWarnings("unchecked")
+	public static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnField, boolean keyToSnakeCase) {
 
-		return getMapBaseOnReadMethod(bean, false);
+		Class<T> beanClass = (Class<T>) bean.getClass();
+		return convertBeanToMap(beanClass, bean, baseOnField, keyToSnakeCase);
 	}
 
 	/**
-	 * 基于 bean 的 Getter 方法，通过 Getter
-	 * 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
+	 * 将 Bean 转换成 Map。
 	 * 
+	 * @param beanClass
 	 * @param bean
+	 * @param baseOnField
+	 *            true：基于自身字段相对于的Getter方法，false：基于所有Getter方法
 	 * @param keyToSnakeCase
+	 *            true：将key转换为下划线形式，false：默认key不做任何转换
 	 * @return
 	 */
-	public static <T> Map<String, Object> getMapBaseOnReadMethod(T bean, boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> convertBeanToMap(Class<T> beanClass, T bean, boolean baseOnField,
+			boolean keyToSnakeCase) {
 
-		return convertBeanToMap(bean, true, keyToSnakeCase);
-	}
-
-	private static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnReadMethod, boolean keyToSnakeCase) {
-
-		Class<?> beanClass = bean.getClass();
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 
-		Set<String> fieldSet = baseOnReadMethod ? null : BeanInformationCache.getFieldSet(beanClass);
-		Map<String, Method> readMethodMap = BeanInformationCache.getReadMethodMap(beanClass);
+		Map<String, Method> readMethodMap = baseOnField ? BeanInformationCache.getReadMethodMapBaseOnField(beanClass)
+				: BeanInformationCache.getReadMethodMap(beanClass);
 
 		try {
 			for (Map.Entry<String, Method> entry : readMethodMap.entrySet()) {
 				String key = entry.getKey();
-				if (!baseOnReadMethod && !fieldSet.contains(key)) {
-					continue;
-				}
 				if (keyToSnakeCase) {
 					key = ConvertFuncUtils.parseCamelCaseToSnakeCase(key); // 转换为下划线命名规范
 				}
-				map.put(key, entry.getValue().invoke(bean));
+				Method method = entry.getValue();
+				Object returnValue = method.invoke(bean);
+				map.put(key, returnValue);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);

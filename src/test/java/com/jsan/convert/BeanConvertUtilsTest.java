@@ -74,13 +74,13 @@ public class BeanConvertUtilsTest {
 
 		barBean.setName("Tom");
 
+		System.out.println(BeanConvertUtils.getMapBaseOnField(barBean));
 		System.out.println(BeanConvertUtils.getMap(barBean));
-		System.out.println(BeanConvertUtils.getMapBaseOnReadMethod(barBean));
 
 		long s = System.nanoTime();
 
 		for (int i = 0; i < 10000; i++) {
-			BeanConvertUtils.getMap(barBean);
+			BeanConvertUtils.getMapBaseOnField(barBean);
 		}
 
 		long e = System.nanoTime() - s;
