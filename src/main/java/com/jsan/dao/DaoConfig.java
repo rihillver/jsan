@@ -27,6 +27,7 @@ public class DaoConfig {
 	private static final Properties configProperties = createConfigProperties();
 	private static final ConnectionProvider connectionProvider = createConnectionProvider();
 	private static final Class<? extends Sqlx> sqlxClass = createSqlxClass();
+	private static final Class<? extends Page<?>> pageClass = createPageClass();
 	private static final Class<? extends ConvertService> convertServiceClass = createConvertServiceClass();
 
 	private static final List<Class<? extends Converter>> customConverterList = createCustomConverterList();
@@ -64,6 +65,22 @@ public class DaoConfig {
 		logger.info("Loaded SqlxClass: {}", sqlxClazz.getName());
 
 		return sqlxClazz;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<? extends Page<?>> createPageClass() {
+
+		Class<? extends Page<?>> pageClazz;
+
+		try {
+			pageClazz = (Class<? extends Page<?>>) Class.forName(configProperties.getProperty(Page.class.getName()));
+		} catch (Exception e) {
+			pageClazz = (Class<? extends Page<?>>) ResultPage.class; // 默认
+		}
+
+		logger.info("Loaded PageClass: {}", pageClazz.getName());
+
+		return pageClazz;
 	}
 
 	private static Properties createConfigProperties() {
@@ -228,6 +245,21 @@ public class DaoConfig {
 		sqlx.setConnection(getConnection(dataSourceName));
 
 		return sqlx;
+	}
+
+	public static Class<? extends Page<?>> getPageClass() {
+
+		return pageClass;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Page<T> getPage() {
+
+		try {
+			return (Page<T>) pageClass.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static void setThreadLocalConnection() {

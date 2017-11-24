@@ -1,83 +1,43 @@
 package com.jsan.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class Page<T> implements Serializable {
+public interface Page<T> {
 
-	private static final long serialVersionUID = 1L;
+	List<T> values();
 
-	private List<T> list;
-	private int rowCount;
-	private int pageSize;
-	private int pageCount;
-	private int pageNumber;
-	private int pageRowCount;
+	List<T> getList();
 
-	public List<T> values() {
-		return getList();
-	}
+	void setList(List<T> list);
 
-	public List<T> getList() {
-		return list;
-	}
+	int getRowCount();
 
-	public void setList(List<T> list) {
-		this.list = list;
-	}
+	void setRowCount(int rowCount);
 
-	public int getRowCount() {
-		return rowCount;
-	}
+	int getPageSize();
 
-	public void setRowCount(int rowCount) {
-		this.rowCount = rowCount;
-	}
+	void setPageSize(int pageSize);
 
-	public int getPageSize() {
-		return pageSize;
-	}
+	int getPageCount();
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+	void setPageCount(int pageCount);
 
-	public int getPageCount() {
-		return pageCount;
-	}
+	int getPageNumber();
 
-	public void setPageCount(int pageCount) {
-		this.pageCount = pageCount;
-	}
+	void setPageNumber(int pageNumber);
 
-	public int getPageNumber() {
-		return pageNumber;
-	}
+	int getPageRowCount();
 
-	public void setPageNumber(int pageNumber) {
-		this.pageNumber = pageNumber;
-	}
+	void setPageRowCount(int pageRowCount);
 
-	public int getPageRowCount() {
-		return pageRowCount;
-	}
+	boolean isFirstPage();
 
-	public void setPageRowCount(int pageRowCount) {
-		this.pageRowCount = pageRowCount;
-	}
+	boolean isLastPage();
 
-	public boolean isFirstPage() {
-		return pageNumber == 1;
-	}
+	String toPageJson();
 
-	public boolean isLastPage() {
-		return pageNumber == pageCount;
-	}
+	String toPageDataJson();
 
-	@Override
-	public String toString() {
-		return "Page [list=" + list + ", rowCount=" + rowCount + ", pageSize=" + pageSize + ", pageCount=" + pageCount
-				+ ", pageNumber=" + pageNumber + ", pageRowCount=" + pageRowCount + "]";
-	}
+	String toPageInfoJson();
 
 }
