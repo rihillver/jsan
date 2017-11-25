@@ -27,7 +27,8 @@ public class DaoConfig {
 	private static final Properties configProperties = createConfigProperties();
 	private static final ConnectionProvider connectionProvider = createConnectionProvider();
 	private static final Class<? extends Sqlx> sqlxClass = createSqlxClass();
-	private static final Class<? extends Page<?>> pageClass = createPageClass();
+	@SuppressWarnings("rawtypes")
+	private static final Class<? extends Page> pageClass = createPageClass();
 	private static final Class<? extends ConvertService> convertServiceClass = createConvertServiceClass();
 
 	private static final List<Class<? extends Converter>> customConverterList = createCustomConverterList();
@@ -67,15 +68,15 @@ public class DaoConfig {
 		return sqlxClazz;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static Class<? extends Page<?>> createPageClass() {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Class<? extends Page> createPageClass() {
 
-		Class<? extends Page<?>> pageClazz;
+		Class<? extends Page> pageClazz;
 
 		try {
-			pageClazz = (Class<? extends Page<?>>) Class.forName(configProperties.getProperty(Page.class.getName()));
+			pageClazz = (Class<? extends Page>) Class.forName(configProperties.getProperty(Page.class.getName()));
 		} catch (Exception e) {
-			pageClazz = (Class<? extends Page<?>>) ResultPage.class; // 默认
+			pageClazz = (Class<? extends Page>) ResultPage.class; // 默认
 		}
 
 		logger.info("Loaded PageClass: {}", pageClazz.getName());
@@ -247,7 +248,8 @@ public class DaoConfig {
 		return sqlx;
 	}
 
-	public static Class<? extends Page<?>> getPageClass() {
+	@SuppressWarnings("rawtypes")
+	public static Class<? extends Page> getPageClass() {
 
 		return pageClass;
 	}
@@ -257,8 +259,8 @@ public class DaoConfig {
 		return getPage(null);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Page<T> getPage(Class<? extends Page<?>> clazz) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T> Page<T> getPage(Class<? extends Page> clazz) {
 
 		if (clazz == null) {
 			clazz = pageClass;

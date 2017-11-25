@@ -32,7 +32,8 @@ public class SqlxModelBuilder implements SqlxModel {
 	// 以下14个字段可以从注解定义
 
 	protected Class<? extends Sqlx> sqlxClass;
-	protected Class<? extends Page<?>> pageClass;
+	@SuppressWarnings("rawtypes")
+	protected Class<? extends Page> pageClass;
 	protected String dataSourceName;
 
 	protected ConvertService convertService;

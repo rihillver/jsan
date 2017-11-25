@@ -49,12 +49,14 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public Class<? extends Page<?>> getPageClass() {
+	@SuppressWarnings("rawtypes")
+	public Class<? extends Page> getPageClass() {
 		return pageClass;
 	}
 
 	@Override
-	public void setPageClass(Class<? extends Page<?>> pageClass) {
+	@SuppressWarnings("rawtypes")
+	public void setPageClass(Class<? extends Page> pageClass) {
 		this.pageClass = pageClass;
 	}
 
