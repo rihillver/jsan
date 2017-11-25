@@ -35,10 +35,10 @@ public interface Page<T> {
 
 	boolean isLastPage();
 
-	String toPageJson();
+	String toJson();
 
-	String toPageDataJson();
+	String toDataJson();
 
-	String toPageInfoJson();
+	String toInfoJson();
 
 }

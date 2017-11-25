@@ -93,17 +93,17 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	}
 
 	@Override
-	public String toPageJson() {
+	public String toJson() {
 		return JSON.toJSONString(this);
 	}
 
 	@Override
-	public String toPageDataJson() {
+	public String toDataJson() {
 		return JSON.toJSONString(list);
 	}
 
 	@Override
-	public String toPageInfoJson() {
+	public String toInfoJson() {
 		return "{\"rowCount\":" + rowCount + ",\"pageSize\":" + pageSize + ",\"pageCount\":" + pageCount
 				+ ",\"pageNumber\":" + pageNumber + ",\"pageRowCount\":" + pageRowCount + ",\"firstPage\":"
 				+ isFirstPage() + ",\"lastPage\":" + isLastPage() + "}";
