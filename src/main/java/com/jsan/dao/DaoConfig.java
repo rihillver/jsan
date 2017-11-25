@@ -252,11 +252,20 @@ public class DaoConfig {
 		return pageClass;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> Page<T> getPage() {
 
+		return getPage(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Page<T> getPage(Class<? extends Page<?>> clazz) {
+
+		if (clazz == null) {
+			clazz = pageClass;
+		}
+
 		try {
-			return (Page<T>) pageClass.newInstance();
+			return (Page<T>) clazz.newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

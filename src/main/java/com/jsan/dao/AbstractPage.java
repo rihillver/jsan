@@ -1,6 +1,7 @@
 package com.jsan.dao;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
@@ -17,8 +18,8 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	private int pageRowCount;
 
 	@Override
-	public List<T> values() {
-		return getList();
+	public Collection<T> values() {
+		return list;
 	}
 
 	@Override

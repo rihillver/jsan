@@ -17,6 +17,8 @@ public class Param {
 	private FieldNameHandler fieldNameHandler;
 	private FieldValueHandler fieldValueHandler;
 
+	private Class<? extends Page<?>> pageClass;
+
 	private Map<String, Object> paramMap;
 	private Map<String, Object> orderByMap;
 
@@ -102,6 +104,14 @@ public class Param {
 
 	public void setFieldValueHandler(FieldValueHandler fieldValueHandler) {
 		this.fieldValueHandler = fieldValueHandler;
+	}
+
+	public Class<? extends Page<?>> getPageClass() {
+		return pageClass;
+	}
+
+	public void setPageClass(Class<? extends Page<?>> pageClass) {
+		this.pageClass = pageClass;
 	}
 
 	public Map<String, Object> getParamMap() {

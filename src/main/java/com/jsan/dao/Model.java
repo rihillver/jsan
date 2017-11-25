@@ -13,6 +13,10 @@ public interface Model extends MapModel {
 	Class<? extends Sqlx> getSqlxClass();
 
 	void setSqlxClass(Class<? extends Sqlx> sqlxClass);
+	
+	Class<? extends Page<?>> getPageClass();
+	
+	void setPageClass(Class<? extends Page<?>> pageClass);
 
 	String getDataSourceName();
 
@@ -22,9 +26,13 @@ public interface Model extends MapModel {
 
 	void setConvertService(ConvertService convertService);
 	
-	FieldValueHandler getFieldHandler();
+	FieldNameHandler getFieldNameHandler();
 	
-	void setFieldHandler(FieldValueHandler fieldHandler);
+	void setFieldNameHandler(FieldNameHandler fieldNameHandler);
+	
+	FieldValueHandler getFieldValueHandler();
+	
+	void setFieldValueHandler(FieldValueHandler fieldValueHandler);
 
 	String[] getPrimaryKey();
 

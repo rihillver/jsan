@@ -49,6 +49,16 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
+	public Class<? extends Page<?>> getPageClass() {
+		return pageClass;
+	}
+
+	@Override
+	public void setPageClass(Class<? extends Page<?>> pageClass) {
+		this.pageClass = pageClass;
+	}
+
+	@Override
 	public String getDataSourceName() {
 		return dataSourceName;
 	}
@@ -69,13 +79,23 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public FieldValueHandler getFieldHandler() {
+	public FieldNameHandler getFieldNameHandler() {
+		return fieldNameHandler;
+	}
+
+	@Override
+	public void setFieldNameHandler(FieldNameHandler fieldNameHandler) {
+		this.fieldNameHandler = fieldNameHandler;
+	}
+
+	@Override
+	public FieldValueHandler getFieldValueHandler() {
 		return fieldValueHandler;
 	}
 
 	@Override
-	public void setFieldHandler(FieldValueHandler fieldHandler) {
-		this.fieldValueHandler = fieldHandler;
+	public void setFieldValueHandler(FieldValueHandler fieldValueHandler) {
+		this.fieldValueHandler = fieldValueHandler;
 	}
 
 	@Override
@@ -107,7 +127,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	public void setAutoIncrementValue(String[] autoIncrementValue) {
 		this.autoIncrementValue = autoIncrementValue;
 	}
-	
+
 	/**
 	 * 这里需要覆盖父类的方法已达到更精确的表达。
 	 * 
@@ -125,7 +145,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 			return name;
 		}
 	}
-	
+
 	@Override
 	public void setTableName(String tableName) {
 		this.tableName = tableName;

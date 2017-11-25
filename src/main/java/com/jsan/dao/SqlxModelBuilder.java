@@ -12,6 +12,7 @@ import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.dao.annotation.Connecter;
 import com.jsan.dao.annotation.FieldCaseInsensitive;
 import com.jsan.dao.annotation.FieldValueHandlerRegister;
+import com.jsan.dao.annotation.PageRegister;
 import com.jsan.dao.annotation.FieldInSnakeCase;
 import com.jsan.dao.annotation.FieldNameHandlerRegister;
 import com.jsan.dao.annotation.FieldToLowerCase;
@@ -28,9 +29,10 @@ public class SqlxModelBuilder implements SqlxModel {
 
 	protected Connection connection;
 
-	// 以下 9 个字段可以从注解定义
+	// 以下14个字段可以从注解定义
 
 	protected Class<? extends Sqlx> sqlxClass;
+	protected Class<? extends Page<?>> pageClass;
 	protected String dataSourceName;
 
 	protected ConvertService convertService;
@@ -64,6 +66,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		FieldToLowerCase fieldToLowerCase = clazz.getAnnotation(FieldToLowerCase.class);
 		FieldCaseInsensitive fieldCaseInsensitive = clazz.getAnnotation(FieldCaseInsensitive.class);
 
+		PageRegister pageRegister = clazz.getAnnotation(PageRegister.class);
 		ConvertServiceRegister convertServiceRegister = clazz.getAnnotation(ConvertServiceRegister.class);
 		FieldNameHandlerRegister fieldNameHandlerRegister = clazz.getAnnotation(FieldNameHandlerRegister.class);
 		FieldValueHandlerRegister fieldValueHandlerRegister = clazz.getAnnotation(FieldValueHandlerRegister.class);
@@ -110,6 +113,12 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		if (fieldCaseInsensitive != null) {
 			this.fieldCaseInsensitive = fieldCaseInsensitive.value();
+		}
+
+		if (pageRegister != null) {
+			pageClass = pageRegister.value();
+		} else {
+			pageClass = DaoConfig.getPageClass();
 		}
 
 		if (convertServiceRegister != null) {
@@ -245,6 +254,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		param.setConvertService(convertService);
 		param.setFieldNameHandler(fieldNameHandler);
 		param.setFieldValueHandler(fieldValueHandler);
+		param.setPageClass(pageClass);
 		param.setPrimaryKey(primaryKey);
 		param.setAutoIncrementKey(autoIncrementKey);
 		param.setAutoIncrementValue(autoIncrementValue);
@@ -569,7 +579,6 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		return set;
 	}
-	
 
 	@Override
 	public Map<String, Object> queryForMap(Param param) throws SQLException {
@@ -604,7 +613,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
 			throws SQLException {
-		
+
 		Sqlx sqlx = getSqlx();
 		Page<Map<String, Object>> page = sqlx.queryForMapPageEnhanced(param, mapListHandler);
 		sqlx.close();

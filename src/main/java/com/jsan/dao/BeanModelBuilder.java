@@ -19,6 +19,18 @@ import com.jsan.dao.handler.support.MapListHandler;
 import com.jsan.dao.map.ListMultiValueMap;
 import com.jsan.dao.map.SetMultiValueMap;
 
+/**
+ * 基于 Bean 的 Model 构建器。
+ * <ol>
+ * <li>参与执行增删改操作的 Bean 对象的相关转换基于其自身字段（仅含自身的所有字段，不含父类的任何字段）对应的 Getter 和 Setter
+ * 操作。</li>
+ * <li>执行查询操作返回的 Bean 对象结果集的相关转换则通过其 Getter 和 Setter
+ * 方法取字段名（含父类的公共方法，不含自身的私有方法，对应的字段不一定真实存在）。</li>
+ * <li>如果需要对 Bean 对象增加辅助的 Getter 和 Setter 方法时，当涉对象自身字段的相关操作时，务必通过其自身字段对应的 Getter
+ * 和 Setter 方法进行取值和设置操作。</li>
+ * </ol>
+ * 
+ */
 public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B> {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

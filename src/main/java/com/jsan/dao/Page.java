@@ -1,10 +1,11 @@
 package com.jsan.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface Page<T> {
 
-	List<T> values();
+	Collection<T> values();
 
 	List<T> getList();
 

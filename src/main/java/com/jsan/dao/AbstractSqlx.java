@@ -1137,7 +1137,7 @@ public abstract class AbstractSqlx implements Sqlx {
 	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
 			throws SQLException {
 
-		Page<Map<String, Object>> page = DaoConfig.getPage();
+		Page<Map<String, Object>> page = DaoConfig.getPage(param.getPageClass());
 		handlePage(param, page, mapListHandler);
 		return page;
 	}
@@ -1163,7 +1163,7 @@ public abstract class AbstractSqlx implements Sqlx {
 	@Override
 	public <T> Page<T> queryForBeanPageEnhanced(Param param, BeanListHandler<T> beanListHandler) throws SQLException {
 
-		Page<T> page = DaoConfig.getPage();
+		Page<T> page = DaoConfig.getPage(param.getPageClass());
 		handlePage(param, page, beanListHandler);
 		return page;
 	}
