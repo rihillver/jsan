@@ -17,12 +17,19 @@ import net.sf.cglib.proxy.NoOp;
 /**
  * 基于 Cglib 的动态代理工具类。
  * <p>
- * 特别注意：<br>
- * 需要通过 Cglib 构建代理对象的原生类如果含有 callback 和 callbacks 字段对应的 Getter 和 Setter
+ * 特别注意：
+ * <ol>
+ * <li>需要通过 Cglib 构建代理对象的原生类如果含有 callback 和 callbacks 字段对应的 Getter 和 Setter
  * 方法，则在构建时可能发生异常，原因是通过 Cglib 构建出来的代理类内部含有专有方法
  * setCallback(int,net.sf.cglib.proxy.Callback)、getCallback(int)、setCallbacks(net.sf.cglib.proxy.Callback[])、getCallbacks()
  * 而导致方法冲突。另外还有三个重载的专有方法也需要留意潜在的冲突
- * newInstance(net.sf.cglib.proxy.Callback[])、newInstance(java.lang.Class[],java.lang.Object[],net.sf.cglib.proxy.Callback[])、newInstance(net.sf.cglib.proxy.Callback)。
+ * newInstance(net.sf.cglib.proxy.Callback[])、newInstance(java.lang.Class[],java.lang.Object[],net.sf.cglib.proxy.Callback[])、newInstance(net.sf.cglib.proxy.Callback)。</li>
+ * <li>由于 DaoBean 对象 Setter 状态的改变通过 WeakHashMap 来进行查找，并且将 DaoBean 对象本身作为
+ * key，因此务必确保 DaoBean 类的 hashCode() 方法不被改写，确保 hashCode() 方法始终默认继承自最原始的 Object
+ * 对象（其默认值为对象的内存地址），这样才能确保每个 DaoBean 对象都在 WeakHashMap 中的 key 是唯一的。若使用 lombok
+ * 插件构建 Bean 代码时，请不要使用@Data 注解，该注解会重写 hashCode() 方法从而可能导致不同的 DaoBean 对象有相同的
+ * hashCode 值，因此在使用 lombok 插件构建 Bean 代码时建议使用@Setter 和@Getter 注解即可。</li>
+ * </ol>
  *
  */
 
@@ -56,7 +63,7 @@ public class BeanProxyUtils {
 
 	}
 
-	private static final Map<Integer, DaoBeanExcludeFieldContainer> daoBeanExcludeFieldContainerMap = new WeakHashMap<Integer, DaoBeanExcludeFieldContainer>();
+	private static final Map<Object, DaoBeanExcludeFieldContainer> daoBeanExcludeFieldContainerMap = new WeakHashMap<Object, DaoBeanExcludeFieldContainer>();
 
 	private static final MethodInterceptor daoBeanWriteMethodInterceptor = new MethodInterceptor() {
 
@@ -244,14 +251,12 @@ public class BeanProxyUtils {
 	 */
 	public static DaoBeanExcludeFieldContainer getDaoBeanExcludeFieldContainer(Object obj) {
 
-		int key = System.identityHashCode(obj);
-		return daoBeanExcludeFieldContainerMap.get(key);
+		return daoBeanExcludeFieldContainerMap.get(obj);
 	}
 
 	private static void setDaoBeanExcludeFieldContainer(Object obj, DaoBeanExcludeFieldContainer container) {
 
-		int key = System.identityHashCode(obj);
-		daoBeanExcludeFieldContainerMap.put(key, container);
+		daoBeanExcludeFieldContainerMap.put(obj, container);
 	}
 
 	private static void removeIncludeField(Object obj, String methodName) {
