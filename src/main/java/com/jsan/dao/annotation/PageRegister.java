@@ -20,6 +20,7 @@ import com.jsan.dao.Page;
 @Inherited
 public @interface PageRegister {
 
-	Class<? extends Page<?>> value();
+	@SuppressWarnings("rawtypes")
+	Class<? extends Page> value();
 
 }
