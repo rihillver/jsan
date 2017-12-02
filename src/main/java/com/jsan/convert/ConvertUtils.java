@@ -31,6 +31,11 @@ import com.jsan.convert.support.ShortConverter;
 
 public class ConvertUtils {
 
+	protected static final GeneralConvertService generalConvertService = new GeneralConvertService();
+	protected static final JsonConvertService jsonConvertService = new JsonConvertService();
+	protected static final SplitConvertService splitConvertService = new SplitConvertService();
+	protected static final SplitTrimConvertService splitTrimConvertService = new SplitTrimConvertService();
+
 	protected static final IntegerConverter integerConverter = new IntegerConverter();
 	protected static final LongConverter longConverter = new LongConverter();
 	protected static final FloatConverter floatConverter = new FloatConverter();
@@ -43,6 +48,48 @@ public class ConvertUtils {
 	protected static final BigDecimalConverter bigDecimalConverter = new BigDecimalConverter();
 	protected static final BigIntegerConverter bigIntegerConverter = new BigIntegerConverter();
 	protected static final DateConverter dateConverter = new DateConverter();
+
+	/**
+	 * 返回 GeneralConvertService 实例。
+	 * 
+	 * @return
+	 */
+	public static ConvertService getGeneralConvertService() {
+
+		return generalConvertService;
+	}
+
+	/**
+	 * 返回 JsonConvertService 实例。
+	 * 
+	 * @return
+	 */
+	public static ConvertService getJsonConvertService() {
+
+		return jsonConvertService;
+	}
+
+	/**
+	 * 返回 SplitConvertService 实例。
+	 * 
+	 * @return
+	 */
+	public static ConvertService getSplitConvertService() {
+
+		return splitConvertService;
+	}
+
+	/**
+	 * 返回 SplitTrimConvertService 实例。
+	 * 
+	 * @return
+	 */
+	public static ConvertService getSplitTrimConvertService() {
+
+		return splitTrimConvertService;
+	}
+
+	// ==================================================
 
 	/**
 	 * 返回转换值（int）。
