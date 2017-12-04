@@ -27,13 +27,13 @@ public abstract class AbstractMapConverter extends AbstractRecursiveableConverte
 
 			keyType = parameterizedType.getActualTypeArguments()[0];
 
-			GenericTypeExtractor extractor = new GenericTypeExtractor(keyType);
+			TypeExtractor extractor = new TypeExtractor(keyType);
 			keyType = extractor.getActualType();
 			keyClass = extractor.getActualClass();
 
 			valueType = parameterizedType.getActualTypeArguments()[1];
 
-			extractor = new GenericTypeExtractor(valueType);
+			extractor = new TypeExtractor(valueType);
 			valueType = extractor.getActualType();
 			valueClass = extractor.getActualClass();
 

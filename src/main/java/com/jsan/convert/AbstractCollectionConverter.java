@@ -33,7 +33,7 @@ public abstract class AbstractCollectionConverter extends AbstractRecursiveableC
 			ParameterizedType parameterizedType = (ParameterizedType) type;
 			actualType = parameterizedType.getActualTypeArguments()[0];
 
-			GenericTypeExtractor extractor = new GenericTypeExtractor(actualType);
+			TypeExtractor extractor = new TypeExtractor(actualType);
 			actualType = extractor.getActualType();
 			actualClass = extractor.getActualClass();
 

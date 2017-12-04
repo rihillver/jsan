@@ -11,12 +11,12 @@ import java.lang.reflect.WildcardType;
  *
  */
 
-public class GenericTypeExtractor {
+public class TypeExtractor {
 
 	private Type actualType;
 	private Class<?> actualClass;
 
-	public GenericTypeExtractor(Type type) {
+	public TypeExtractor(Type type) {
 
 		actualType = type;
 
@@ -67,7 +67,7 @@ public class GenericTypeExtractor {
 			GenericArrayType genericArrayType = (GenericArrayType) type;
 			Type arrayType = genericArrayType.getGenericComponentType();
 
-			GenericTypeExtractor extractor = new GenericTypeExtractor(arrayType); // 泛型数组，极其罕见的
+			TypeExtractor extractor = new TypeExtractor(arrayType); // 泛型数组，极其罕见的，只支持定义，无法实例化
 			Class<?> arrayClass = extractor.getActualClass();
 
 			actualClass = Array.newInstance(arrayClass, 0).getClass(); // 获取泛型数组类型的类比较麻烦
