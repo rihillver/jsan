@@ -32,7 +32,9 @@ public class DateUtils {
 
 	private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
-	private static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+	private static final String DEFAULT_DATE_TIME_MILLI_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	private static final String DATE_FORMAT = "EEE MMM dd HH:mm:ss Z yyyy";
 
@@ -272,7 +274,7 @@ public class DateUtils {
 	 */
 	public static String getDateTimeStr() {
 
-		return getDateStr(getDate(), DEFAULT_DATETIME_FORMAT);
+		return getDateStr(getDate(), DEFAULT_DATE_TIME_FORMAT);
 	}
 
 	/**
@@ -283,7 +285,29 @@ public class DateUtils {
 	 */
 	public static String getDateTimeStr(Date date) {
 
-		return getDateStr(date, DEFAULT_DATETIME_FORMAT);
+		return getDateStr(date, DEFAULT_DATE_TIME_FORMAT);
+	}
+
+	/**
+	 * 返回当前日期的字符串形式（格式：yyyy-MM-dd HH:mm:ss.SSS）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static String getDateTimeMilliStr() {
+
+		return getDateStr(getDate(), DEFAULT_DATE_TIME_MILLI_FORMAT);
+	}
+
+	/**
+	 * 返回指定日期的字符串形式（格式：yyyy-MM-dd HH:mm:ss.SSS）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static String getDateTimeMilliStr(Date date) {
+
+		return getDateStr(date, DEFAULT_DATE_TIME_MILLI_FORMAT);
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -48,7 +49,9 @@ public abstract class AbstractDateTimeConverter extends AbstractRecursiveableCon
 			object = getDateObject(clazz, ((Calendar) source).getTime());
 		} else if (source instanceof String) {
 
-			object = parseByFormatter((Class<?>) type, (String) source); // 格式化处理
+			String dateStr = (String) source;
+
+			object = parseByFormatter((Class<?>) type, dateStr); // 指定的格式化处理
 
 			if (object instanceof Calendar) {
 				object = ((Calendar) object).getTime();
@@ -56,10 +59,18 @@ public abstract class AbstractDateTimeConverter extends AbstractRecursiveableCon
 
 			if (!(object instanceof Date)) {
 				try {
-					object = getDateFormat().parse((String) source);
+					object = getCommonDateFormat(dateStr).parse(dateStr);
 				} catch (ParseException e) {
-					logger.warn("DateFormat cannot parse: {} [by {}]", source, getDateFormat().getClass().getName());
-					object = null;
+					try {
+						object = getDateTimeFormat().parse(dateStr); // 不得已的情况下第一次以DateFormat.getDateTimeInstance()进行尝试（精确到秒）
+					} catch (ParseException ex) {
+						try {
+							object = getDateFormat().parse(dateStr); // 不得已的情况下第二次以DateFormat.getDateInstance()进行尝试（精确到天）
+						} catch (ParseException exc) {
+							logger.warn("DateFormat cannot parse: {}", dateStr);
+							object = null;
+						}
+					}
 				}
 			}
 			object = getDateObject(clazz, (Date) object);
@@ -91,7 +102,60 @@ public abstract class AbstractDateTimeConverter extends AbstractRecursiveableCon
 		}
 	}
 
+	protected static final String COMMON_DATE_FORMAT = "yyyy-MM-dd";
+	protected static final String COMMON_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	protected static final String COMMON_DATE_TIME_MILLI_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
+	protected static final ThreadLocal<DateFormat> commonDateFormatThreadLocal = new ThreadLocal<DateFormat>();
+	protected static final ThreadLocal<DateFormat> commonDateTimeFormatThreadLocal = new ThreadLocal<DateFormat>();
+	protected static final ThreadLocal<DateFormat> commonDateTimeMilliFormatThreadLocal = new ThreadLocal<DateFormat>();
+
+	protected DateFormat createCommonDateFormat(String pattern) {
+
+		DateFormat dateFormat;
+
+		if (locale == null) {
+			dateFormat = new SimpleDateFormat(pattern);
+		} else {
+			dateFormat = new SimpleDateFormat(pattern, locale);
+		}
+
+		if (timeZone != null) {
+			dateFormat.setTimeZone(timeZone);
+		}
+
+		return dateFormat;
+	}
+
+	protected DateFormat getCommonDateFormat(String dateStr) {
+
+		DateFormat dateFormat;
+
+		if (dateStr.length() == COMMON_DATE_FORMAT.length()) {
+			dateFormat = commonDateFormatThreadLocal.get();
+			if (dateFormat == null) {
+				dateFormat = createCommonDateFormat(COMMON_DATE_FORMAT);
+				commonDateFormatThreadLocal.set(dateFormat);
+			}
+		} else if (dateStr.length() == COMMON_DATE_TIME_FORMAT.length()) {
+			dateFormat = commonDateTimeFormatThreadLocal.get();
+			if (dateFormat == null) {
+				dateFormat = createCommonDateFormat(COMMON_DATE_TIME_FORMAT);
+				commonDateTimeFormatThreadLocal.set(dateFormat);
+			}
+		} else {
+			dateFormat = commonDateTimeMilliFormatThreadLocal.get();
+			if (dateFormat == null) {
+				dateFormat = createCommonDateFormat(COMMON_DATE_TIME_MILLI_FORMAT);
+				commonDateTimeMilliFormatThreadLocal.set(dateFormat);
+			}
+		}
+
+		return dateFormat;
+	}
+
 	protected static final ThreadLocal<DateFormat> dateFormatThreadLocal = new ThreadLocal<DateFormat>();
+	protected static final ThreadLocal<DateFormat> dateTimeFormatThreadLocal = new ThreadLocal<DateFormat>();
 
 	protected DateFormat getDateFormat() {
 
@@ -106,6 +170,35 @@ public abstract class AbstractDateTimeConverter extends AbstractRecursiveableCon
 	}
 
 	protected DateFormat createDateFormat() {
+
+		DateFormat dateFormat;
+
+		if (locale == null) {
+			dateFormat = DateFormat.getDateInstance();
+		} else {
+			dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale);
+		}
+
+		if (timeZone != null) {
+			dateFormat.setTimeZone(timeZone);
+		}
+
+		return dateFormat;
+	}
+
+	protected DateFormat getDateTimeFormat() {
+
+		DateFormat dateFormat = dateTimeFormatThreadLocal.get();
+
+		if (dateFormat == null) {
+			dateFormat = createDateTimeFormat();
+			dateTimeFormatThreadLocal.set(dateFormat);
+		}
+
+		return dateFormat;
+	}
+
+	protected DateFormat createDateTimeFormat() {
 
 		DateFormat dateFormat;
 
