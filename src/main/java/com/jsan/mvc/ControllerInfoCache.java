@@ -26,6 +26,7 @@ import com.jsan.mvc.annotation.Post;
 import com.jsan.mvc.annotation.Put;
 import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.annotation.Render;
+import com.jsan.mvc.annotation.RequestObject;
 import com.jsan.mvc.annotation.SessionObject;
 
 /**
@@ -170,6 +171,8 @@ public class ControllerInfoCache {
 					Set<String> set = new HashSet<String>(Arrays.asList(value));
 					pInfo.setMultiValueSet(set); // 初始化 multiValueSet
 				}
+			} else if (annotation instanceof RequestObject) {
+				pInfo.setRequestObject((RequestObject) annotation);
 			} else if (annotation instanceof SessionObject) {
 				pInfo.setSessionObject((SessionObject) annotation);
 			} else if (annotation instanceof ConvertServiceRegister) {

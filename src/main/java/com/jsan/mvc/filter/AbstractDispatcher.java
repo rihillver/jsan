@@ -62,6 +62,7 @@ import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.QuirkMode;
 import com.jsan.mvc.annotation.Render;
+import com.jsan.mvc.annotation.RequestObject;
 import com.jsan.mvc.annotation.SessionObject;
 import com.jsan.mvc.intercept.GeneralInterceptService;
 import com.jsan.mvc.intercept.InterceptService;
@@ -946,6 +947,8 @@ public abstract class AbstractDispatcher implements Filter {
 					} else { // 表单转Bean处理
 						parameterObjects[i] = getRequestFormToBean(service, pInfo, parameterQuirkMode, request);
 					}
+				} else if (pInfo.getRequestObject() != null) { // request属性对象处理
+					parameterObjects[i] = getRequestObject(service, pInfo, request);
 				} else if (pInfo.getSessionObject() != null) { // session属性对象处理
 					parameterObjects[i] = getSessionObject(service, pInfo, request);
 				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
@@ -1039,6 +1042,22 @@ public abstract class AbstractDispatcher implements Filter {
 		}
 
 		return parameterObjects;
+	}
+
+	protected Object getRequestObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
+
+		RequestObject requestObject = pInfo.getRequestObject();
+		String attributeName = requestObject.value();
+		if (attributeName.isEmpty()) {
+			attributeName = pInfo.getName();
+		}
+		Object object = request.getAttribute(attributeName);
+		if (pInfo.getType().isPrimitive()) {
+			Converter converter = service.lookupConverter(pInfo.getType());
+			object = converter.convert(object, pInfo.getGenericType());
+		}
+
+		return object;
 	}
 
 	protected Object getSessionObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
