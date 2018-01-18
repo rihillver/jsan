@@ -989,6 +989,14 @@ public abstract class AbstractSqlx implements Sqlx {
 	}
 
 	@Override
+	public <T> T queryForObject(Param param, Class<T> clazz) throws SQLException {
+
+		handleParam(param, Crud.QUERY);
+		return executeQuery(param.getInitializedSql(), getHandlerEnhancedProcessed(param, new ObjectHandler<T>(clazz)),
+				param.getInitializedParams());
+	}
+
+	@Override
 	public <T> T queryForRowCount(Param param, Class<T> clazz) throws SQLException {
 
 		handleParam(param, Crud.QUERY);

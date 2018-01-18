@@ -87,6 +87,8 @@ public interface SqlxModel {
 	
 	<T> T queryEnhanced(Param param, EnhancedResultSetHandler<T> enhancedResultSetHandler) throws SQLException;
 	
+	<T> T queryForObject(Param param, Class<T> clazz) throws SQLException;
+	
 	<T> T queryForRowCount(Param param, Class<T> clazz) throws SQLException;
 	
 	List<RowMetaData> queryForRowMetaData(Param param) throws SQLException;

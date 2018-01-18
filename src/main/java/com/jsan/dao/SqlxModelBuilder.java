@@ -445,6 +445,16 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		return t;
 	}
+	
+	@Override
+	public <T> T queryForObject(Param param, Class<T> clazz) throws SQLException {
+		
+		Sqlx sqlx = getSqlx();
+		T t = sqlx.queryForObject(param, clazz);
+		sqlx.close();
+		
+		return t;
+	}
 
 	@Override
 	public <T> T queryForRowCount(Param param, Class<T> clazz) throws SQLException {
