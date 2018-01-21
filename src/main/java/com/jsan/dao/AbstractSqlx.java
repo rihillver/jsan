@@ -611,7 +611,11 @@ public abstract class AbstractSqlx implements Sqlx {
 	}
 
 	/**
-	 * 对冒号(:xxx)和问号(?)('?')这些占位符进行替换校正，以及 order by 后面的字段处理。
+	 * 对冒号(:xxx)(':xxx')和问号(?)('?')这些占位符进行替换校正，以及 order by 后面的字段处理。
+	 * <p>
+	 * 同一条语句只能使用冒号形式或问号形式，不能一起使用。
+	 * <p>
+	 * 对于冒号(:xxx)(':xxx')形式只要前面紧跟空格、或左括号、或逗号、或点、或等于号、或@以及后面紧跟空格、或右括号、或逗号、或点的情况均视为该形式。
 	 * <p>
 	 * 如果行数统计的 rowCountSql 如果设置有的情况，同样按照标准 sql 一样的校正流程，目前考虑到使用场景较少已注释掉。
 	 * 
@@ -638,7 +642,7 @@ public abstract class AbstractSqlx implements Sqlx {
 		List<Object> paramList = new ArrayList<Object>();
 		List<Object> paramList0 = new ArrayList<Object>();
 
-		// :xxx 形式的处理
+		// :xxx、':xxx' 形式的处理，即将 :xxx 和 ':xxx' 先转换成 ? 和 '?'
 
 		sql += " "; // 加上空格为了更好的进行 ':xxx' 形式的处理（处于最尾处时）
 		// ==================================================
@@ -647,12 +651,12 @@ public abstract class AbstractSqlx implements Sqlx {
 		// }
 		// ==================================================
 
-		Pattern pattern = Pattern.compile("'?:\\w+'?[\\s|\\)|,]");
+		Pattern pattern = Pattern.compile("[\\s|\\(|,|\\.|=|@]'{0,2}:\\w+'{0,2}[\\s|\\)|,|\\.]"); // :xxx、':xxx'形式的前后还允许再有一对单引号(')
 		Matcher matcher = pattern.matcher(sql);
 
 		while (matcher.find()) {
 			String str = matcher.group();
-			String name = str.replaceAll("'?:(\\w+)'?[\\s|\\)|,]", "$1");
+			String name = str.replaceAll("[\\s|\\(|,|\\.|=!@]'{0,2}:(\\w+)'{0,2}[\\s|\\)|,|\\.]", "$1");
 			sql = sql.replaceFirst(":" + name, "?");
 			// ==================================================
 			// if (rowCountSql != null) {
