@@ -615,7 +615,11 @@ public abstract class AbstractSqlx implements Sqlx {
 	 * <p>
 	 * 同一条语句只能使用冒号形式或问号形式，不能一起使用。
 	 * <p>
-	 * 对于冒号(:xxx)(':xxx')形式只要前面紧跟空格、或左括号、或逗号、或点、或等于号、或@以及后面紧跟空格、或右括号、或逗号、或点的情况均视为该形式。
+	 * 对于冒号(:xxx)(':xxx')形式只要后面紧跟空格、或右括号、或逗号、或点的情况均视为该形式，因此对于
+	 * to_date('':date'','yyyy-MM-dd HH24:mi:ss') 这种情况这里的正则替换会将 :ss 替换成
+	 * ?，因此这种情况应当特别处理，比如改成 to_date('':date'','':format'')。
+	 * <p>
+	 * 特别注意：使用冒号(:xxx)(':xxx')形式时，当 sql 原始语句中含有 (:xxx) 形式的字符串时应当注意辨别是否会产生正则匹配差错。
 	 * <p>
 	 * 如果行数统计的 rowCountSql 如果设置有的情况，同样按照标准 sql 一样的校正流程，目前考虑到使用场景较少已注释掉。
 	 * 
@@ -651,12 +655,18 @@ public abstract class AbstractSqlx implements Sqlx {
 		// }
 		// ==================================================
 
-		Pattern pattern = Pattern.compile("[\\s|\\(|,|\\.|=|@]'{0,2}:\\w+'{0,2}[\\s|\\)|,|\\.]"); // :xxx、':xxx'形式的前后还允许再有一对单引号(')
+		// Pattern pattern =
+		// Pattern.compile("[\\s|\\(|,|\\.|=|@]'{0,2}:\\w+'{0,2}[\\s|\\)|,|\\.]");
+		// 上面这种情况在前面加上匹配判断更不可取，虽然看似更严谨更精确，但是在两个相邻时如果前后共用间隔符时将产生差错，
+		// 比如 to_date('':date'','':format'')，
+		// 需要改成 to_date('':date'', '':format'')才能正确匹配。
+
+		Pattern pattern = Pattern.compile("'{0,2}:\\w+'{0,2}[\\s|\\)|,|\\.]"); // :xxx、':xxx'形式的前后还允许再有一对单引号(')
 		Matcher matcher = pattern.matcher(sql);
 
 		while (matcher.find()) {
 			String str = matcher.group();
-			String name = str.replaceAll("[\\s|\\(|,|\\.|=!@]'{0,2}:(\\w+)'{0,2}[\\s|\\)|,|\\.]", "$1");
+			String name = str.replaceAll("'{0,2}:(\\w+)'{0,2}[\\s|\\)|,|\\.]", "$1");
 			sql = sql.replaceFirst(":" + name, "?");
 			// ==================================================
 			// if (rowCountSql != null) {
