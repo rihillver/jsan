@@ -228,4 +228,70 @@ public class ArithUtils {
 		return b.setScale(scale, round).doubleValue();
 	}
 
+	/**
+	 * 精确比较。
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static int compareTo(double v1, double v2) {
+
+		return compareTo(Double.toString(v1), Double.toString(v2));
+	}
+
+	/**
+	 * 精确比较。
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static int compareTo(String v1, String v2) {
+
+		BigDecimal b1 = new BigDecimal(v1);
+		BigDecimal b2 = new BigDecimal(v2);
+
+		return b1.compareTo(b2);
+	}
+
+	/**
+	 * 精确判断是否相等。
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static boolean equal(double v1, double v2) {
+
+		return Double.doubleToLongBits(v1) == Double.doubleToLongBits(v2);
+	}
+
+	/**
+	 * 精确判断是否相等，指定小数位，超出则截断。
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param scale
+	 * @return
+	 */
+	public static boolean equal(double v1, double v2, int scale) {
+
+		return equal(v1, v2, scale, RoundingMode.DOWN);
+	}
+
+	/**
+	 * 精确判断是否相等，指定小数位和舍入方式。
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	public static boolean equal(double v1, double v2, int scale, RoundingMode round) {
+
+		return equal(round(v1, scale, round), round(v2, scale, round));
+	}
+
 }
