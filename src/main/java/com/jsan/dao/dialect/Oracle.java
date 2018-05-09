@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,25 @@ public class Oracle extends AbstractSqlx {
 	public Oracle(ResultSet resultSet) {
 
 		super(resultSet);
+	}
+
+	/**
+	 * 由于 java.util.Date 对于 Oracle 和 SQLServer 的 JDBC 驱动可能需要转换成
+	 * java.sql.Timestamp 才能插入，因此这里重写父类方法特别处理。
+	 * <p>
+	 * 若使用 java.sql.Timestamp 往 Oracle 数据库插入 Timestamp 数据类型的字段出现丢失毫秒的问题，请检查
+	 * Oracle 的 JDBC 驱动是否过旧。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	@Override
+	protected Object handleTypeCast(Object obj) {
+
+		if (obj.getClass() == Date.class) {
+			return new Timestamp(((Date) obj).getTime());
+		}
+		return obj;
 	}
 
 	@Override

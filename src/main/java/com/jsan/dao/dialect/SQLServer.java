@@ -2,6 +2,8 @@ package com.jsan.dao.dialect;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import com.jsan.dao.AbstractSqlx;
 
@@ -19,6 +21,24 @@ public class SQLServer extends AbstractSqlx {
 	public SQLServer(ResultSet resultSet) {
 
 		super(resultSet);
+	}
+
+	/**
+	 * 由于 java.util.Date 对于 Oracle 和 SQLServer 的 JDBC 驱动可能需要转换成
+	 * java.sql.Timestamp 才能插入，因此这里重写父类方法特别处理。
+	 * <p>
+	 * SQLServer 数据库的 Timestamp 数据类型是一种二进制的数据，不是时间格式，不能将显式值插入时间戳列，一般为系统自动生成。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	@Override
+	protected Object handleTypeCast(Object obj) {
+
+		if (obj.getClass() == Date.class) {
+			return new Timestamp(((Date) obj).getTime());
+		}
+		return obj;
 	}
 
 	@Override

@@ -153,6 +153,17 @@ public abstract class AbstractSqlx implements Sqlx {
 		}
 	}
 
+	/**
+	 * PreparedStatement.setObject(xxx) 时进行类型转换，sql方言实现类可通过重写该方法实现特定的类型转换。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	protected Object handleTypeCast(Object obj) {
+
+		return obj;
+	}
+
 	protected void fillStatement(PreparedStatement stmt, Object... params) throws SQLException {
 
 		if (params == null || params.length == 0) {
@@ -161,6 +172,8 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		ParameterMetaData pmd = null;
 		try {
+			// MySQL 需要在连接数据库时的URL后面加上可以返回的元数据类型 generateSimpleParameterMetadata=true
+			// Oracle 不支持此特性
 			pmd = stmt.getParameterMetaData();
 		} catch (Exception e) {
 			// 允许某些 JDBC 驱动不支持获取 ParameterMetaData
@@ -169,7 +182,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		for (int i = 0; i < params.length; i++) {
 			if (params[i] != null) {
-				stmt.setObject(i + 1, params[i]);
+				stmt.setObject(i + 1, handleTypeCast(params[i]));
 			} else {
 				int sqlType = Types.VARCHAR;
 				if (pmd != null) {
