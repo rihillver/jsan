@@ -24,11 +24,13 @@ import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
 import com.jsan.dao.FieldNameHandler;
 import com.jsan.dao.FieldValueHandler;
+import com.jsan.dao.TypeCastHandler;
 import com.jsan.dao.map.CaseInsensitiveMap;
 
 public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> {
 
 	protected ConvertService convertService;
+	protected TypeCastHandler typeCastHandler;
 	protected FieldNameHandler fieldNameHandler;
 	protected FieldValueHandler fieldValueHandler;
 	protected boolean fieldCaseInsensitive;
@@ -39,6 +41,12 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	public void setConvertService(ConvertService convertService) {
 
 		this.convertService = convertService;
+	}
+
+	@Override
+	public void setTypeCastHandler(TypeCastHandler typeCastHandler) {
+
+		this.typeCastHandler = typeCastHandler;
 	}
 
 	@Override
@@ -80,6 +88,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnIndex);
+		obj = typeCastHandle(obj);
 		obj = fieldValueHandle(columnIndex, null, obj);
 		obj = converter.convert(obj, type);
 
@@ -95,6 +104,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 		Converter converter = service.lookupConverter(type);
 
 		obj = rs.getObject(columnName);
+		obj = typeCastHandle(obj);
 		obj = fieldValueHandle(0, columnName, obj);
 		obj = converter.convert(obj, type);
 
@@ -119,6 +129,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 			}
 
 			Object obj = handleColumnValue(rs, rsmd, i);
+			obj = typeCastHandle(obj);
 			columnName = fieldNameHandle(i, columnName, obj);
 			obj = fieldValueHandle(i, columnName, obj);
 			map.put(columnName, obj);
@@ -157,6 +168,7 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 				if (method != null) {
 
 					Object obj = handleColumnValue(rs, rsmd, i);
+					obj = typeCastHandle(obj);
 					columnName = fieldNameHandle(i, columnName, obj);
 					obj = fieldValueHandle(i, columnName, obj);
 
@@ -337,6 +349,20 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	}
 
 	/**
+	 * 类型转换或字符编码转换处理器的相关操作。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	protected Object typeCastHandle(Object obj) {
+
+		if (typeCastHandler != null) {
+			return typeCastHandler.handeOutput(obj);
+		}
+		return obj;
+	}
+
+	/**
 	 * 字段名处理器的相关操作。
 	 * 
 	 * @param columnIndex
@@ -346,7 +372,10 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	 */
 	protected String fieldNameHandle(int columnIndex, String columnName, Object obj) {
 
-		return fieldNameHandler == null ? columnName : fieldNameHandler.handle(columnIndex, columnName, obj);
+		if (fieldNameHandler != null) {
+			return fieldNameHandler.handle(columnIndex, columnName, obj);
+		}
+		return columnName;
 	}
 
 	/**
@@ -359,7 +388,10 @@ public abstract class AbstractHandler<T> implements EnhancedResultSetHandler<T> 
 	 */
 	protected Object fieldValueHandle(int columnIndex, String columnName, Object obj) {
 
-		return fieldValueHandler == null ? obj : fieldValueHandler.handle(columnIndex, columnName, obj);
+		if (fieldValueHandler != null) {
+			return fieldValueHandler.handle(columnIndex, columnName, obj);
+		}
+		return obj;
 	}
 
 }

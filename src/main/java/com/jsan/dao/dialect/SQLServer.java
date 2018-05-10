@@ -33,7 +33,7 @@ public class SQLServer extends AbstractSqlx {
 	 * @return
 	 */
 	@Override
-	protected Object handleTypeCast(Object obj) {
+	protected Object getSqlParameterTypeCastProcessed(Object obj) {
 
 		if (obj.getClass() == Date.class) {
 			return new Timestamp(((Date) obj).getTime());

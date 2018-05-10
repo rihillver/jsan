@@ -74,6 +74,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	private Connection connection;
 	private ResultSet resultSet;
+	private TypeCastHandler typeCastHandler;
 
 	public AbstractSqlx() {
 
@@ -84,9 +85,21 @@ public abstract class AbstractSqlx implements Sqlx {
 		this.connection = connection;
 	}
 
+	public AbstractSqlx(Connection connection, TypeCastHandler typeCastHandler) {
+
+		this.connection = connection;
+		this.typeCastHandler = typeCastHandler;
+	}
+
 	public AbstractSqlx(ResultSet resultSet) {
 
 		this.resultSet = resultSet;
+	}
+
+	public AbstractSqlx(ResultSet resultSet, TypeCastHandler typeCastHandler) {
+
+		this.resultSet = resultSet;
+		this.typeCastHandler = typeCastHandler;
 	}
 
 	@Override
@@ -109,6 +122,16 @@ public abstract class AbstractSqlx implements Sqlx {
 	@Override
 	public ResultSet getResultSet() {
 		return resultSet;
+	}
+
+	@Override
+	public TypeCastHandler getTypeCastHandler() {
+		return typeCastHandler;
+	}
+
+	@Override
+	public void setTypeCastHandler(TypeCastHandler typeCastHandler) {
+		this.typeCastHandler = typeCastHandler;
 	}
 
 	@Override
@@ -159,7 +182,7 @@ public abstract class AbstractSqlx implements Sqlx {
 	 * @param obj
 	 * @return
 	 */
-	protected Object handleTypeCast(Object obj) {
+	protected Object getSqlParameterTypeCastProcessed(Object obj) {
 
 		return obj;
 	}
@@ -172,7 +195,8 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		ParameterMetaData pmd = null;
 		try {
-			// MySQL 需要在连接数据库时的URL后面加上可以返回的元数据类型 generateSimpleParameterMetadata=true
+			// MySQL 需要在连接数据库时的URL后面加上可以返回的元数据类型
+			// generateSimpleParameterMetadata=true
 			// Oracle 不支持此特性
 			pmd = stmt.getParameterMetaData();
 		} catch (Exception e) {
@@ -182,7 +206,12 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		for (int i = 0; i < params.length; i++) {
 			if (params[i] != null) {
-				stmt.setObject(i + 1, handleTypeCast(params[i]));
+				Object obj = params[i];
+				if (typeCastHandler != null) {
+					obj = typeCastHandler.handleInput(obj);
+				}
+				obj = getSqlParameterTypeCastProcessed(obj);
+				stmt.setObject(i + 1, obj);
 			} else {
 				int sqlType = Types.VARCHAR;
 				if (pmd != null) {
@@ -999,8 +1028,8 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	/**
 	 * 使用该方法时请留意不要忘记为 EnhancedResultSetHandler 实例设置
-	 * convertService（必须）、fieldHandler、caseInsensitive、toLowerCase
-	 * 这四个基本属性（如果有与默认值不一致的情况）。
+	 * convertService（必须）、typeCastHandler、fieldValueHandler、fieldNameHandler、fieldCaseInsensitive、fieldToLowerCase、fieldInSnakeCase
+	 * 这几个基本属性（如果有与默认值不一致的情况）。
 	 * 
 	 * @param param
 	 * @param enhancedResultSetHandler
@@ -1111,6 +1140,7 @@ public abstract class AbstractSqlx implements Sqlx {
 			convertService = DaoConfig.getConvertService();
 		}
 		extendedResultSetHandler.setConvertService(convertService);
+		extendedResultSetHandler.setTypeCastHandler(param.getTypeCastHandler());
 		extendedResultSetHandler.setFieldNameHandler(param.getFieldNameHandler());
 		extendedResultSetHandler.setFieldValueHandler(param.getFieldValueHandler());
 		extendedResultSetHandler.setFieldCaseInsensitive(param.isFieldCaseInsensitive());

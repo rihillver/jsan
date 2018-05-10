@@ -14,6 +14,7 @@ import com.jsan.convert.ConvertService;
 public class Param {
 
 	private ConvertService convertService;
+	private TypeCastHandler typeCastHandler;
 	private FieldNameHandler fieldNameHandler;
 	private FieldValueHandler fieldValueHandler;
 
@@ -89,6 +90,14 @@ public class Param {
 
 	public void setConvertService(ConvertService convertService) {
 		this.convertService = convertService;
+	}
+
+	public TypeCastHandler getTypeCastHandler() {
+		return typeCastHandler;
+	}
+
+	public void setTypeCastHandler(TypeCastHandler typeCastHandler) {
+		this.typeCastHandler = typeCastHandler;
 	}
 
 	public FieldNameHandler getFieldNameHandler() {

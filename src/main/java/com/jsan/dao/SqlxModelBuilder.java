@@ -18,6 +18,7 @@ import com.jsan.dao.annotation.FieldNameHandlerRegister;
 import com.jsan.dao.annotation.FieldToLowerCase;
 import com.jsan.dao.annotation.Table;
 import com.jsan.dao.annotation.TableInSnakeCase;
+import com.jsan.dao.annotation.TypeCastHandlerRegister;
 import com.jsan.dao.handler.EnhancedResultSetHandler;
 import com.jsan.dao.handler.ResultSetHandler;
 import com.jsan.dao.handler.support.BeanListHandler;
@@ -37,6 +38,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	protected String dataSourceName;
 
 	protected ConvertService convertService;
+	protected TypeCastHandler typeCastHandler;
 	protected FieldNameHandler fieldNameHandler;
 	protected FieldValueHandler fieldValueHandler;
 
@@ -69,6 +71,7 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		PageRegister pageRegister = clazz.getAnnotation(PageRegister.class);
 		ConvertServiceRegister convertServiceRegister = clazz.getAnnotation(ConvertServiceRegister.class);
+		TypeCastHandlerRegister typeCastHandlerRegister = clazz.getAnnotation(TypeCastHandlerRegister.class);
 		FieldNameHandlerRegister fieldNameHandlerRegister = clazz.getAnnotation(FieldNameHandlerRegister.class);
 		FieldValueHandlerRegister fieldValueHandlerRegister = clazz.getAnnotation(FieldValueHandlerRegister.class);
 
@@ -126,6 +129,10 @@ public class SqlxModelBuilder implements SqlxModel {
 			convertService = ModelConvertServiceCache.getConvertService(clazz, convertServiceRegister.value()); // 从缓存中获取
 		}
 
+		if (typeCastHandlerRegister != null) {
+			typeCastHandler = TypeCastHandlerCache.getHandler(clazz, typeCastHandlerRegister.value()); // 从缓存中获取
+		}
+		
 		if (fieldNameHandlerRegister != null) {
 			fieldNameHandler = FieldHandlerCache.getNameHandler(clazz, fieldNameHandlerRegister.value()); // 从缓存中获取
 		}
@@ -211,6 +218,8 @@ public class SqlxModelBuilder implements SqlxModel {
 		} else {
 			sqlx.setConnection(DaoConfig.getConnection(dataSourceName));
 		}
+		
+		sqlx.setTypeCastHandler(typeCastHandler); //注册 TypeCastHandler
 
 		return sqlx;
 	}
@@ -253,6 +262,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		Param param = new Param(sql, pageSize, pageNumber);
 
 		param.setConvertService(convertService);
+		param.setTypeCastHandler(typeCastHandler);
 		param.setFieldNameHandler(fieldNameHandler);
 		param.setFieldValueHandler(fieldValueHandler);
 		param.setPageClass(pageClass);

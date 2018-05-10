@@ -23,6 +23,10 @@ public interface Sqlx {
 	void setResultSet(ResultSet resultSet);
 
 	ResultSet getResultSet();
+	
+	void setTypeCastHandler(TypeCastHandler typeCastHandler);
+	
+	TypeCastHandler getTypeCastHandler();
 
 	void close() throws SQLException;
 
