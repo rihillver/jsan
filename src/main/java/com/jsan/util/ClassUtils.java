@@ -3,9 +3,6 @@ package com.jsan.util;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -24,136 +21,38 @@ import java.util.jar.JarFile;
  * <p>
  * 1、扫描指定包下的所有类
  * 2、筛选类（是否为接口的实现类，是否为父类的子类，以什么开头，以什么结尾等）
+ * 3、定义一个过滤接口来实现灵活的查找筛选
+ * 
+ * 
+
+几种浅拷贝
+
+1、遍历循环复制
+
+List<Person> destList=new ArrayList<Person>(srcList.size());  
+for(Person p : srcList){  
+    destList.add(p);  
+}  
+2、使用List实现类的构造方法
+
+List<Person> destList=new ArrayList<Person>(srcList);  
+3、使用list.addAll()方法
+
+List<Person> destList=new ArrayList<Person>();  
+destList.addAll(srcList);  
+4、使用System.arraycopy()方法
+
+Person[] srcPersons=srcList.toArray(new Person[0]);  
+Person[] destPersons=new Person[srcPersons.length];  
+System.arraycopy(srcPersons, 0, destPersons, 0, srcPersons.length);  
+
+ * 
+ * 
+ * 
+ * 
  * 
  */
 public class ClassUtils {
-
-    /**
-     * 是否有注解
-     *
-     * @param clazz
-     *            a {@link java.lang.Class} object.
-     * @param annotationClass
-     *            a {@link java.lang.Class} object.
-     * @return a boolean.
-     */
-    public static boolean hasClassAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        return getClassAnnotation(clazz, annotationClass) != null;
-    }
-
-    /**
-     * 是否有注解
-     *
-     * @param clazz
-     *            a {@link java.lang.Class} object.
-     * @param annotationClass
-     *            a {@link java.lang.Class} object.
-     * @param fieldName
-     *            a {@link java.lang.String} object.
-     * @throws cn.yicha.commons.exception.YichaException
-     *             if any.
-     * @return a boolean.
-     */
-    public static boolean hasFieldAnnotation(Class<?> clazz,
-            Class<? extends Annotation> annotationClass, String fieldName) throws Exception {
-        return getFieldAnnotation(clazz, annotationClass, fieldName) != null;
-    }
-
-    /**
-     * 是否有注解
-     *
-     * @param clazz
-     *            a {@link java.lang.Class} object.
-     * @param annotationClass
-     *            a {@link java.lang.Class} object.
-     * @param methodName
-     *            a {@link java.lang.String} object.
-     * @param paramType
-     *            a {@link java.lang.Class} object.
-     * @throws cn.yicha.commons.exception.YichaException
-     *             if any.
-     * @return a boolean.
-     */
-    public static boolean hasMethodAnnotation(Class<?> clazz,
-            Class<? extends Annotation> annotationClass, String methodName, Class<?>... paramType) throws Exception {
-        return getMethodAnnotation(clazz, annotationClass, methodName, paramType) != null;
-    }
-
-    /**
-     * 获取类注解
-     *
-     * @param clazz
-     *            类
-     * @param annotationClass
-     *            注解类
-     * @return a A object.
-     */
-    public static <A extends Annotation> A getClassAnnotation(Class<?> clazz, Class<A> annotationClass) {
-        return clazz.getAnnotation(annotationClass);
-    }
-
-    /**
-     * 获取类成员注解
-     *
-     * @param clazz
-     *            类
-     * @param annotationClass
-     *            注解类
-     * @param fieldName
-     *            成员属性名
-     * @throws cn.yicha.commons.exception.YichaException
-     *             if any.
-     * @return a A object.
-     */
-    public static <A extends Annotation> A getFieldAnnotation(Class<?> clazz,
-            Class<A> annotationClass, String fieldName) throws Exception {
-        try {
-            Field field = clazz.getDeclaredField(fieldName);
-            if (field == null) {
-                throw new Exception("no such field[" + fieldName + "] in " + clazz.getCanonicalName());
-            }
-            return field.getAnnotation(annotationClass);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            throw new Exception("access error: field[" + fieldName + "] in " + clazz.getCanonicalName(), e);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            throw new Exception("no such field[" + fieldName + "] in " + clazz.getCanonicalName());
-        }
-    }
-
-    /**
-     * 获取类方法上的注解
-     *
-     * @param clazz
-     *            类
-     * @param annotationClass
-     *            注解类
-     * @param methodName
-     *            方法名
-     * @param paramType
-     *            方法参数
-     * @throws cn.yicha.commons.exception.YichaException
-     *             if any.
-     * @return a A object.
-     */
-    public static <A extends Annotation> A getMethodAnnotation(Class<?> clazz,
-            Class<A> annotationClass, String methodName, Class<?>... paramType)
-            throws Exception {
-        try {
-            Method method = clazz.getDeclaredMethod(methodName, paramType);
-            if (method == null) {
-                throw new Exception("access error: method[" + methodName + "] in " + clazz.getCanonicalName());
-            }
-            return method.getAnnotation(annotationClass);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            throw new Exception("access error: method[" + methodName + "] in " + clazz.getCanonicalName(), e);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new Exception("no such method[" + methodName + "] in " + clazz.getCanonicalName(), e);
-        }
-    }
 
     /**
      * 从包package中获取所有的Class
