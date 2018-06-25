@@ -8,7 +8,9 @@ import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
+import com.jsan.mvc.annotation.CookieObject;
 import com.jsan.mvc.annotation.FormConvert;
+import com.jsan.mvc.annotation.HeaderObject;
 import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
@@ -40,6 +42,8 @@ public class ParameterInfo {
 	private QuirkMode quirkMode;
 	private MethodValue methodValue;
 	private MultiValue multiValue;
+	private HeaderObject headerObject;
+	private CookieObject cookieObject;
 	private RequestObject requestObject;
 	private SessionObject sessionObject;
 	private ConvertServiceRegister convertServiceRegister;
@@ -197,6 +201,22 @@ public class ParameterInfo {
 
 	public void setFormConvertParamSet(Set<String> formConvertParamSet) {
 		this.formConvertParamSet = formConvertParamSet;
+	}
+
+	public HeaderObject getHeaderObject() {
+		return headerObject;
+	}
+
+	public void setHeaderObject(HeaderObject headerObject) {
+		this.headerObject = headerObject;
+	}
+
+	public CookieObject getCookieObject() {
+		return cookieObject;
+	}
+
+	public void setCookieObject(CookieObject cookieObject) {
+		this.cookieObject = cookieObject;
 	}
 
 }

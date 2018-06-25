@@ -6,11 +6,13 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -19,12 +21,53 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * MVC 功能性的实用方法。
  *
  */
 
 public class MvcFuncUtils {
+	
+	private static final String CHARACTER_ENCODING = "utf-8";
+	
+	public static Cookie getCookie(HttpServletRequest request, String name) {
+
+		Cookie[] cookies = request.getCookies();
+
+		if (cookies != null && name != null) {
+			try {
+				name = URLEncoder.encode(name, CHARACTER_ENCODING);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+			for (Cookie itemCookie : cookies) {
+				if (name.equals(itemCookie.getName())) {
+					return itemCookie;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static String getCookieValue(HttpServletRequest request, String name) {
+
+		Cookie cookie = getCookie(request, name);
+
+		if (cookie != null) {
+			try {
+				return URLDecoder.decode(cookie.getValue(), CHARACTER_ENCODING);
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		return null;
+	}
 
 	// ==================================================
 	// 扫描包下的 class 文件，以下代码来复制于互联网。

@@ -15,9 +15,11 @@ import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
+import com.jsan.mvc.annotation.CookieObject;
 import com.jsan.mvc.annotation.Delete;
 import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.Get;
+import com.jsan.mvc.annotation.HeaderObject;
 import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
@@ -175,6 +177,10 @@ public class ControllerInfoCache {
 				pInfo.setRequestObject((RequestObject) annotation);
 			} else if (annotation instanceof SessionObject) {
 				pInfo.setSessionObject((SessionObject) annotation);
+			} else if (annotation instanceof HeaderObject) {
+				pInfo.setHeaderObject((HeaderObject) annotation);
+			} else if (annotation instanceof CookieObject) {
+				pInfo.setCookieObject((CookieObject) annotation);
 			} else if (annotation instanceof ConvertServiceRegister) {
 				pInfo.setConvertServiceRegister((ConvertServiceRegister) annotation);
 			} else if (annotation instanceof ConverterRegister) {

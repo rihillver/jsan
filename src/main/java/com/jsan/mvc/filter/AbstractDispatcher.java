@@ -49,6 +49,7 @@ import com.jsan.mvc.ControllerInfoCache;
 import com.jsan.mvc.MappingInfo;
 import com.jsan.mvc.MethodInfo;
 import com.jsan.mvc.MvcConfig;
+import com.jsan.mvc.MvcFuncUtils;
 import com.jsan.mvc.ParameterInfo;
 import com.jsan.mvc.View;
 import com.jsan.mvc.adapter.CacheAdapter;
@@ -57,7 +58,9 @@ import com.jsan.mvc.adapter.MappingAdapter;
 import com.jsan.mvc.adapter.SimpleRestMappingAdapter;
 import com.jsan.mvc.adapter.StandardMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
+import com.jsan.mvc.annotation.CookieObject;
 import com.jsan.mvc.annotation.FormConvert;
+import com.jsan.mvc.annotation.HeaderObject;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
 import com.jsan.mvc.annotation.QuirkMode;
@@ -951,6 +954,10 @@ public abstract class AbstractDispatcher implements Filter {
 					parameterObjects[i] = getRequestObject(service, pInfo, request);
 				} else if (pInfo.getSessionObject() != null) { // session属性对象处理
 					parameterObjects[i] = getSessionObject(service, pInfo, request);
+				} else if (pInfo.getHeaderObject() != null) { // header值处理
+					parameterObjects[i] = getHeaderObject(service, pInfo, request);
+				} else if (pInfo.getCookieObject() != null) { // cookie值处理
+					parameterObjects[i] = getCookieObject(service, pInfo, request);
 				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
 					standardConvertFlag = true;
 					parameterObjects[i] = getRequestJsonToObject(pInfo, parameterQuirkMode, request);
@@ -1042,6 +1049,38 @@ public abstract class AbstractDispatcher implements Filter {
 		}
 
 		return parameterObjects;
+	}
+
+	protected Object getHeaderObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
+
+		HeaderObject headerObject = pInfo.getHeaderObject();
+		String key = headerObject.value();
+		if (key.isEmpty()) {
+			key = pInfo.getName();
+		}
+		Object value = request.getHeader(key);
+		if (pInfo.getType() != String.class) {
+			Converter converter = service.lookupConverter(pInfo.getType());
+			value = converter.convert(value, pInfo.getGenericType());
+		}
+
+		return value;
+	}
+
+	protected Object getCookieObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
+
+		CookieObject cookieObject = pInfo.getCookieObject();
+		String key = cookieObject.value();
+		if (key.isEmpty()) {
+			key = pInfo.getName();
+		}
+		Object value = MvcFuncUtils.getCookieValue(request, key);
+		if (pInfo.getType() != String.class) {
+			Converter converter = service.lookupConverter(pInfo.getType());
+			value = converter.convert(value, pInfo.getGenericType());
+		}
+
+		return value;
 	}
 
 	protected Object getRequestObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) {
