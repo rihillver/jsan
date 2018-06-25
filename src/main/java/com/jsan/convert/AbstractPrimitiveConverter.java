@@ -3,6 +3,7 @@ package com.jsan.convert;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +53,9 @@ public abstract class AbstractPrimitiveConverter extends AbstractRecursiveableCo
 					}
 				}
 				object = getNumberObject(clazz, (Number) object);
+
+			} else if (source instanceof Date && clazz == Long.class) { // 特殊处理，允许将Date转换成Long
+				object = ((Date) source).getTime();
 			}
 		}
 
