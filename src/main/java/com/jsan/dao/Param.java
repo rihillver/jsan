@@ -1,5 +1,7 @@
 package com.jsan.dao;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -444,4 +446,34 @@ public class Param {
 
 		return wrapRightMateApos(str);
 	}
+
+	public static String join(Collection<?> collection) {
+
+		return join(collection, false);
+	}
+
+	public static String join(Collection<?> collection, boolean fix) {
+
+		if (collection == null) {
+			return null;
+		}
+
+		int i = 0;
+		StringBuilder sb = new StringBuilder();
+		Iterator<?> iterator = collection.iterator();
+		while (iterator.hasNext()) {
+			Object object = (Object) iterator.next();
+			if (i++ > 0) {
+				sb.append(",");
+			}
+			if (object instanceof String) {
+				sb.append(wrapApos((String) object, fix));
+			} else {
+				sb.append(object);
+			}
+		}
+
+		return sb.toString();
+	}
+	
 }
