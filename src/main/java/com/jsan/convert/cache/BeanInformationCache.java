@@ -46,8 +46,8 @@ public class BeanInformationCache {
 		final Set<String> fieldSet = new LinkedHashSet<String>();
 
 		for (Field field : beanClass.getDeclaredFields()) { // 仅当前类内部的所有字段，不包括继承的字段
-			int modifiers = field.getModifiers();
-			if ((modifiers & Modifier.STATIC) != 0 || (modifiers & Modifier.TRANSIENT) != 0) { // 对于用static和transient修饰的字段忽略
+			int mod = field.getModifiers();
+			if (Modifier.isStatic(mod) || Modifier.isTransient(mod)) { // 对于用static和transient修饰的字段忽略
 				continue;
 			}
 			fieldSet.add(field.getName());
