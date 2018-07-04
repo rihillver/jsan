@@ -14,7 +14,7 @@ import com.jsan.convert.ConvertFuncUtils;
  * BeanInformation 缓存。
  * <p>
  * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，fieldSet
- * 则不含父类的字段。
+ * 则不含父类的字段，同时fieldSet不含用static和transient修饰的字段。
  *
  */
 
@@ -46,6 +46,10 @@ public class BeanInformationCache {
 		final Set<String> fieldSet = new LinkedHashSet<String>();
 
 		for (Field field : beanClass.getDeclaredFields()) { // 仅当前类内部的所有字段，不包括继承的字段
+			int modifiers = field.getModifiers();
+			if ((modifiers & Modifier.STATIC) != 0 || (modifiers & Modifier.TRANSIENT) != 0) { // 对于用static和transient修饰的字段忽略
+				continue;
+			}
 			fieldSet.add(field.getName());
 		}
 
