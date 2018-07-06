@@ -38,10 +38,6 @@ public interface SqlxModel {
 
 	Param createParam(String sql);
 
-	Param createParam(int pageSize, int pageNumber);
-	
-	Param createParam(String sql, int pageSize, int pageNumber);
-	
 	String createBeanDefinition() throws SQLException;
 	
 	

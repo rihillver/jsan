@@ -219,7 +219,7 @@ public abstract class AbstractSqlx implements Sqlx {
 						sqlType = pmd.getParameterType(i + 1);
 					} catch (Exception e) {
 						// 异常的情况下则使用 Types.VARCHAR
-						logger.warn("Cannot get the ParameterType");
+						// logger.warn("Cannot get the ParameterType");
 					}
 				}
 				stmt.setNull(i + 1, sqlType);

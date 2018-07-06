@@ -19,19 +19,15 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 
 	protected Object[] primaryValue;
 	protected int rowCount;
-	// protected String rowCountSql;
 
 	@Override
-	public Param createParam(String sql, int pageSize, int pageNumber) {
+	public Param createParam(String sql) {
 
-		Param param = super.createParam(sql, pageSize, pageNumber);
+		Param param = super.createParam(sql);
 
 		param.setPrimaryValue(primaryValue);
 		param.setOrderByMap(orderByMap);
 		param.setRowCount(rowCount);
-		// ==================================================
-		// param.setRowCountSql(rowCountSql);
-		// ==================================================
 
 		return param;
 	}
@@ -246,18 +242,6 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	public void setRowCount(int rowCount) {
 		this.rowCount = rowCount;
 	}
-
-	// ==================================================
-	// @Override
-	// public String getRowCountSql() {
-	// return rowCountSql;
-	// }
-	//
-	// @Override
-	// public void setRowCountSql(String rowCountSql) {
-	// this.rowCountSql = rowCountSql;
-	// }
-	// ==================================================
 
 	// ==================================================
 

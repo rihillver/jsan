@@ -247,19 +247,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public Param createParam(String sql) {
 
-		return createParam(sql, 0, 0);
-	}
-
-	@Override
-	public Param createParam(int pageSize, int pageNumber) {
-
-		return createParam(null, pageSize, pageNumber);
-	}
-
-	@Override
-	public Param createParam(String sql, int pageSize, int pageNumber) {
-
-		Param param = new Param(sql, pageSize, pageNumber);
+		Param param = new Param(sql);
 
 		param.setConvertService(convertService);
 		param.setTypeCastHandler(typeCastHandler);
