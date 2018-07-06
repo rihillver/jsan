@@ -51,14 +51,14 @@ public class Oracle extends AbstractSqlx {
 	}
 
 	@Override
-	protected String getPageSqlProcessed(String sql, int pageSize, int pageNumber) {
+	protected String getPageSqlProcessed(String sql, int pageSize, int startRow, int endRow) {
 
 		// String pageSql = "select * from ( select temp__table__a__.*, rownum
 		// row__num__ from ( select * from blog ) temp__table__a__ where rownum
 		// <= ? ) temp__table__b__ where temp__table__b__.row__num__ > ?";
 
-		int startRow = pageSize * (pageNumber - 1); // 开始行数
-		int endRow = pageSize * pageNumber; // 结束行数
+		//int startRow = pageSize * (pageNumber - 1); // 开始行数
+		//int endRow = pageSize * pageNumber; // 结束行数
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("select * from ( select temp__table__a__.*, rownum row__num__ from ( ");

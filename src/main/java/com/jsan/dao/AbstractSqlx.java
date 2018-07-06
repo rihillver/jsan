@@ -64,7 +64,7 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-	protected abstract String getPageSqlProcessed(String sql, int pageSize, int pageNumber);
+	protected abstract String getPageSqlProcessed(String sql, int pageSize, int startRow, int endRow);
 
 	protected static final String ORDER_BY_REGEX = "(?i)\\s+order\\s+by\\s+";
 
@@ -671,18 +671,9 @@ public abstract class AbstractSqlx implements Sqlx {
 	protected void handleParamByCorrect(Param param, Crud crud) {
 
 		String sql = param.getSql();
-		// ==================================================
-		// String rowCountSql = param.getRowCountSql();
-		// ==================================================
 
 		// sql 语句前缀判断处理，无前缀的加上前缀
 		sql = getSqlPrefixProcessed(sql, param.getTableName(), crud);
-		// ==================================================
-		// if (rowCountSql != null) {
-		// rowCountSql = getSqlPrefixProcessed(rowCountSql,
-		// getTableProcessed(param), crud);
-		// }
-		// ==================================================
 
 		Map<String, Object> paramMap = param.getParamMap();
 		List<Object> paramList = new ArrayList<Object>();
@@ -691,11 +682,6 @@ public abstract class AbstractSqlx implements Sqlx {
 		// :xxx、':xxx' 形式的处理，即将 :xxx 和 ':xxx' 先转换成 ? 和 '?'
 
 		sql += " "; // 加上空格为了更好的进行 ':xxx' 形式的处理（处于最尾处时）
-		// ==================================================
-		// if (rowCountSql != null) {
-		// rowCountSql += " ";
-		// }
-		// ==================================================
 
 		// Pattern pattern =
 		// Pattern.compile("[\\s|\\(|,|\\.|=|@]'{0,2}:\\w+'{0,2}[\\s|\\)|,|\\.]");
@@ -710,11 +696,6 @@ public abstract class AbstractSqlx implements Sqlx {
 			String str = matcher.group();
 			String name = str.replaceAll("'{0,2}:(\\w+)'{0,2}[\\s|\\)|,|\\.]", "$1");
 			sql = sql.replaceFirst(":" + name, "?");
-			// ==================================================
-			// if (rowCountSql != null) {
-			// rowCountSql = rowCountSql.replaceFirst(":" + name, "?");
-			// }
-			// ==================================================
 			paramList.add(paramMap == null ? null : paramMap.get(name));
 		}
 
@@ -739,11 +720,6 @@ public abstract class AbstractSqlx implements Sqlx {
 					str = "null"; // 如果参数为 null ，则用字符串形式的 "null" 替换。
 				}
 				sql = sql.replaceFirst("'\\?'", str);
-				// ==================================================
-				// if (rowCountSql != null) {
-				// rowCountSql = rowCountSql.replaceFirst("'\\?'", str);
-				// }
-				// ==================================================
 			} else {
 				paramList0.add(obj);
 			}
@@ -754,18 +730,8 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		// order by 的处理（处理下划线字段）
 		sql = getOrderByProcessed(sql, param);
-		// ==================================================
-		// if (rowCountSql != null) {
-		// rowCountSql = getOrderByProcessed(rowCountSql, param);
-		// }
-		// ==================================================
 
 		param.setInitializedSql(sql);
-		// ==================================================
-		// if (rowCountSql != null) {
-		// param.setInitializedRowCountSql(rowCountSql);
-		// }
-		// ==================================================
 		param.setInitializedParams(params);
 	}
 
@@ -980,11 +946,6 @@ public abstract class AbstractSqlx implements Sqlx {
 				handleParamByCorrect(param, crud);
 			}
 		} else {
-			// ==================================================
-			// 如果设置了 initializedRowCountSql 存在的情况，此处也无需对 initializedRowCountSql
-			// 语句前缀作判断处理，因为如果使用 rowCountSql 的情况一定会是完整的查询语句的 sql
-			// 语句前缀判断处理，无前缀的加上前缀
-			// ==================================================
 			initializedSql = getSqlPrefixProcessed(initializedSql, param.getTableName(), crud);
 			param.setInitializedSql(initializedSql);
 		}
@@ -1152,16 +1113,6 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected String getRowCountSqlProcessed(Param param) {
 
-		// ==================================================
-		// 如果设置了 initializedRowCountSql 存在的情况，无需再做行数统计的拼装。
-		// String sql = param.getInitializedRowCountSql();
-		// if (sql != null) {
-		// return sql;
-		// }
-		//
-		// sql = param.getInitializedSql();
-		// ==================================================
-
 		String sql = param.getInitializedSql();
 
 		int offset = getLastOrderByOffset(sql);
@@ -1175,9 +1126,9 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	}
 
-	protected String getRowCountSqlAssembleProcessed(String sql, boolean quirkMode) {
+	protected String getRowCountSqlAssembleProcessed(String sql, Boolean quirkMode) {
 
-		if (quirkMode) {
+		if (quirkMode == null || quirkMode) {
 			return "select count(*) from ( " + sql + " ) temp__table__";
 		} else {
 			return "select count(*)" + sql.substring(sql.indexOf(" from "));
@@ -1237,10 +1188,10 @@ public abstract class AbstractSqlx implements Sqlx {
 		return page;
 	}
 
-	protected int getRowCountProcessed(Param param) throws SQLException {
+	protected Integer getRowCountProcessed(Param param) throws SQLException {
 
 		Integer rowCount = param.getRowCount();
-		if (rowCount == null) {
+		if (rowCount == null && param.getRowCountQueryQuirkMode() != null) {
 			rowCount = queryForRowCount(param, int.class);
 		}
 		return rowCount;
@@ -1251,21 +1202,51 @@ public abstract class AbstractSqlx implements Sqlx {
 
 		handleParam(param, Crud.QUERY);
 
-		int rowCount = getRowCountProcessed(param);
+		Integer rowCount = getRowCountProcessed(param);
 
 		String sql = param.getInitializedSql();
 		int pageCount = 0;
 		int pageNumber = param.getPageNumber();
 		int pageSize = param.getPageSize();
 		if (pageSize > 0) {
-			pageCount = (rowCount + pageSize - 1) / pageSize; // 计算总页数
-			if (pageNumber > pageCount) {
-				pageNumber = pageCount; // 当前页不能大于总页数（此处必须）
+
+			int startIndex = param.getStartIndex();
+
+			if (rowCount != null) {
+				pageCount = (rowCount + pageSize - 1) / pageSize; // 计算总页数
+
+				if (startIndex > 0) {
+					pageNumber = (startIndex - 1) / pageSize + 1; // 基于索引的分页时计算pageNumber
+				}
+
+				if (pageNumber > pageCount) {
+					pageNumber = pageCount; // 当前页不能大于总页数（此处必须）
+				}
 			}
+
 			if (pageNumber < 1) {
 				pageNumber = 1; // 当前页码不能小于1，至少为 1
 			}
-			sql = getPageSqlProcessed(sql, pageSize, pageNumber);
+
+			int startRow; // 开始行数
+			int endRow; // 结束行数
+
+			if (startIndex > 0) {
+				// 基于索引的分页
+				startRow = startIndex - 1;
+				endRow = startRow + pageSize;
+			} else {
+				// 基于页面的分页
+				startRow = pageSize * (pageNumber - 1);
+				endRow = pageSize * pageNumber;
+			}
+
+			sql = getPageSqlProcessed(sql, pageSize, startRow, endRow);
+
+		}
+
+		if (rowCount == null) {
+			rowCount = 0;
 		}
 
 		List<T> list = executeQuery(sql, getHandlerEnhancedProcessed(param, enhancedResultSetHandler),

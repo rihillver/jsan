@@ -42,14 +42,14 @@ public class SQLServer extends AbstractSqlx {
 	}
 
 	@Override
-	protected String getPageSqlProcessed(String sql, int pageSize, int pageNumber) {
+	protected String getPageSqlProcessed(String sql, int pageSize, int startRow, int endRow) {
 
 		// String pageSql = "select * from (select row_number() over(order by
 		// bid) row__num__, * from blog) temp__table__ where row__num__>? and
 		// row__num__<=?";
 
-		int startRow = pageSize * (pageNumber - 1); // 开始行数
-		int endRow = pageSize * pageNumber; // 结束行数
+		//int startRow = pageSize * (pageNumber - 1); // 开始行数
+		//int endRow = pageSize * pageNumber; // 结束行数
 
 		String orderByStr;
 		int offset = getLastOrderByOffset(sql);

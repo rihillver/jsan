@@ -39,7 +39,7 @@ public interface BeanModel<B> extends SqlxModel {
 
 	List<B> query(String sql, Object... params) throws SQLException;
 
-	Page<B> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException;
+	// Page<B> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException;
 	
 	
 	B queryForBean(Param param) throws SQLException;

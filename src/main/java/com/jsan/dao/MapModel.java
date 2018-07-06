@@ -30,7 +30,7 @@ public interface MapModel extends SqlxModel {
 
 	List<Map<String, Object>> query(String sql, Object... params) throws SQLException;
 
-	Page<Map<String, Object>> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException;
+	// Page<Map<String, Object>> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException;
 	
 	
 //	Map<String, Object> queryForMap(Param param) throws SQLException;

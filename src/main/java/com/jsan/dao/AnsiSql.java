@@ -20,7 +20,7 @@ public class AnsiSql extends AbstractSqlx {
 	}
 
 	@Override
-	protected String getPageSqlProcessed(String sql, int pageSize, int pageNumber) {
+	protected String getPageSqlProcessed(String sql, int pageSize, int startRow, int endRow) {
 
 		return sql;
 	}

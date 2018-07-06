@@ -34,14 +34,11 @@ public class Param {
 
 	private int pageSize;
 	private int pageNumber;
-	private int startIndex;
+	private int startIndex; // 起始从1开始，优先级高于pageNumber
 	private Integer rowCount;
 	private Boolean rowCountQueryQuirkMode;
 
 	private String sql;
-	// ==================================================
-	// private String rowCountSql;
-	// ==================================================
 	private String tableName; // 表名
 
 	private boolean fieldInSnakeCase;
@@ -53,9 +50,6 @@ public class Param {
 	private String[] markFields;
 
 	private String initializedSql;
-	// ==================================================
-	// private String initializedRowCountSql;
-	// ==================================================
 	private Object[] initializedParams;
 
 	private int paramCount;
@@ -68,19 +62,6 @@ public class Param {
 
 		this.sql = sql;
 	}
-
-//	public Param(int pageSize, int pageNumber) {
-//
-//		this.pageSize = pageSize;
-//		this.pageNumber = pageNumber;
-//	}
-//
-//	public Param(String sql, int pageSize, int pageNumber) {
-//
-//		this.sql = sql;
-//		this.pageSize = pageSize;
-//		this.pageNumber = pageNumber;
-//	}
 
 	public Param(String initializedSql, Object... initializedParams) {
 
@@ -190,11 +171,12 @@ public class Param {
 	}
 
 	/**
-	 * 设置基于页号的分页。
+	 * 设置基于页面的分页。
 	 * 
 	 * @param pageSize
 	 * @param pageNumber
-	 * @param rowCountQueryQuirkMode 是否使用兼容模式查询行数
+	 * @param rowCountQueryQuirkMode
+	 *            是否使用兼容模式查询行数
 	 */
 	public void setPageByNumber(int pageSize, int pageNumber, boolean rowCountQueryQuirkMode) {
 
@@ -207,6 +189,7 @@ public class Param {
 	 * 
 	 * @param pageSize
 	 * @param startIndex
+	 *            起始从1开始
 	 */
 	public void setPageByIndex(int pageSize, int startIndex) {
 
@@ -217,7 +200,9 @@ public class Param {
 	/**
 	 * @param pageSize
 	 * @param startIndex
-	 * @param rowCountQueryQuirkMode 是否使用兼容模式查询行数
+	 *            起始从1开始
+	 * @param rowCountQueryQuirkMode
+	 *            是否使用兼容模式查询行数
 	 */
 	public void setPageByIndex(int pageSize, int startIndex, boolean rowCountQueryQuirkMode) {
 
@@ -305,16 +290,6 @@ public class Param {
 		this.sql = sql;
 	}
 
-	// ==================================================
-	// public String getRowCountSql() {
-	// return rowCountSql;
-	// }
-	//
-	// public void setRowCountSql(String rowCountSql) {
-	// this.rowCountSql = rowCountSql;
-	// }
-	// ==================================================
-
 	public String getTableName() {
 		return tableName;
 	}
@@ -378,16 +353,6 @@ public class Param {
 	public void setInitializedSql(String initializedSql) {
 		this.initializedSql = initializedSql;
 	}
-
-	// ==================================================
-	// public String getInitializedRowCountSql() {
-	// return initializedRowCountSql;
-	// }
-	//
-	// public void setInitializedRowCountSql(String initializedRowCountSql) {
-	// this.initializedRowCountSql = initializedRowCountSql;
-	// }
-	// ==================================================
 
 	public Object[] getInitializedParams() {
 		return initializedParams;

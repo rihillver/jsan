@@ -31,6 +31,10 @@ public interface Page<T> {
 
 	void setPageRowCount(int pageRowCount);
 
+	int getStartIndex();
+
+	void setStartIndex(int startIndex);
+
 	boolean isFirstPage();
 
 	boolean isLastPage();

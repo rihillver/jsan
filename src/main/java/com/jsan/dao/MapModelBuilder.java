@@ -138,18 +138,18 @@ public class MapModelBuilder extends SqlxModelBuilder implements MapModel {
 		return queryForMapList(param);
 	}
 
-	@Override
-	public Page<Map<String, Object>> paginate(int pageSize, int pageNumber, String sql, Object... params)
-			throws SQLException {
-
-		Param param = createParam();
-		param.setInitializedSql(sql);
-		param.setInitializedParams(params);
-		param.setPageSize(pageSize);
-		param.setPageNumber(pageNumber);
-
-		return queryForMapPage(param);
-	}
+//	@Override
+//	public Page<Map<String, Object>> paginate(int pageSize, int pageNumber, String sql, Object... params)
+//			throws SQLException {
+//
+//		Param param = createParam();
+//		param.setInitializedSql(sql);
+//		param.setInitializedParams(params);
+//		param.setPageSize(pageSize);
+//		param.setPageNumber(pageNumber);
+//
+//		return queryForMapPage(param);
+//	}
 
 
 }

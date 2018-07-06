@@ -16,13 +16,13 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	private int pageCount;
 	private int pageNumber;
 	private int pageRowCount;
+	private int startIndex;
 
-//	private int pageIndex;
-//	private int startIndex;
-//	private int totalItems;
-//	private int totalPages;
-//	private int itemsPerPage;
-//	private int currentItemCount;
+	// private int pageIndex;
+	// private int totalItems;
+	// private int totalPages;
+	// private int itemsPerPage;
+	// private int currentItemCount;
 
 	@Override
 	public Collection<T> values() {
@@ -85,6 +85,16 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	}
 
 	@Override
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+	@Override
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
+	@Override
 	public void setPageRowCount(int pageRowCount) {
 		this.pageRowCount = pageRowCount;
 	}
@@ -112,15 +122,15 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	@Override
 	public String toInfoJson() {
 		return "{\"rowCount\":" + rowCount + ",\"pageSize\":" + pageSize + ",\"pageCount\":" + pageCount
-				+ ",\"pageNumber\":" + pageNumber + ",\"pageRowCount\":" + pageRowCount + ",\"firstPage\":"
-				+ isFirstPage() + ",\"lastPage\":" + isLastPage() + "}";
+				+ ",\"pageNumber\":" + pageNumber + ",\"pageRowCount\":" + pageRowCount + ",\"startIndex\":"
+				+ startIndex + ",\"firstPage\":" + isFirstPage() + ",\"lastPage\":" + isLastPage() + "}";
 	}
 
 	@Override
 	public String toString() {
 		return "Page [list=" + list + ", rowCount=" + rowCount + ", pageSize=" + pageSize + ", pageCount=" + pageCount
-				+ ", pageNumber=" + pageNumber + ", pageRowCount=" + pageRowCount + ", firstPage=" + isFirstPage()
-				+ ", lastPage=" + isLastPage() + "]";
+				+ ", pageNumber=" + pageNumber + ", pageRowCount=" + pageRowCount + ", startIndex=" + startIndex
+				+ ", firstPage=" + isFirstPage() + ", lastPage=" + isLastPage() + "]";
 	}
 
 }

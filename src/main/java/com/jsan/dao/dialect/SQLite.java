@@ -22,12 +22,12 @@ public class SQLite extends AbstractSqlx {
 	}
 
 	@Override
-	protected String getPageSqlProcessed(String sql, int pageSize, int pageNumber) {
+	protected String getPageSqlProcessed(String sql, int pageSize, int startRow, int endRow) {
 
 		// String pageSql = "select * from blog where bid>5 order by bid desc
 		// limit ? offset ?";
 
-		int startRow = pageSize * (pageNumber - 1); // 开始行数
+		//int startRow = pageSize * (pageNumber - 1); // 开始行数
 
 		return sql + " limit " + pageSize + " offset " + startRow;
 	}

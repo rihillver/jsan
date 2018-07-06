@@ -213,17 +213,17 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 		return queryForBeanList(param);
 	}
 
-	@Override
-	public Page<B> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException {
-
-		Param param = createParam();
-		param.setInitializedSql(sql);
-		param.setInitializedParams(params);
-		param.setPageSize(pageSize);
-		param.setPageNumber(pageNumber);
-
-		return queryForBeanPage(param);
-	}
+//	@Override
+//	public Page<B> paginate(int pageSize, int pageNumber, String sql, Object... params) throws SQLException {
+//
+//		Param param = createParam();
+//		param.setInitializedSql(sql);
+//		param.setInitializedParams(params);
+//		param.setPageSize(pageSize);
+//		param.setPageNumber(pageNumber);
+//
+//		return queryForBeanPage(param);
+//	}
 
 	@Override
 	public B queryForBean(Param param) throws SQLException {
