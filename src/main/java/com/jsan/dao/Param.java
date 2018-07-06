@@ -34,7 +34,9 @@ public class Param {
 
 	private int pageSize;
 	private int pageNumber;
+	private int startIndex;
 	private Integer rowCount;
+	private Boolean rowCountQueryQuirkMode;
 
 	private String sql;
 	// ==================================================
@@ -67,18 +69,18 @@ public class Param {
 		this.sql = sql;
 	}
 
-	public Param(int pageSize, int pageNumber) {
-
-		this.pageSize = pageSize;
-		this.pageNumber = pageNumber;
-	}
-
-	public Param(String sql, int pageSize, int pageNumber) {
-
-		this.sql = sql;
-		this.pageSize = pageSize;
-		this.pageNumber = pageNumber;
-	}
+//	public Param(int pageSize, int pageNumber) {
+//
+//		this.pageSize = pageSize;
+//		this.pageNumber = pageNumber;
+//	}
+//
+//	public Param(String sql, int pageSize, int pageNumber) {
+//
+//		this.sql = sql;
+//		this.pageSize = pageSize;
+//		this.pageNumber = pageNumber;
+//	}
 
 	public Param(String initializedSql, Object... initializedParams) {
 
@@ -181,6 +183,48 @@ public class Param {
 		orderByMap.put(field, order);
 	}
 
+	public void setPageByNumber(int pageSize, int pageNumber) {
+
+		this.pageSize = pageSize;
+		this.pageNumber = pageNumber;
+	}
+
+	/**
+	 * 设置基于页号的分页。
+	 * 
+	 * @param pageSize
+	 * @param pageNumber
+	 * @param rowCountQueryQuirkMode 是否使用兼容模式查询行数
+	 */
+	public void setPageByNumber(int pageSize, int pageNumber, boolean rowCountQueryQuirkMode) {
+
+		setPageByNumber(pageSize, pageNumber);
+		this.rowCountQueryQuirkMode = rowCountQueryQuirkMode;
+	}
+
+	/**
+	 * 设置基于索引的分页。
+	 * 
+	 * @param pageSize
+	 * @param startIndex
+	 */
+	public void setPageByIndex(int pageSize, int startIndex) {
+
+		this.pageSize = pageSize;
+		this.startIndex = startIndex;
+	}
+
+	/**
+	 * @param pageSize
+	 * @param startIndex
+	 * @param rowCountQueryQuirkMode 是否使用兼容模式查询行数
+	 */
+	public void setPageByIndex(int pageSize, int startIndex, boolean rowCountQueryQuirkMode) {
+
+		setPageByIndex(pageSize, startIndex);
+		this.rowCountQueryQuirkMode = rowCountQueryQuirkMode;
+	}
+
 	public String[] getPrimaryKey() {
 		return primaryKey;
 	}
@@ -229,12 +273,28 @@ public class Param {
 		this.pageNumber = pageNumber;
 	}
 
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
 	public Integer getRowCount() {
 		return rowCount;
 	}
 
 	public void setRowCount(Integer rowCount) {
 		this.rowCount = rowCount;
+	}
+
+	public Boolean getRowCountQueryQuirkMode() {
+		return rowCountQueryQuirkMode;
+	}
+
+	public void setRowCountQueryQuirkMode(Boolean rowCountQueryQuirkMode) {
+		this.rowCountQueryQuirkMode = rowCountQueryQuirkMode;
 	}
 
 	public String getSql() {
@@ -475,5 +535,5 @@ public class Param {
 
 		return sb.toString();
 	}
-	
+
 }

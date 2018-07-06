@@ -1169,15 +1169,19 @@ public abstract class AbstractSqlx implements Sqlx {
 			sql = sql.substring(0, offset);
 		}
 
-		sql = getRowCountSqlAssembleProcessed(sql);
+		sql = getRowCountSqlAssembleProcessed(sql, param.getRowCountQueryQuirkMode());
 
 		return sql;
 
 	}
 
-	protected String getRowCountSqlAssembleProcessed(String sql) {
+	protected String getRowCountSqlAssembleProcessed(String sql, boolean quirkMode) {
 
-		return "select count(*) from ( " + sql + " ) temp__table__";
+		if (quirkMode) {
+			return "select count(*) from ( " + sql + " ) temp__table__";
+		} else {
+			return "select count(*)" + sql.substring(sql.indexOf(" from "));
+		}
 	}
 
 	@Override
