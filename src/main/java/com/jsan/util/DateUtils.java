@@ -76,6 +76,36 @@ public class DateUtils {
 	}
 
 	/**
+	 * 返回 Calendar 对象。
+	 * <p>
+	 * 注：<br>
+	 * Calendar 的 setFirstDayOfWeek() 方法只对 WEEK_OF_MONTH 与 WEEK_OF_YEAR 有作用。<br>
+	 * WEEK_OF_MONTH ：当前Calendar日期对象是当前月的第几周。<br>
+	 * WEEK_OF_YEAR ：当前Calendar 日期对象是当前年的第几周。
+	 * 
+	 * @return
+	 */
+	public static Calendar getCalendarStartOnMonday() {
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setFirstDayOfWeek(Calendar.MONDAY);
+		return calendar;
+	}
+
+	/**
+	 * 返回 Calendar 对象（指定 Date）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static Calendar getCalendarStartOnMonday(Date date) {
+
+		Calendar calendar = getCalendarStartOnMonday();
+		calendar.setTime(date);
+		return calendar;
+	}
+
+	/**
 	 * 将字符串转换为 Date 对象。
 	 * 
 	 * @param str
@@ -774,6 +804,27 @@ public class DateUtils {
 	}
 
 	/**
+	 * 返回指定日期所在周的第一天（即周一）。
+	 * 
+	 * @return
+	 */
+	public static Date getFirstDateOfWeekStartOnMonday() {
+
+		return getFirstDateOfWeekStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期所在周的第一天（即周一）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static Date getFirstDateOfWeekStartOnMonday(Date date) {
+
+		return getDateOfWeekStartOnMonday(date, 1);
+	}
+
+	/**
 	 * 返回当前日期所在周的最后一天（即周六）。
 	 * 
 	 * @return
@@ -792,6 +843,27 @@ public class DateUtils {
 	public static Date getLastDateOfWeek(Date date) {
 
 		return getDateOfWeek(date, 7);
+	}
+
+	/**
+	 * 返回当前日期所在周的最后一天（即周日）。
+	 * 
+	 * @return
+	 */
+	public static Date getLastDateOfWeekStartOnMonday() {
+
+		return getLastDateOfWeekStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期所在周的最后一天（即周日）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static Date getLastDateOfWeekStartOnMonday(Date date) {
+
+		return getDateOfWeekStartOnMonday(date, 7);
 	}
 
 	/**
@@ -1067,6 +1139,34 @@ public class DateUtils {
 	}
 
 	/**
+	 * 返回指定时间与当前时间的间隔数（周）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getIntervalWeeksStartOnMonday(Date date) {
+
+		return getIntervalWeeksStartOnMonday(getDate(), date);
+	}
+
+	/**
+	 * 返回两个时间的间隔数（周）。
+	 * 
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public static int getIntervalWeeksStartOnMonday(Date startDate, Date endDate) {
+
+		int d = getIntervalDays(startDate, endDate);
+		int startWeek = getWeekStartOnMonday(startDate);
+		int endWeek = getWeekStartOnMonday(endDate);
+		d = (d + startWeek + 7 - endWeek) / 7 - 1;
+
+		return d;
+	}
+
+	/**
 	 * 返回指定时间与当前时间的间隔数（月）。
 	 * 
 	 * @param date
@@ -1140,6 +1240,34 @@ public class DateUtils {
 	public static Date getDateOfWeek(Date date, int dayOfWeek) {
 
 		int w = getCalendar(date).get(Calendar.DAY_OF_WEEK);
+		return getOffsetDays(date, dayOfWeek - w);
+	}
+
+	/**
+	 * 返回当前日期所属周的周几（星期一：1、星期二：2、星期三：3、星期四：4、星期五：5、星期六：6、星期日：7）。
+	 * 
+	 * @param dayOfWeek
+	 * @return
+	 */
+	public static Date getDateOfWeekStartOnMonday(int dayOfWeek) {
+
+		return getDateOfWeekStartOnMonday(getDate(), dayOfWeek);
+	}
+
+	/**
+	 * 返回指定日期所属周的周几（星期一：1、星期二：2、星期三：3、星期四：4、星期五：5、星期六：6、星期日：7）。
+	 * 
+	 * @param date
+	 * @param dayOfWeek
+	 * @return
+	 */
+	public static Date getDateOfWeekStartOnMonday(Date date, int dayOfWeek) {
+
+		int w = getCalendar(date).get(Calendar.DAY_OF_WEEK);
+		w -= 1;
+		if (w == 0) {
+			w = 7;
+		}
 		return getOffsetDays(date, dayOfWeek - w);
 	}
 
@@ -1258,6 +1386,28 @@ public class DateUtils {
 	}
 
 	/**
+	 * 返回当前月份的周数。
+	 * 
+	 * @return
+	 */
+	public static int getWeeksOfMonthStartOnMonday() {
+
+		return getWeeksOfMonthStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期所在月份的周数。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeeksOfMonthStartOnMonday(Date date) {
+
+		Calendar calendar = getCalendarStartOnMonday(date);
+		return calendar.getActualMaximum(Calendar.WEEK_OF_MONTH);
+	}
+
+	/**
 	 * 返回当前年份的周数。
 	 * 
 	 * @return
@@ -1276,6 +1426,28 @@ public class DateUtils {
 	public static int getWeeksOfYear(Date date) {
 
 		Calendar calendar = getCalendar(date);
+		return calendar.getActualMaximum(Calendar.WEEK_OF_YEAR);
+	}
+
+	/**
+	 * 返回当前年份的周数。
+	 * 
+	 * @return
+	 */
+	public static int getWeeksOfYearStartOnMonday() {
+
+		return getWeeksOfYearStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期所在年份的周数。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeeksOfYearStartOnMonday(Date date) {
+
+		Calendar calendar = getCalendarStartOnMonday(date);
 		return calendar.getActualMaximum(Calendar.WEEK_OF_YEAR);
 	}
 
@@ -1385,6 +1557,118 @@ public class DateUtils {
 
 		Calendar calendar = getCalendar(date);
 		return calendar.get(Calendar.DAY_OF_WEEK);
+	}
+
+	/**
+	 * 返回当前日期是周几（星期一：1、星期二：2、星期三：3、星期四：4、星期五：5、星期六：6、星期日：7）。
+	 * 
+	 * @return
+	 */
+	public static int getWeekStartOnMonday() {
+
+		return getWeekStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期是周几（星期一：1、星期二：2、星期三：3、星期四：4、星期五：5、星期六：6、星期日：7）。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeekStartOnMonday(Date date) {
+
+		Calendar calendar = getCalendar(date);
+		int w = calendar.get(Calendar.DAY_OF_WEEK);
+		if (w == Calendar.SUNDAY) {
+			w = 7;
+		} else {
+			w -= 1;
+		}
+		return w;
+	}
+
+	/**
+	 * 返回当前日期在所属月份中的第几周。
+	 * 
+	 * @return
+	 */
+	public static int getWeekInMonth() {
+
+		return getWeekInMonth(getDate());
+	}
+
+	/**
+	 * 返回指定日期在所属月份中的第几周。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeekInMonth(Date date) {
+
+		return getCalendar(date).get(Calendar.WEEK_OF_MONTH);
+	}
+
+	/**
+	 * 返回当前日期在所属月份中的第几周。
+	 * 
+	 * @return
+	 */
+	public static int getWeekInMonthStartOnMonday() {
+
+		return getWeekInMonthStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回指定日期在所属月份中的第几周。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeekInMonthStartOnMonday(Date date) {
+
+		return getCalendarStartOnMonday(date).get(Calendar.WEEK_OF_MONTH);
+	}
+
+	/**
+	 * 返回当前日期在所属年份中的第几周。
+	 * 
+	 * @return
+	 */
+	public static int getWeekInYear() {
+
+		return getWeekInYear(getDate());
+	}
+
+	/**
+	 * 返回指定日期在所属年份中的第几周。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeekInYear(Date date) {
+
+		return getCalendar(date).get(Calendar.WEEK_OF_YEAR);
+	}
+
+	/**
+	 * 返回当前日期在所属年份中的第几周。
+	 * 
+	 * @return
+	 */
+	public static int getWeekInYearStartOnMonday() {
+
+		return getWeekInYearStartOnMonday(getDate());
+	}
+
+	/**
+	 * 返回当前日期在所属年份中的第几周。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static int getWeekInYearStartOnMonday(Date date) {
+
+		return getCalendarStartOnMonday(date).get(Calendar.WEEK_OF_YEAR);
 	}
 
 	/**
