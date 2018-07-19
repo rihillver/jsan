@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.DateTimePattern;
 import com.jsan.convert.annotation.NumberPattern;
+import com.jsan.convert.cache.BeanInformationCache;
 
 public class BeanConvertUtilsTest {
 
@@ -102,6 +103,9 @@ public class BeanConvertUtilsTest {
 		System.out.println(BeanConvertUtils.getProperty(fooBean, "money"));
 		System.out.println(BeanConvertUtils.getProperty(fooBean, "date"));
 		System.out.println(BeanConvertUtils.getProperty(fooBean, "sex"));
+		
+		System.out.println(BeanInformationCache.getField(FooBean.class, "sex").getType());
+		System.out.println(BeanInformationCache.getFieldMap(FooBean.class));
 	}
 
 }

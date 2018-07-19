@@ -13,8 +13,7 @@ import com.jsan.convert.ConvertFuncUtils;
 /**
  * BeanInformation 缓存。
  * <p>
- * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，fieldSet
- * 则不含父类的字段，同时fieldSet不含用static和transient修饰的字段。
+ * readMethod 和 writeMethod 支持有继承关系的 Bean，包含父类的 Getter 和 Setter 方法，fieldSet 则不含父类的字段，同时fieldSet不含用static和transient修饰的字段。
  *
  */
 
@@ -44,6 +43,7 @@ public class BeanInformationCache {
 		BeanInformationContainer container = new BeanInformationContainer();
 
 		final Set<String> fieldSet = new LinkedHashSet<String>();
+		final Map<String, Field> fieldMap = new HashMap<String, Field>();
 
 		for (Field field : beanClass.getDeclaredFields()) { // 仅当前类内部的所有字段，不包括继承的字段
 			int mod = field.getModifiers();
@@ -51,6 +51,7 @@ public class BeanInformationCache {
 				continue;
 			}
 			fieldSet.add(field.getName());
+			fieldMap.put(field.getName(), field);
 		}
 
 		final Map<String, Method> readMethodMap = new HashMap<String, Method>();
@@ -82,6 +83,7 @@ public class BeanInformationCache {
 		});
 
 		container.setFieldSet(fieldSet);
+		container.setFieldMap(fieldMap);
 		container.setReadMethodMap(readMethodMap);
 		container.setReadMethodMapBaseOnField(readMethodMapBaseOnField);
 		container.setWriteMethodMap(writeMethodMap);
@@ -102,8 +104,30 @@ public class BeanInformationCache {
 	}
 
 	/**
-	 * 这里的 key 通常是去掉 "get"/"is" 外首字母小写的方法名（例如：getNewName() -> newName、isSex() ->
-	 * sex）。
+	 * 返回 Bean 的所有字段，key为字段名，仅含自身的所有字段，不含父类的任何字段。
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
+	public static Map<String, Field> getFieldMap(Class<?> beanClass) {
+
+		return getBeanInformationContainer(beanClass).getFieldMap();
+	}
+
+	/**
+	 * 返回与 key 名称对应的 Field。
+	 * 
+	 * @param beanClass
+	 * @param key
+	 * @return
+	 */
+	public static Field getField(Class<?> beanClass, String key) {
+
+		return getFieldMap(beanClass).get(key);
+	}
+
+	/**
+	 * 这里的 key 通常是去掉 "get"/"is" 外首字母小写的方法名（例如：getNewName() -> newName、isSex() -> sex）。
 	 * 
 	 * @param beanClass
 	 * @param key
