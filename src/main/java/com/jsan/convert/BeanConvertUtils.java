@@ -10,13 +10,81 @@ import com.jsan.convert.cache.BeanConvertServiceContainer;
 import com.jsan.convert.cache.BeanInformationCache;
 
 /**
- * Bean 与 Map 互转换的工具类。
+ * Bean 相关转换的工具类。
  *
  */
 
 public class BeanConvertUtils {
 
 	private static final ConvertService defaultConvertService = new GeneralConvertService();
+
+	/**
+	 * 设置 Bean 对象中的字段值（该字段必须有对应的 setter 方法）。
+	 * 
+	 * @param bean
+	 * @param key
+	 * @param value
+	 */
+	public static <T> void setProperty(T bean, String key, Object value) {
+
+		setProperty(bean, key, value, defaultConvertService);
+	}
+
+	/**
+	 * 设置 Bean 对象中的字段值（该字段必须有对应的 setter 方法）。
+	 * 
+	 * @param bean
+	 * @param key
+	 * @param value
+	 * @param service
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> void setProperty(T bean, String key, Object value, ConvertService service) {
+
+		Class<T> beanClass = (Class<T>) bean.getClass();
+		Method method = BeanInformationCache.getWriteMethod(beanClass, key);
+		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.COMMON, beanClass, service);
+
+		try {
+			convertBeanElement(bean, beanClass, service, container, method, value);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * 获取 Bean 对象中的字段值（该字段必须有对应的 getter 方法）。
+	 * 
+	 * @param <T>
+	 * @param bean
+	 * @param key
+	 * @return
+	 */
+	public static <T> Object getProperty(T bean, String key) {
+
+		Method method = BeanInformationCache.getReadMethod(bean.getClass(), key);
+
+		try {
+			return method.invoke(bean);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * 获取 Bean 对象中的字段值（该字段必须有对应的 getter 方法）。
+	 * 
+	 * @param <T>
+	 * @param bean
+	 * @param key
+	 * @param fieldClass
+	 * @return
+	 */
+	public static <C, T> C getProperty(T bean, String key, Class<C> fieldClass) {
+		
+		Object obj = getProperty(bean, key);
+		return fieldClass.cast(obj);
+	}
 
 	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map) {
 
@@ -38,8 +106,7 @@ public class BeanConvertUtils {
 		T bean = createBeanInstance(beanClass);
 
 		Map<String, Method> writeMethodMap = BeanInformationCache.getWriteMethodMap(beanClass);
-		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.COMMON,
-				beanClass, service);
+		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.COMMON, beanClass, service);
 
 		try {
 			for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -94,8 +161,7 @@ public class BeanConvertUtils {
 	}
 
 	/**
-	 * 基于 bean 的 Getter 方法，通过 Getter
-	 * 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
+	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
 	 * 
 	 * @param bean
 	 * @param keyToSnakeCase
@@ -134,13 +200,11 @@ public class BeanConvertUtils {
 	 *            true：将key转换为下划线形式，false：默认key不做任何转换
 	 * @return
 	 */
-	public static <T> Map<String, Object> convertBeanToMap(Class<T> beanClass, T bean, boolean baseOnField,
-			boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> convertBeanToMap(Class<T> beanClass, T bean, boolean baseOnField, boolean keyToSnakeCase) {
 
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 
-		Map<String, Method> readMethodMap = baseOnField ? BeanInformationCache.getReadMethodMapBaseOnField(beanClass)
-				: BeanInformationCache.getReadMethodMap(beanClass);
+		Map<String, Method> readMethodMap = baseOnField ? BeanInformationCache.getReadMethodMapBaseOnField(beanClass) : BeanInformationCache.getReadMethodMap(beanClass);
 
 		try {
 			for (Map.Entry<String, Method> entry : readMethodMap.entrySet()) {
@@ -170,13 +234,11 @@ public class BeanConvertUtils {
 	 * @param value
 	 * @throws Exception
 	 */
-	public static <T> void convertBeanElement(Mold mold, T bean, Class<T> beanClass, ConvertService service, String key,
-			Object value) throws Exception {
+	public static <T> void convertBeanElement(Mold mold, T bean, Class<T> beanClass, ConvertService service, String key, Object value) throws Exception {
 
 		Method method = BeanInformationCache.getWriteMethod(beanClass, key);
 		if (method != null) {
-			BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(mold, beanClass,
-					service);
+			BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(mold, beanClass, service);
 			convertBeanElement(bean, beanClass, service, container, method, value);
 		}
 	}
@@ -192,8 +254,7 @@ public class BeanConvertUtils {
 	 * @param value
 	 * @throws Exception
 	 */
-	public static <T> void convertBeanElement(T bean, Class<T> beanClass, ConvertService service,
-			BeanConvertServiceContainer container, Method method, Object value) throws Exception {
+	public static <T> void convertBeanElement(T bean, Class<T> beanClass, ConvertService service, BeanConvertServiceContainer container, Method method, Object value) throws Exception {
 
 		Class<?> type = method.getParameterTypes()[0];
 		Type genericType = method.getGenericParameterTypes()[0];

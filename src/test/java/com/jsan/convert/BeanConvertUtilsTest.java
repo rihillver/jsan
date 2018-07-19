@@ -56,7 +56,7 @@ public class BeanConvertUtilsTest {
 		System.out.println(testBean);
 
 	}
-	
+
 	/**
 	 * 转换成枚举类型的时候如果第一次转换不成功，第二次将转换成大写再试一次。
 	 * 
@@ -86,6 +86,22 @@ public class BeanConvertUtilsTest {
 		long e = System.nanoTime() - s;
 
 		System.out.println(e);
+	}
+
+	@Test
+	public void testBaz() {
+
+		FooBean fooBean = new FooBean();
+		BeanConvertUtils.setProperty(fooBean, "id", null);
+		BeanConvertUtils.setProperty(fooBean, "name", "Jack");
+		BeanConvertUtils.setProperty(fooBean, "money", "12.345");
+		BeanConvertUtils.setProperty(fooBean, "date", "1998年12月12-日");
+
+		System.out.println(fooBean);
+		System.out.println(BeanConvertUtils.getProperty(fooBean, "name"));
+		System.out.println(BeanConvertUtils.getProperty(fooBean, "money"));
+		System.out.println(BeanConvertUtils.getProperty(fooBean, "date"));
+		System.out.println(BeanConvertUtils.getProperty(fooBean, "sex"));
 	}
 
 }
@@ -228,9 +244,7 @@ class FooBean {
 
 	@Override
 	public String toString() {
-		return "FooBean [id=" + id + ", name=" + name + ", sex=" + sex + ", salary=" + salary + ", money=" + money
-				+ ", selected=" + Arrays.toString(selected) + ", date=" + date + ", map=" + map + ", list=" + list
-				+ "]";
+		return "FooBean [id=" + id + ", name=" + name + ", sex=" + sex + ", salary=" + salary + ", money=" + money + ", selected=" + Arrays.toString(selected) + ", date=" + date + ", map=" + map + ", list=" + list + "]";
 	}
 
 }
