@@ -1,7 +1,6 @@
 package com.jsan.mvc.intercept;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -22,15 +21,22 @@ public class ControllerMethodInterceptor implements MethodInterceptor {
 	@Override
 	public Object intercept(Object target, Method method, Object[] args, MethodProxy proxy) throws Throwable {
 
+		InterceptService interceptService = InterceptServiceCache.get(method);
+
+		Interceptor[] list = null;
+		if (interceptService != null) {
+			list = interceptService.getInterceptorList();
+		}
+
+		if (list == null) {
+			return proxy.invokeSuper(target, args);
+		}
+
 		Invocation invocation = new Invocation();
 		invocation.setTarget(target);
 		invocation.setMethod(method);
 		invocation.setArgs(args);
 		invocation.setMethodProxy(proxy);
-
-		InterceptService interceptService = InterceptServiceCache.get(method);
-
-		List<Interceptor> list = interceptService.getInterceptorList();
 
 		Object result;
 
@@ -64,28 +70,28 @@ public class ControllerMethodInterceptor implements MethodInterceptor {
 		return result;
 	}
 
-	private void before(Invocation inv, List<Interceptor> list) {
+	private void before(Invocation inv, Interceptor[] list) {
 
 		for (Interceptor interceptor : list) {
 			interceptor.before(inv);
 		}
 	}
 
-	private void after(Invocation inv, List<Interceptor> list) {
+	private void after(Invocation inv, Interceptor[] list) {
 
 		for (Interceptor interceptor : list) {
 			interceptor.after(inv);
 		}
 	}
 
-	private void afterReturning(Invocation inv, Object result, List<Interceptor> list) {
+	private void afterReturning(Invocation inv, Object result, Interceptor[] list) {
 
 		for (Interceptor interceptor : list) {
 			interceptor.afterReturning(inv, result);
 		}
 	}
 
-	private void afterThrowing(Invocation inv, Exception e, List<Interceptor> list) {
+	private void afterThrowing(Invocation inv, Exception e, Interceptor[] list) {
 
 		for (Interceptor interceptor : list) {
 			interceptor.afterThrowing(inv, e);

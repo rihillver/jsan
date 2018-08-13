@@ -1,7 +1,6 @@
 package com.jsan.mvc.filter;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import com.jsan.mvc.ControllerInfo;
 import com.jsan.mvc.MethodInfo;
@@ -19,7 +18,13 @@ import net.sf.cglib.proxy.Enhancer;
  * <p>
  * 详细配置参数请参见 {@link com.jsan.mvc.MvcConfig} 。
  * <p>
- * 在控制器类级别上定义拦截服务或拦截器注解将适用于拦截该控制器类的所有方法。
+ * 拦截服务或拦截器注解：<br>
+ * 1、在控制器类级别上定义拦截服务或拦截器注解将适用于拦截该控制器类的所有映射方法（即注有@Render注解的方法）。
+ * 2、在控制器类内方法互相调用的情况，如果调用没有@Render注解的其他方法，则不会触发任何拦截服务；如果调用含有@Render
+ * 注解的其他方法，此时需要看情况了，如果被调用的方法已经响应过映射请求，则会触发改方法上对应的拦截服务，如果被调
+ * 用的方法从未响应过映射请求，则不会触发改方法上对应的拦截服务（因为拦截服务只有在第一次响应映射请求的时候才放入缓存，
+ * 当该方法从未响应过映射请求的情况下被其他方法调用，找不到相应的拦截服务缓存，所以不会触发对应的拦截服务，也可以看做是
+ * 设计中存在的Bug吧，使用过程中知道有这种情况存在即可）。
  * <p>
  * MvcConfig 中的关于 multiton 和 interceptable 的配置只在当不依赖 Spring IOC
  * 管理控制器对象的情况下有效，若集成 Spring 的情况下请使用 @Scope 注解来实现单例或多例（或在 Spring 配置文件通过
@@ -121,9 +126,9 @@ public class DispatcherFilter extends AbstractDispatcher {
 			}
 		}
 
-		List<Interceptor> list = service.getInterceptorList();
+		Interceptor[] list = service.getInterceptorList();
 
-		if (list.isEmpty()) {
+		if (list == null) {
 			return createControllerInstanceByGeneralCreation(cInfo);
 		} else {
 			return Enhancer.create(cInfo.getType(), ControllerMethodInterceptor.INSTANCE);

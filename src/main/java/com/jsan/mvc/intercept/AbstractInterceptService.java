@@ -1,13 +1,10 @@
 package com.jsan.mvc.intercept;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jsan.convert.BeanProxyUtils;
 
 public abstract class AbstractInterceptService implements InterceptService, Cloneable {
 
-	private List<Interceptor> interceptorList = new ArrayList<Interceptor>();
+	private Interceptor[] interceptorList = null;
 
 	{
 		defaultAddInterceptor();
@@ -32,15 +29,29 @@ public abstract class AbstractInterceptService implements InterceptService, Clon
 	}
 
 	@Override
-	public void reinitializeInterceptorList(List<Interceptor> interceptorList) {
+	public void reinitializeInterceptorList(Interceptor[] interceptorList) {
 
-		this.interceptorList = new ArrayList<Interceptor>(interceptorList);
+		if (interceptorList == null) {
+			this.interceptorList = null;
+		} else {
+			int length = interceptorList.length;
+			this.interceptorList = new Interceptor[length];
+			System.arraycopy(interceptorList, 0, this.interceptorList, 0, length);
+		}
 	}
 
 	@Override
 	public void addInterceptor(Interceptor interceptor) {
 
-		interceptorList.add(interceptor);
+		if (this.interceptorList == null) {
+			this.interceptorList = new Interceptor[0];
+		}
+
+		Interceptor[] oldInterceptorList = this.interceptorList;
+		int length = oldInterceptorList.length;
+		this.interceptorList = new Interceptor[length + 1];
+		System.arraycopy(oldInterceptorList, 0, this.interceptorList, 0, length);
+		this.interceptorList[length] = interceptor;
 	}
 
 	@Override
@@ -55,7 +66,7 @@ public abstract class AbstractInterceptService implements InterceptService, Clon
 	}
 
 	@Override
-	public List<Interceptor> getInterceptorList() {
+	public Interceptor[] getInterceptorList() {
 
 		return interceptorList;
 	}
