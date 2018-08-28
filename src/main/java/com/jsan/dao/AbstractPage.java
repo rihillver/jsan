@@ -18,6 +18,7 @@ public abstract class AbstractPage<T> implements Page<T>, Serializable {
 	private int pageRowCount;
 	private int startIndex;
 
+	// private int startIndex;
 	// private int pageIndex;
 	// private int totalItems;
 	// private int totalPages;
