@@ -12,7 +12,7 @@ public class MapModelBuilder extends SqlxModelBuilder implements MapModel {
 		Param param = createParam();
 		param.setPrimaryValue(primaryValue);
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Map<String, Object> map = sqlx.queryForMap(param);
 		sqlx.close();
 
@@ -29,7 +29,7 @@ public class MapModelBuilder extends SqlxModelBuilder implements MapModel {
 			param.set(fields[i], primaryValue[i]);
 		}
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Map<String, Object> map = sqlx.queryForMap(param);
 		sqlx.close();
 
@@ -100,7 +100,7 @@ public class MapModelBuilder extends SqlxModelBuilder implements MapModel {
 	}
 
 	@Override
-	public int getInsert(Map<String, Object> map, String... excludeFields) throws SQLException {
+	public int gainInsert(Map<String, Object> map, String... excludeFields) throws SQLException {
 
 		Param param = createParam();
 		param.setParamMap(map);
@@ -110,7 +110,7 @@ public class MapModelBuilder extends SqlxModelBuilder implements MapModel {
 	}
 
 	@Override
-	public int getInsertInc(Map<String, Object> map, String... includeFields) throws SQLException {
+	public int gainInsertInc(Map<String, Object> map, String... includeFields) throws SQLException {
 
 		Param param = createParam();
 		param.setParamMap(map);

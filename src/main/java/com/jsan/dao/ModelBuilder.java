@@ -35,94 +35,94 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	// ==================================================
 
 	@Override
-	public Class<? extends Sqlx> getSqlxClass() {
+	public Class<? extends Sqlx> fetchSqlxClass() {
 		return sqlxClass;
 	}
 
 	@Override
-	public void setSqlxClass(Class<? extends Sqlx> sqlxClass) {
+	public void giveSqlxClass(Class<? extends Sqlx> sqlxClass) {
 		this.sqlxClass = sqlxClass;
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public Class<? extends Page> getPageClass() {
+	public Class<? extends Page> fetchPageClass() {
 		return pageClass;
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public void setPageClass(Class<? extends Page> pageClass) {
+	public void givePageClass(Class<? extends Page> pageClass) {
 		this.pageClass = pageClass;
 	}
 
 	@Override
-	public String getDataSourceName() {
+	public String fetchDataSourceName() {
 		return dataSourceName;
 	}
 
 	@Override
-	public void setDataSourceName(String dataSourceName) {
+	public void giveDataSourceName(String dataSourceName) {
 		this.dataSourceName = dataSourceName;
 	}
 
 	@Override
-	public ConvertService getConvertService() {
+	public ConvertService fetchConvertService() {
 		return convertService;
 	}
 
 	@Override
-	public void setConvertService(ConvertService convertService) {
+	public void giveConvertService(ConvertService convertService) {
 		this.convertService = convertService;
 	}
 
 	@Override
-	public FieldNameHandler getFieldNameHandler() {
+	public FieldNameHandler fetchFieldNameHandler() {
 		return fieldNameHandler;
 	}
 
 	@Override
-	public void setFieldNameHandler(FieldNameHandler fieldNameHandler) {
+	public void giveFieldNameHandler(FieldNameHandler fieldNameHandler) {
 		this.fieldNameHandler = fieldNameHandler;
 	}
 
 	@Override
-	public FieldValueHandler getFieldValueHandler() {
+	public FieldValueHandler fetchFieldValueHandler() {
 		return fieldValueHandler;
 	}
 
 	@Override
-	public void setFieldValueHandler(FieldValueHandler fieldValueHandler) {
+	public void giveFieldValueHandler(FieldValueHandler fieldValueHandler) {
 		this.fieldValueHandler = fieldValueHandler;
 	}
 
 	@Override
-	public String[] getPrimaryKey() {
+	public String[] fetchPrimaryKey() {
 		return primaryKey;
 	}
 
 	@Override
-	public void setPrimaryKey(String[] primaryKey) {
+	public void givePrimaryKey(String[] primaryKey) {
 		this.primaryKey = primaryKey;
 	}
 
 	@Override
-	public String[] getAutoIncrementKey() {
+	public String[] fetchAutoIncrementKey() {
 		return autoIncrementKey;
 	}
 
 	@Override
-	public void setAutoIncrementKey(String[] autoIncrementKey) {
+	public void giveAutoIncrementKey(String[] autoIncrementKey) {
 		this.autoIncrementKey = autoIncrementKey;
 	}
 
 	@Override
-	public String[] getAutoIncrementValue() {
+	public String[] fetchAutoIncrementValue() {
 		return autoIncrementValue;
 	}
 
 	@Override
-	public void setAutoIncrementValue(String[] autoIncrementValue) {
+	public void giveAutoIncrementValue(String[] autoIncrementValue) {
 		this.autoIncrementValue = autoIncrementValue;
 	}
 
@@ -131,7 +131,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	 * 
 	 */
 	@Override
-	public String getTableName() {
+	public String fetchTableName() {
 
 		if (tableName != null) {
 			return tableName;
@@ -145,74 +145,74 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public void setTableName(String tableName) {
+	public void giveTableName(String tableName) {
 		this.tableName = tableName;
 	}
 
 	@Override
-	public boolean isFieldInSnakeCase() {
+	public boolean areFieldInSnakeCase() {
 		return fieldInSnakeCase;
 	}
 
 	@Override
-	public void setFieldInSnakeCase(boolean fieldInSnakeCase) {
+	public void giveFieldInSnakeCase(boolean fieldInSnakeCase) {
 		this.fieldInSnakeCase = fieldInSnakeCase;
 	}
 
 	@Override
-	public boolean isTableInSnakeCase() {
+	public boolean areTableInSnakeCase() {
 		return tableInSnakeCase;
 	}
 
 	@Override
-	public void setTableInSnakeCase(boolean tableInSnakeCase) {
+	public void giveTableInSnakeCase(boolean tableInSnakeCase) {
 		this.tableInSnakeCase = tableInSnakeCase;
 	}
 
 	@Override
-	public boolean isFieldToLowerCase() {
+	public boolean areFieldToLowerCase() {
 		return fieldToLowerCase;
 	}
 
 	@Override
-	public void setFieldToLowerCase(boolean fieldToLowerCase) {
+	public void giveFieldToLowerCase(boolean fieldToLowerCase) {
 		this.fieldToLowerCase = fieldToLowerCase;
 	}
 
 	@Override
-	public boolean isFieldCaseInsensitive() {
+	public boolean areFieldCaseInsensitive() {
 		return fieldCaseInsensitive;
 	}
 
 	@Override
-	public void setFieldCaseInsensitive(boolean fieldCaseInsensitive) {
+	public void giveFieldCaseInsensitive(boolean fieldCaseInsensitive) {
 		this.fieldCaseInsensitive = fieldCaseInsensitive;
 	}
 
 	// ==================================================
 
 	@Override
-	public Map<String, Object> getParamMap() {
+	public Map<String, Object> fetchParamMap() {
 		return paramMap;
 	}
 
 	@Override
-	public void setParamMap(Map<String, Object> paramMap) {
+	public void giveParamMap(Map<String, Object> paramMap) {
 		this.paramMap = paramMap;
 	}
 
 	@Override
-	public Map<String, Object> getOrderByMap() {
+	public Map<String, Object> fetchOrderByMap() {
 		return orderByMap;
 	}
 
 	@Override
-	public void setOrderByMap(Map<String, Object> orderByMap) {
+	public void giveOrderByMap(Map<String, Object> orderByMap) {
 		this.orderByMap = orderByMap;
 	}
 
 	@Override
-	public void setOrderBy(String field, Object order) {
+	public void giveOrderBy(String field, Object order) {
 
 		if (orderByMap == null) {
 			orderByMap = new LinkedHashMap<String, Object>();
@@ -224,22 +224,22 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public Object[] getPrimaryValue() {
+	public Object[] fetchPrimaryValue() {
 		return primaryValue;
 	}
 
 	@Override
-	public void setPrimaryValue(Object[] primaryValue) {
+	public void givePrimaryValue(Object[] primaryValue) {
 		this.primaryValue = primaryValue;
 	}
 
 	@Override
-	public int getRowCount() {
+	public int fetchRowCount() {
 		return rowCount;
 	}
 
 	@Override
-	public void setRowCount(int rowCount) {
+	public void giveRowCount(int rowCount) {
 		this.rowCount = rowCount;
 	}
 
@@ -283,7 +283,7 @@ public class ModelBuilder extends MapModelBuilder implements Model {
 	}
 
 	@Override
-	public int getInsert() throws SQLException {
+	public int gainInsert() throws SQLException {
 
 		Param param = createParam();
 		return insert(param, int.class);

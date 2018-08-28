@@ -11,7 +11,7 @@ import com.jsan.dao.map.SetMultiValueMap;
 
 public interface BeanModel<B> extends SqlxModel {
 	
-	Class<B> getBeanClass();
+	Class<B> fetchBeanClass();
 	
 	// ==================================================
 
@@ -30,9 +30,9 @@ public interface BeanModel<B> extends SqlxModel {
 
 	boolean insertInc(B bean, String... includeFields) throws SQLException;
 
-	int getInsert(B bean, String... excludeFields) throws SQLException;
+	int gainInsert(B bean, String... excludeFields) throws SQLException;
 
-	int getInsertInc(B bean, String... includeFields) throws SQLException;
+	int gainInsertInc(B bean, String... includeFields) throws SQLException;
 	
 
 	B queryFirst(String sql, Object... params) throws SQLException;

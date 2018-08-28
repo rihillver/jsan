@@ -21,9 +21,9 @@ public interface MapModel extends SqlxModel {
 
 	boolean insertInc(Map<String, Object> map, String... includeFields) throws SQLException;
 
-	int getInsert(Map<String, Object> map, String... excludeFields) throws SQLException;
+	int gainInsert(Map<String, Object> map, String... excludeFields) throws SQLException;
 
-	int getInsertInc(Map<String, Object> map, String... includeFields) throws SQLException;
+	int gainInsertInc(Map<String, Object> map, String... includeFields) throws SQLException;
 	
 
 	Map<String, Object> queryFirst(String sql, Object... params) throws SQLException;

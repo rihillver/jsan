@@ -25,14 +25,14 @@ public interface SqlxModel {
 	void transactionRollback();
 	
 	
-	Connection getConnection(); // 一般情况下不建议使用，更不要在单例的情况下使用，除非在有准确把握的情况下
+	Connection fetchConnection(); // 一般情况下不建议使用，更不要在单例的情况下使用，除非在有准确把握的情况下
 
-	void setConnection(Connection connection); // 一般情况下不建议使用，更不要在单例的情况下使用，除非在有准确把握的情况下
+	void giveConnection(Connection connection); // 一般情况下不建议使用，更不要在单例的情况下使用，除非在有准确把握的情况下
 
 	
-	Sqlx getSqlx();
+	Sqlx fetchSqlx();
 	
-	String getTableName();
+	String fetchTableName();
 
 	Param createParam();
 

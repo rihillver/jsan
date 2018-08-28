@@ -66,7 +66,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	}
 
 	@Override
-	public Class<B> getBeanClass() {
+	public Class<B> fetchBeanClass() {
 
 		return beanClass;
 	}
@@ -77,8 +77,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 		Param param = createParam();
 		param.setPrimaryValue(primaryValue);
 
-		Sqlx sqlx = getSqlx();
-		B b = sqlx.queryForBean(param, getBeanClass());
+		Sqlx sqlx = fetchSqlx();
+		B b = sqlx.queryForBean(param, fetchBeanClass());
 		sqlx.close();
 
 		return b;
@@ -94,8 +94,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 			param.set(fields[i], primaryValue[i]);
 		}
 
-		Sqlx sqlx = getSqlx();
-		B b = sqlx.queryForBean(param, getBeanClass());
+		Sqlx sqlx = fetchSqlx();
+		B b = sqlx.queryForBean(param, fetchBeanClass());
 		sqlx.close();
 
 		return b;
@@ -175,7 +175,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	}
 
 	@Override
-	public int getInsert(B bean, String... excludeFields) throws SQLException {
+	public int gainInsert(B bean, String... excludeFields) throws SQLException {
 
 		Param param = createParam();
 		param.setParamMap(getBeanMap(bean));
@@ -185,7 +185,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	}
 
 	@Override
-	public int getInsertInc(B bean, String... includeFields) throws SQLException {
+	public int gainInsertInc(B bean, String... includeFields) throws SQLException {
 
 		Param param = createParam();
 		param.setParamMap(getBeanMap(bean));
@@ -228,8 +228,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public B queryForBean(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		B b = sqlx.queryForBean(param, getBeanClass());
+		Sqlx sqlx = fetchSqlx();
+		B b = sqlx.queryForBean(param, fetchBeanClass());
 		sqlx.close();
 
 		return b;
@@ -238,8 +238,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public List<B> queryForBeanList(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		List<B> list = sqlx.queryForBeanList(param, getBeanClass());
+		Sqlx sqlx = fetchSqlx();
+		List<B> list = sqlx.queryForBeanList(param, fetchBeanClass());
 		sqlx.close();
 
 		return list;
@@ -248,8 +248,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public Page<B> queryForBeanPage(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		Page<B> page = sqlx.queryForBeanPage(param, getBeanClass());
+		Sqlx sqlx = fetchSqlx();
+		Page<B> page = sqlx.queryForBeanPage(param, fetchBeanClass());
 		sqlx.close();
 
 		return page;
@@ -258,7 +258,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public Page<B> queryForBeanPageEnhanced(Param param, BeanListHandler<B> beanListHandler) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Page<B> page = sqlx.queryForBeanPageEnhanced(param, beanListHandler);
 		sqlx.close();
 
@@ -269,8 +269,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> Map<K, B> queryForBeanKeyedMap(Param param, Class<K> keyClass, String keyColumnName)
 			throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		Map<K, B> map = sqlx.queryForBeanKeyedMap(param, getBeanClass(), keyClass, keyColumnName);
+		Sqlx sqlx = fetchSqlx();
+		Map<K, B> map = sqlx.queryForBeanKeyedMap(param, fetchBeanClass(), keyClass, keyColumnName);
 		sqlx.close();
 
 		return map;
@@ -280,8 +280,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public Map<String, B> queryForBeanCombinationKeyedMap(Param param, String separator, String... keyColumnNames)
 			throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		Map<String, B> map = sqlx.queryForBeanCombinationKeyedMap(param, getBeanClass(), separator, keyColumnNames);
+		Sqlx sqlx = fetchSqlx();
+		Map<String, B> map = sqlx.queryForBeanCombinationKeyedMap(param, fetchBeanClass(), separator, keyColumnNames);
 		sqlx.close();
 
 		return map;
@@ -291,8 +291,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> ListMultiValueMap<K, B> queryForBeanListMultiValueKeyedMap(Param param, Class<K> keyClass,
 			String keyColumnName) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		ListMultiValueMap<K, B> map = sqlx.queryForBeanListMultiValueKeyedMap(param, getBeanClass(), keyClass,
+		Sqlx sqlx = fetchSqlx();
+		ListMultiValueMap<K, B> map = sqlx.queryForBeanListMultiValueKeyedMap(param, fetchBeanClass(), keyClass,
 				keyColumnName);
 		sqlx.close();
 
@@ -303,8 +303,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public ListMultiValueMap<String, B> queryForBeanListMultiValueCombinationKeyedMap(Param param, String separator,
 			String... keyColumnNames) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		ListMultiValueMap<String, B> map = sqlx.queryForBeanListMultiValueCombinationKeyedMap(param, getBeanClass(),
+		Sqlx sqlx = fetchSqlx();
+		ListMultiValueMap<String, B> map = sqlx.queryForBeanListMultiValueCombinationKeyedMap(param, fetchBeanClass(),
 				separator, keyColumnNames);
 		sqlx.close();
 
@@ -315,8 +315,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> SetMultiValueMap<K, B> queryForBeanSetMultiValueKeyedMap(Param param, Class<K> keyClass,
 			String keyColumnName) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		SetMultiValueMap<K, B> map = sqlx.queryForBeanSetMultiValueKeyedMap(param, getBeanClass(), keyClass,
+		Sqlx sqlx = fetchSqlx();
+		SetMultiValueMap<K, B> map = sqlx.queryForBeanSetMultiValueKeyedMap(param, fetchBeanClass(), keyClass,
 				keyColumnName);
 		sqlx.close();
 
@@ -327,8 +327,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public SetMultiValueMap<String, B> queryForBeanSetMultiValueCombinationKeyedMap(Param param, String separator,
 			String... keyColumnNames) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
-		SetMultiValueMap<String, B> map = sqlx.queryForBeanSetMultiValueCombinationKeyedMap(param, getBeanClass(),
+		Sqlx sqlx = fetchSqlx();
+		SetMultiValueMap<String, B> map = sqlx.queryForBeanSetMultiValueCombinationKeyedMap(param, fetchBeanClass(),
 				separator, keyColumnNames);
 		sqlx.close();
 
@@ -338,7 +338,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public Map<String, Object> queryForMap(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Map<String, Object> map = sqlx.queryForMap(param);
 		sqlx.close();
 
@@ -348,7 +348,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public List<Map<String, Object>> queryForMapList(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		List<Map<String, Object>> list = sqlx.queryForMapList(param);
 		sqlx.close();
 
@@ -358,7 +358,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	@Override
 	public Page<Map<String, Object>> queryForMapPage(Param param) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Page<Map<String, Object>> page = sqlx.queryForMapPage(param);
 		sqlx.close();
 
@@ -369,7 +369,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public Page<Map<String, Object>> queryForMapPageEnhanced(Param param, MapListHandler mapListHandler)
 			throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Page<Map<String, Object>> page = sqlx.queryForMapPageEnhanced(param, mapListHandler);
 		sqlx.close();
 
@@ -380,7 +380,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> Map<K, Map<String, Object>> queryForMapKeyedMap(Param param, Class<K> keyClass, String keyColumnName)
 			throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Map<K, Map<String, Object>> map = sqlx.queryForMapKeyedMap(param, keyClass, keyColumnName);
 		sqlx.close();
 
@@ -391,7 +391,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public Map<String, Map<String, Object>> queryForMapCombinationKeyedMap(Param param, String separator,
 			String... keyColumnNames) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		Map<String, Map<String, Object>> map = sqlx.queryForMapCombinationKeyedMap(param, separator, keyColumnNames);
 		sqlx.close();
 
@@ -402,7 +402,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> ListMultiValueMap<K, Map<String, Object>> queryForMapListMultiValueKeyedMap(Param param,
 			Class<K> keyClass, String keyColumnName) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		ListMultiValueMap<K, Map<String, Object>> map = sqlx.queryForMapListMultiValueKeyedMap(param, keyClass,
 				keyColumnName);
 		sqlx.close();
@@ -414,7 +414,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public ListMultiValueMap<String, Map<String, Object>> queryForMapListMultiValueCombinationKeyedMap(Param param,
 			String separator, String... keyColumnNames) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		ListMultiValueMap<String, Map<String, Object>> map = sqlx.queryForMapListMultiValueCombinationKeyedMap(param,
 				separator, keyColumnNames);
 		sqlx.close();
@@ -426,7 +426,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public <K> SetMultiValueMap<K, Map<String, Object>> queryForMapSetMultiValueKeyedMap(Param param, Class<K> keyClass,
 			String keyColumnName) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		SetMultiValueMap<K, Map<String, Object>> map = sqlx.queryForMapSetMultiValueKeyedMap(param, keyClass,
 				keyColumnName);
 		sqlx.close();
@@ -438,7 +438,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public SetMultiValueMap<String, Map<String, Object>> queryForMapSetMultiValueCombinationKeyedMap(Param param,
 			String separator, String... keyColumnNames) throws SQLException {
 
-		Sqlx sqlx = getSqlx();
+		Sqlx sqlx = fetchSqlx();
 		SetMultiValueMap<String, Map<String, Object>> map = sqlx.queryForMapSetMultiValueCombinationKeyedMap(param,
 				separator, keyColumnNames);
 		sqlx.close();

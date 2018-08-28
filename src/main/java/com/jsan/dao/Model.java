@@ -10,87 +10,82 @@ public interface Model extends MapModel {
 
 	// ==================================================
 	
-	Class<? extends Sqlx> getSqlxClass();
+	Class<? extends Sqlx> fetchSqlxClass();
 
-	void setSqlxClass(Class<? extends Sqlx> sqlxClass);
-
-	@SuppressWarnings("rawtypes")
-	Class<? extends Page> getPageClass();
+	void giveSqlxClass(Class<? extends Sqlx> sqlxClass);
 
 	@SuppressWarnings("rawtypes")
-	void setPageClass(Class<? extends Page> pageClass);
+	Class<? extends Page> fetchPageClass();
 
-	String getDataSourceName();
+	@SuppressWarnings("rawtypes")
+	void givePageClass(Class<? extends Page> pageClass);
 
-	void setDataSourceName(String connecter);
+	String fetchDataSourceName();
 
-	ConvertService getConvertService();
+	void giveDataSourceName(String connecter);
 
-	void setConvertService(ConvertService convertService);
+	ConvertService fetchConvertService();
 
-	FieldNameHandler getFieldNameHandler();
+	void giveConvertService(ConvertService convertService);
 
-	void setFieldNameHandler(FieldNameHandler fieldNameHandler);
+	FieldNameHandler fetchFieldNameHandler();
 
-	FieldValueHandler getFieldValueHandler();
+	void giveFieldNameHandler(FieldNameHandler fieldNameHandler);
 
-	void setFieldValueHandler(FieldValueHandler fieldValueHandler);
+	FieldValueHandler fetchFieldValueHandler();
 
-	String[] getPrimaryKey();
+	void giveFieldValueHandler(FieldValueHandler fieldValueHandler);
 
-	void setPrimaryKey(String[] primaryKey);
+	String[] fetchPrimaryKey();
 
-	String[] getAutoIncrementKey();
+	void givePrimaryKey(String[] primaryKey);
 
-	void setAutoIncrementKey(String[] autoIncrementKey);
+	String[] fetchAutoIncrementKey();
 
-	String[] getAutoIncrementValue();
+	void giveAutoIncrementKey(String[] autoIncrementKey);
 
-	void setAutoIncrementValue(String[] autoIncrementValue);
+	String[] fetchAutoIncrementValue();
 
-	void setTableName(String tableName);
+	void giveAutoIncrementValue(String[] autoIncrementValue);
 
-	boolean isFieldInSnakeCase();
+	void giveTableName(String tableName);
 
-	void setFieldInSnakeCase(boolean fieldInSnakeCase);
+	boolean areFieldInSnakeCase();
 
-	boolean isTableInSnakeCase();
+	void giveFieldInSnakeCase(boolean fieldInSnakeCase);
 
-	void setTableInSnakeCase(boolean tableInSnakeCase);
+	boolean areTableInSnakeCase();
 
-	boolean isFieldToLowerCase();
+	void giveTableInSnakeCase(boolean tableInSnakeCase);
 
-	void setFieldToLowerCase(boolean fieldToLowerCase);
+	boolean areFieldToLowerCase();
 
-	boolean isFieldCaseInsensitive();
+	void giveFieldToLowerCase(boolean fieldToLowerCase);
 
-	void setFieldCaseInsensitive(boolean fieldCaseInsensitive);
+	boolean areFieldCaseInsensitive();
+
+	void giveFieldCaseInsensitive(boolean fieldCaseInsensitive);
 	
 	
 	// ==================================================
 	
-	Map<String, Object> getParamMap();
+	Map<String, Object> fetchParamMap();
 
-	void setParamMap(Map<String, Object> paramMap);
+	void giveParamMap(Map<String, Object> paramMap);
 	
-	Map<String, Object> getOrderByMap();
+	Map<String, Object> fetchOrderByMap();
 
-	void setOrderByMap(Map<String, Object> orderByMap);
+	void giveOrderByMap(Map<String, Object> orderByMap);
 	
-	void setOrderBy(String field, Object order);
+	void giveOrderBy(String field, Object order);
 
-	Object[] getPrimaryValue();
+	Object[] fetchPrimaryValue();
 
-	void setPrimaryValue(Object[] primaryValue);
+	void givePrimaryValue(Object[] primaryValue);
 
-	int getRowCount();
+	int fetchRowCount();
 
-	void setRowCount(int rowCount);
-	
-	// ==================================================
-	// String getRowCountSql();
-	// void setRowCountSql(String rowCountSql);
-	// ==================================================
+	void giveRowCount(int rowCount);
 	
 	
 	// ==================================================
@@ -106,7 +101,7 @@ public interface Model extends MapModel {
 
 	boolean insert() throws SQLException;
 
-	int getInsert() throws SQLException;
+	int gainInsert() throws SQLException;
 	
 
 	// ==================================================
