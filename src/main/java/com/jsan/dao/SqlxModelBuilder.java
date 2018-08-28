@@ -28,31 +28,31 @@ import com.jsan.dao.map.SetMultiValueMap;
 
 public class SqlxModelBuilder implements SqlxModel {
 
-	protected Connection connection;
+	protected Connection $connection;
 
 	// 以下14个字段可以从注解定义
 
-	protected Class<? extends Sqlx> sqlxClass;
+	protected Class<? extends Sqlx> $sqlxClass;
 	@SuppressWarnings("rawtypes")
-	protected Class<? extends Page> pageClass;
-	protected String dataSourceName;
+	protected Class<? extends Page> $pageClass;
+	protected String $dataSourceName;
 
-	protected ConvertService convertService;
-	protected TypeCastHandler typeCastHandler;
-	protected FieldNameHandler fieldNameHandler;
-	protected FieldValueHandler fieldValueHandler;
+	protected ConvertService $convertService;
+	protected TypeCastHandler $typeCastHandler;
+	protected FieldNameHandler $fieldNameHandler;
+	protected FieldValueHandler $fieldValueHandler;
 
-	protected String[] primaryKey;
+	protected String[] $primaryKey;
 
-	protected String[] autoIncrementKey;
-	protected String[] autoIncrementValue;
+	protected String[] $autoIncrementKey;
+	protected String[] $autoIncrementValue;
 
-	protected String tableName;
+	protected String $tableName;
 
-	protected boolean fieldInSnakeCase;
-	protected boolean tableInSnakeCase;
-	protected boolean fieldToLowerCase;
-	protected boolean fieldCaseInsensitive;
+	protected boolean $fieldInSnakeCase;
+	protected boolean $tableInSnakeCase;
+	protected boolean $fieldToLowerCase;
+	protected boolean $fieldCaseInsensitive;
 
 	{
 		initModelAnnotation();
@@ -77,68 +77,68 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		if (connecter != null) {
 			if (!connecter.name().isEmpty()) {
-				this.dataSourceName = connecter.name();
+				this.$dataSourceName = connecter.name();
 			} else if (!connecter.value().isEmpty()) {
-				this.dataSourceName = connecter.value();
+				this.$dataSourceName = connecter.value();
 			}
 			if (connecter.sqlx() != Sqlx.class) {
-				this.sqlxClass = connecter.sqlx();
+				this.$sqlxClass = connecter.sqlx();
 			}
 		}
 
 		if (table != null) {
 			if (!table.name().isEmpty()) {
-				this.tableName = table.name();
+				this.$tableName = table.name();
 			} else if (!table.value().isEmpty()) {
-				this.tableName = table.value();
+				this.$tableName = table.value();
 			}
 			if (table.key().length > 0) {
-				this.primaryKey = table.key();
+				this.$primaryKey = table.key();
 			}
 			if (table.autoKey().length > 0) {
-				this.autoIncrementKey = table.autoKey();
+				this.$autoIncrementKey = table.autoKey();
 			}
 			if (table.autoValue().length > 0) {
-				this.autoIncrementValue = table.autoValue();
+				this.$autoIncrementValue = table.autoValue();
 			}
 		}
 
 		if (fieldInSnakeCase != null) {
-			this.fieldInSnakeCase = fieldInSnakeCase.value();
+			this.$fieldInSnakeCase = fieldInSnakeCase.value();
 		}
 
 		if (tableInSnakeCase != null) {
-			this.tableInSnakeCase = tableInSnakeCase.value();
+			this.$tableInSnakeCase = tableInSnakeCase.value();
 		}
 
 		if (fieldToLowerCase != null) {
-			this.fieldToLowerCase = fieldToLowerCase.value();
+			this.$fieldToLowerCase = fieldToLowerCase.value();
 		}
 
 		if (fieldCaseInsensitive != null) {
-			this.fieldCaseInsensitive = fieldCaseInsensitive.value();
+			this.$fieldCaseInsensitive = fieldCaseInsensitive.value();
 		}
 
 		if (pageRegister != null) {
-			pageClass = pageRegister.value();
+			$pageClass = pageRegister.value();
 		} else {
-			pageClass = DaoConfig.getPageClass();
+			$pageClass = DaoConfig.getPageClass();
 		}
 
 		if (convertServiceRegister != null) {
-			convertService = ModelConvertServiceCache.getConvertService(clazz, convertServiceRegister.value()); // 从缓存中获取
+			$convertService = ModelConvertServiceCache.getConvertService(clazz, convertServiceRegister.value()); // 从缓存中获取
 		}
 
 		if (typeCastHandlerRegister != null) {
-			typeCastHandler = TypeCastHandlerCache.getHandler(clazz, typeCastHandlerRegister.value()); // 从缓存中获取
+			$typeCastHandler = TypeCastHandlerCache.getHandler(clazz, typeCastHandlerRegister.value()); // 从缓存中获取
 		}
 		
 		if (fieldNameHandlerRegister != null) {
-			fieldNameHandler = FieldHandlerCache.getNameHandler(clazz, fieldNameHandlerRegister.value()); // 从缓存中获取
+			$fieldNameHandler = FieldHandlerCache.getNameHandler(clazz, fieldNameHandlerRegister.value()); // 从缓存中获取
 		}
 
 		if (fieldValueHandlerRegister != null) {
-			fieldValueHandler = FieldHandlerCache.getValueHandler(clazz, fieldValueHandlerRegister.value()); // 从缓存中获取
+			$fieldValueHandler = FieldHandlerCache.getValueHandler(clazz, fieldValueHandlerRegister.value()); // 从缓存中获取
 		}
 
 	}
@@ -148,13 +148,13 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public void transactionBegin() {
 
-		DaoUtils.transactionBegin(dataSourceName);
+		DaoUtils.transactionBegin($dataSourceName);
 	}
 
 	@Override
 	public void transactionBegin(int transactionIsolationLevel) {
 
-		DaoUtils.transactionBegin(dataSourceName, transactionIsolationLevel);
+		DaoUtils.transactionBegin($dataSourceName, transactionIsolationLevel);
 	}
 
 	@Override
@@ -177,7 +177,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public Connection fetchConnection() {
 
-		return connection;
+		return $connection;
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public void giveConnection(Connection connection) {
 
-		this.connection = connection;
+		this.$connection = connection;
 	}
 
 	@Override
@@ -202,10 +202,10 @@ public class SqlxModelBuilder implements SqlxModel {
 		Sqlx sqlx = null;
 
 		try {
-			if (sqlxClass == null) {
+			if ($sqlxClass == null) {
 				sqlx = DaoConfig.getSqlxClass().newInstance();
 			} else {
-				sqlx = sqlxClass.newInstance();
+				sqlx = $sqlxClass.newInstance();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -213,13 +213,13 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		// if (connection != null && !connection.isClosed()) {
 		// connection 已关闭不作判断，让使用过程中因 connection 已关闭的错误明显的呈现
-		if (connection != null) {
-			sqlx.setConnection(connection);
+		if ($connection != null) {
+			sqlx.setConnection($connection);
 		} else {
-			sqlx.setConnection(DaoConfig.getConnection(dataSourceName));
+			sqlx.setConnection(DaoConfig.getConnection($dataSourceName));
 		}
 		
-		sqlx.setTypeCastHandler(typeCastHandler); //注册 TypeCastHandler
+		sqlx.setTypeCastHandler($typeCastHandler); //注册 TypeCastHandler
 
 		return sqlx;
 	}
@@ -227,15 +227,15 @@ public class SqlxModelBuilder implements SqlxModel {
 	@Override
 	public String fetchTableName() {
 
-		if (tableName == null) {
+		if ($tableName == null) {
 			String name = ConvertFuncUtils.parseFirstCharToLowerCase(getClass().getSimpleName()); // 转换为小驼峰命名规范
-			if (tableInSnakeCase) {
+			if ($tableInSnakeCase) {
 				name = ConvertFuncUtils.parseCamelCaseToSnakeCase(name); // 转换为下划线命名规范
 			}
 			return name;
 		}
 
-		return tableName;
+		return $tableName;
 	}
 
 	@Override
@@ -249,19 +249,19 @@ public class SqlxModelBuilder implements SqlxModel {
 
 		Param param = new Param(sql);
 
-		param.setConvertService(convertService);
-		param.setTypeCastHandler(typeCastHandler);
-		param.setFieldNameHandler(fieldNameHandler);
-		param.setFieldValueHandler(fieldValueHandler);
-		param.setPageClass(pageClass);
-		param.setPrimaryKey(primaryKey);
-		param.setAutoIncrementKey(autoIncrementKey);
-		param.setAutoIncrementValue(autoIncrementValue);
+		param.setConvertService($convertService);
+		param.setTypeCastHandler($typeCastHandler);
+		param.setFieldNameHandler($fieldNameHandler);
+		param.setFieldValueHandler($fieldValueHandler);
+		param.setPageClass($pageClass);
+		param.setPrimaryKey($primaryKey);
+		param.setAutoIncrementKey($autoIncrementKey);
+		param.setAutoIncrementValue($autoIncrementValue);
 		param.setTableName(fetchTableName());
-		param.setTableInSnakeCase(tableInSnakeCase);
-		param.setFieldInSnakeCase(fieldInSnakeCase);
-		param.setFieldToLowerCase(fieldToLowerCase);
-		param.setFieldCaseInsensitive(fieldCaseInsensitive);
+		param.setTableInSnakeCase($tableInSnakeCase);
+		param.setFieldInSnakeCase($fieldInSnakeCase);
+		param.setFieldToLowerCase($fieldToLowerCase);
+		param.setFieldCaseInsensitive($fieldCaseInsensitive);
 
 		return param;
 	}
@@ -303,7 +303,7 @@ public class SqlxModelBuilder implements SqlxModel {
 		param.setInitializedSql("select * from " + fetchTableName() + " where 1=2");
 		List<RowMetaData> list = queryForRowMetaData(param);
 
-		return DaoFuncUtils.createBeanDefinition(list, fieldToLowerCase, fieldInSnakeCase);
+		return DaoFuncUtils.createBeanDefinition(list, $fieldToLowerCase, $fieldInSnakeCase);
 	}
 
 	@Override

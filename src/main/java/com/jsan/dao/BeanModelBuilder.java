@@ -35,7 +35,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final Class<B> beanClass = initModelBeanClass();
+	private final Class<B> $beanClass = initModelBeanClass();
 
 	@SuppressWarnings("unchecked")
 	private Class<B> initModelBeanClass() {
@@ -55,20 +55,20 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	 * @param bean
 	 * @return
 	 */
-	protected Map<String, Object> getBeanMap(B bean) {
+	protected Map<String, Object> fetchBeanMap(B bean) {
 
 		if (BeanProxyUtils.isDaoBean(bean)) {
 			Class<B> beanClass = BeanProxyUtils.getDaoBeanOriginalClass(bean);
-			return BeanConvertUtils.convertBeanToMap(beanClass, bean, true, fieldInSnakeCase);
+			return BeanConvertUtils.convertBeanToMap(beanClass, bean, true, $fieldInSnakeCase);
 		} else {
-			return BeanConvertUtils.convertBeanToMap(bean, true, fieldInSnakeCase);
+			return BeanConvertUtils.convertBeanToMap(bean, true, $fieldInSnakeCase);
 		}
 	}
 
 	@Override
 	public Class<B> fetchBeanClass() {
 
-		return beanClass;
+		return $beanClass;
 	}
 
 	@Override
@@ -108,14 +108,14 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 		String[] primaryKey = param.getPrimaryKey();
 		Object[] primaryValue = new Object[primaryKey.length];
 		for (int i = 0; i < primaryKey.length; i++) {
-			primaryValue[i] = getBeanMap(bean).get(primaryKey[i]);
+			primaryValue[i] = fetchBeanMap(bean).get(primaryKey[i]);
 		}
 		param.setPrimaryValue(primaryValue);
 
 		return delete(param) > 0;
 	}
 
-	protected String[] getDaoBeanExcludeFields(B bean, String[] excludeFields) {
+	protected String[] fetchDaoBeanExcludeFields(B bean, String[] excludeFields) {
 
 		Set<String> set = BeanProxyUtils.getDaoBeanExcludeFieldSet(bean);
 		if (set == null) {
@@ -123,7 +123,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 		} else {
 			Set<String> tmpSet = new LinkedHashSet<String>();
 			for (String str : set) {
-				tmpSet.add(fieldInSnakeCase ? ConvertFuncUtils.parseCamelCaseToSnakeCase(str) : str);
+				tmpSet.add($fieldInSnakeCase ? ConvertFuncUtils.parseCamelCaseToSnakeCase(str) : str);
 			}
 			for (String field : excludeFields) {
 				tmpSet.add(field);
@@ -136,8 +136,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public boolean update(B bean, String... excludeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
-		param.setMarkFields(getDaoBeanExcludeFields(bean, excludeFields));
+		param.setParamMap(fetchBeanMap(bean));
+		param.setMarkFields(fetchDaoBeanExcludeFields(bean, excludeFields));
 
 		return update(param) > 0;
 	}
@@ -146,7 +146,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public boolean updateInc(B bean, String... includeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
+		param.setParamMap(fetchBeanMap(bean));
 		param.setMarkFields(includeFields);
 		param.setInclude(true);
 
@@ -157,8 +157,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public boolean insert(B bean, String... excludeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
-		param.setMarkFields(getDaoBeanExcludeFields(bean, excludeFields));
+		param.setParamMap(fetchBeanMap(bean));
+		param.setMarkFields(fetchDaoBeanExcludeFields(bean, excludeFields));
 
 		return insert(param) > 0;
 	}
@@ -167,7 +167,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public boolean insertInc(B bean, String... includeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
+		param.setParamMap(fetchBeanMap(bean));
 		param.setMarkFields(includeFields);
 		param.setInclude(true);
 
@@ -178,8 +178,8 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public int gainInsert(B bean, String... excludeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
-		param.setMarkFields(getDaoBeanExcludeFields(bean, excludeFields));
+		param.setParamMap(fetchBeanMap(bean));
+		param.setMarkFields(fetchDaoBeanExcludeFields(bean, excludeFields));
 
 		return insert(param, int.class);
 	}
@@ -188,7 +188,7 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 	public int gainInsertInc(B bean, String... includeFields) throws SQLException {
 
 		Param param = createParam();
-		param.setParamMap(getBeanMap(bean));
+		param.setParamMap(fetchBeanMap(bean));
 		param.setMarkFields(includeFields);
 		param.setInclude(true);
 
