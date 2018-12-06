@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -27,19 +28,20 @@ import java.util.Random;
  */
 
 public class HttpConnUtils {
-	
-//	public static final String GET = "GET";
-//	public static final String POST = "POST";
+
+	public static final String GET = "GET";
+	public static final String POST = "POST";
 	public static final String HEAD = "HEAD";
 	public static final String OPTIONS = "OPTIONS";
 	public static final String PUT = "PUT";
 	public static final String DELETE = "DELETE";
 	public static final String TRACE = "TRACE";
 
-	public static class RequestSetter {
+	public static class RequestInfo {
 
-		private String url; // url地址
-		private String method = GET; // 请求方法必须大写
+		private String urlStr = null; // url地址
+		private URL url = null; // URL实例
+		private String requestMethod = GET; // 请求方法必须大写
 		private boolean instanceFollowRedirects = false; // HttpURLConnection实例是否应该自动执行 HTTP 重定向（响应代码为 3xx 的请求）
 		private boolean doInput = true;
 		private boolean doOutput = false;
@@ -47,31 +49,71 @@ public class HttpConnUtils {
 		private long ifModifiedSince = 0; // 如果指定了时间，则只有在该时间之后又进行了修改时，才获取该对象。
 		private int connectTimeout = 10000; // 建立连接的超时时间为10秒
 		private int readTimeout = 30000; // 传递数据的超时时间为30秒
-		private Map<String, String> requestPropertyMap = new LinkedHashMap<>();
-		
-		// -------------------
-		
-		public void setRequestProperty(String key, String value){
-			
-			requestPropertyMap.put(key, value);
+
+		private Map<String, String> requestPropertyMap = null;
+		private Map<String, Object> requestParamMap = null;
+		private Map<String, String> requestCookieMap = null;
+
+		private OutputStream outputStream = null; // 不为null时表示自行处理输出流
+
+		public RequestInfo() {
+
 		}
-		
+
+		public RequestInfo(String urlStr) {
+
+			this.urlStr = urlStr;
+		}
+
 		// -------------------
 
-		public String getUrl() {
+		public void setRequestProperty(String key, String value) {
+			if (requestPropertyMap == null) {
+				requestPropertyMap = new LinkedHashMap<>();
+			}
+
+			requestPropertyMap.put(key, value);
+		}
+
+		public void setRequestParam(String key, Object value) {
+			if (requestParamMap == null) {
+				requestParamMap = new LinkedHashMap<>();
+			}
+			requestParamMap.put(key, value);
+		}
+
+		public void setRequestCookie(String key, String value) {
+			if (requestCookieMap == null) {
+				requestCookieMap = new LinkedHashMap<>();
+			}
+
+			requestCookieMap.put(key, value);
+		}
+
+		// -------------------
+
+		public String getUrlStr() {
+			return urlStr;
+		}
+
+		public void setUrlStr(String urlStr) {
+			this.urlStr = urlStr;
+		}
+
+		public URL getUrl() {
 			return url;
 		}
 
-		public void setUrl(String url) {
+		public void setUrl(URL url) {
 			this.url = url;
 		}
 
-		public String getMethod() {
-			return method;
+		public String getRequestMethod() {
+			return requestMethod;
 		}
 
-		public void setMethod(String method) {
-			this.method = method;
+		public void setRequestMethod(String requestMethod) {
+			this.requestMethod = requestMethod;
 		}
 
 		public boolean isInstanceFollowRedirects() {
@@ -138,30 +180,316 @@ public class HttpConnUtils {
 			this.requestPropertyMap = requestPropertyMap;
 		}
 
+		public Map<String, Object> getRequestParamMap() {
+			return requestParamMap;
+		}
+
+		public void setRequestParamMap(Map<String, Object> requestParamMap) {
+			this.requestParamMap = requestParamMap;
+		}
+
+		public OutputStream getOutputStream() {
+			return outputStream;
+		}
+
+		public void setOutputStream(OutputStream outputStream) {
+			this.outputStream = outputStream;
+		}
+
+		public Map<String, String> getRequestCookieMap() {
+			return requestCookieMap;
+		}
+
+		public void setRequestCookieMap(Map<String, String> requestCookieMap) {
+			this.requestCookieMap = requestCookieMap;
+		}
+
+		@Override
+		public String toString() {
+			return "RequestInfo [urlStr=" + urlStr + ", url=" + url + ", requestMethod=" + requestMethod + ", instanceFollowRedirects=" + instanceFollowRedirects + ", doInput=" + doInput + ", doOutput=" + doOutput + ", useCaches=" + useCaches + ", ifModifiedSince=" + ifModifiedSince + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout + ", requestPropertyMap=" + requestPropertyMap
+					+ ", requestParamMap=" + requestParamMap + ", requestCookieMap=" + requestCookieMap + "]";
+		}
+
 	}
 
-	public static class ResponseGetter {
+	public static class ResponseInfo {
+
+		private Exception exception; // 如果发生了异常则不为null
+
+		private int responseCode;
+		private String responseMessage;
+		private String contentType;
+		private String contentEncoding;
+		private int contentLength;
+		private long date;
+		private long expiration;
+		private long lastModified;
+		private Map<String, List<String>> headerFields;
+
+		private byte[] bytes;
+
+		// ------------------------
+
+		public String getCharset() {
+
+			if (contentType != null) {
+				String charset = contentType.replaceAll(".*charset\\s*=\\s*([\\w-]+).*", "$1");
+				if (!charset.equals(contentType) && charset.length() > 0) {
+					return charset;
+				}
+			}
+
+			return null;
+		}
+
+		public String getString() {
+
+			return getString(getCharset());
+		}
+
+		public String getString(String charset) {
+
+			if (bytes != null) {
+				if (charset != null) {
+					try {
+						return new String(bytes, charset);
+					} catch (UnsupportedEncodingException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					return new String(bytes);
+				}
+			}
+
+			return null;
+		}
+
+		public Map<String, String> getCookieMap() {
+
+			List<String> list = getCookieList();
+			if (list == null) {
+				return null;
+			}
+
+			Map<String, String> map = new LinkedHashMap<>();
+			for (String str : list) {
+				int i = str.indexOf(';');
+				if (i != -1) {
+					str = str.substring(0, i);
+					int j = str.indexOf('=');
+					if (j != -1) {
+						String key = str.substring(0, j);
+						String value = str.substring(j + 1);
+						map.put(key, value);
+					}
+				}
+			}
+
+			return map;
+		}
+
+		public List<String> getCookieList() {
+
+			if (headerFields != null) {
+				return headerFields.get("Set-Cookie");
+			}
+
+			return null;
+		}
+
+		// ------------------------
+
+		public int getResponseCode() {
+			return responseCode;
+		}
+
+		public void setResponseCode(int responseCode) {
+			this.responseCode = responseCode;
+		}
+
+		public String getResponseMessage() {
+			return responseMessage;
+		}
+
+		public void setResponseMessage(String responseMessage) {
+			this.responseMessage = responseMessage;
+		}
+
+		public String getContentType() {
+			return contentType;
+		}
+
+		public void setContentType(String contentType) {
+			this.contentType = contentType;
+		}
+
+		public String getContentEncoding() {
+			return contentEncoding;
+		}
+
+		public void setContentEncoding(String contentEncoding) {
+			this.contentEncoding = contentEncoding;
+		}
+
+		public int getContentLength() {
+			return contentLength;
+		}
+
+		public void setContentLength(int contentLength) {
+			this.contentLength = contentLength;
+		}
+
+		public long getDate() {
+			return date;
+		}
+
+		public void setDate(long date) {
+			this.date = date;
+		}
+
+		public long getExpiration() {
+			return expiration;
+		}
+
+		public void setExpiration(long expiration) {
+			this.expiration = expiration;
+		}
+
+		public long getLastModified() {
+			return lastModified;
+		}
+
+		public void setLastModified(long lastModified) {
+			this.lastModified = lastModified;
+		}
+
+		public Map<String, List<String>> getHeaderFields() {
+			return headerFields;
+		}
+
+		public void setHeaderFields(Map<String, List<String>> headerFields) {
+			this.headerFields = headerFields;
+		}
+
+		public byte[] getBytes() {
+			return bytes;
+		}
+
+		public void setBytes(byte[] bytes) {
+			this.bytes = bytes;
+		}
+
+		public Exception getException() {
+			return exception;
+		}
+
+		public void setException(Exception exception) {
+			this.exception = exception;
+		}
+
+		@Override
+		public String toString() {
+			return "ResponseInfo [exception=" + exception + ", responseCode=" + responseCode + ", responseMessage=" + responseMessage + ", contentType=" + contentType + ", contentEncoding=" + contentEncoding + ", contentLength=" + contentLength + ", date=" + date + ", expiration=" + expiration + ", lastModified=" + lastModified + ", headerFields=" + headerFields + "]";
+		}
 
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	public static ResponseInfo getResponseInfo(RequestInfo requestInfo) {
+
+		ResponseInfo responseInfo = new ResponseInfo();
+
+		HttpURLConnection conn = null;
+		InputStream in = null;
+
+		String requestMethod = requestInfo.getRequestMethod();
+
+		URL url = requestInfo.getUrl();
+		if (url == null) {
+			String urlStr = requestInfo.getUrlStr();
+			if (GET.equals(requestMethod)) {
+				urlStr = convertRequestParamMapToUrlString(urlStr, requestInfo.getRequestParamMap());
+			}
+
+			url = getURL(urlStr);
+		}
+
+		try {
+			conn = (HttpURLConnection) url.openConnection();
+
+			conn.setDoOutput(requestInfo.isDoInput());
+			conn.setDoOutput(requestInfo.isDoOutput());
+			conn.setRequestMethod(requestInfo.getRequestMethod());
+			conn.setConnectTimeout(requestInfo.getConnectTimeout());
+			conn.setReadTimeout(requestInfo.getReadTimeout());
+			conn.setUseCaches(requestInfo.isUseCaches());
+			conn.setIfModifiedSince(requestInfo.getIfModifiedSince());
+			conn.setInstanceFollowRedirects(requestInfo.isInstanceFollowRedirects());
+			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止非常规的User-Agent请求
+
+			// 处理请求时发送的cookie
+			Map<String, String> requestCookieMap = requestInfo.getRequestCookieMap();
+			if (requestCookieMap != null) {
+				conn.setRequestProperty("Cookie", convertRequestCookieMapToString(requestCookieMap));
+			}
+
+			Map<String, String> requestPropertyMap = requestInfo.getRequestPropertyMap();
+			if (requestPropertyMap != null) {
+				for (Map.Entry<String, String> entry : requestPropertyMap.entrySet()) {
+					conn.setRequestProperty(entry.getKey(), entry.getValue());
+				}
+			}
+
+			conn.connect();
+
+			Map<String, Object> requestParamMap = requestInfo.getRequestParamMap();
+			if (requestParamMap != null && POST.equals(requestMethod)) {
+				PrintWriter writer = new PrintWriter(conn.getOutputStream());
+				writer.write(convertRequestParamMapToString(requestParamMap));
+				writer.close();
+			}
+
+			int responseCode = conn.getResponseCode();
+			responseInfo.setResponseCode(responseCode);
+			if (responseCode == 200) {
+
+				responseInfo.setContentEncoding(conn.getContentEncoding());
+				responseInfo.setContentLength(conn.getContentLength());
+				responseInfo.setContentType(conn.getContentType());
+				responseInfo.setDate(conn.getDate());
+				responseInfo.setExpiration(conn.getExpiration());
+				responseInfo.setLastModified(conn.getLastModified());
+				responseInfo.setHeaderFields(conn.getHeaderFields());
+
+				in = conn.getInputStream();
+
+				if (requestInfo.getOutputStream() != null) {
+					convertStream(in, requestInfo.getOutputStream());
+				} else {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					convertStream(in, out);
+					responseInfo.setBytes(out.toByteArray());
+				}
+			}
+
+		} catch (Exception e) {
+			responseInfo.setException(e);
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+
+		return responseInfo;
+	}
+
 	/******************************************************/
-
-	public static final String GET = "GET";
-
-	public static final String POST = "POST";
 
 	private static final int CONNECT_TIMEOUT = 10000; // 建立连接的超时时间为10秒
 
@@ -392,14 +720,12 @@ public class HttpConnUtils {
 	 * @param params
 	 * @throws Exception
 	 */
-	public static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params)
-			throws Exception {
+	public static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params) throws Exception {
 
 		toStream(urlStr, out, method, params, null);
 	}
 
-	private static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params,
-			CharsetRecorder recorder) throws Exception {
+	private static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params, CharsetRecorder recorder) throws Exception {
 
 		HttpURLConnection conn = null;
 		InputStream in = null;
@@ -409,7 +735,7 @@ public class HttpConnUtils {
 		}
 
 		if (method == null || GET.equals(method)) {
-			urlStr = convertParamToUrlString(urlStr, params);
+			urlStr = convertRequestParamMapToUrlString(urlStr, params);
 		}
 
 		URL url = getURL(urlStr);
@@ -433,7 +759,7 @@ public class HttpConnUtils {
 
 			if (params != null && POST.equals(method)) {
 				PrintWriter writer = new PrintWriter(conn.getOutputStream());
-				writer.write(convertParamToString(params));
+				writer.write(convertRequestParamMapToString(params));
 				writer.close();
 			}
 
@@ -473,16 +799,16 @@ public class HttpConnUtils {
 	 * 将请求 url 和 Map 形式的请求参数转换成经过 URL 编码的 url 字符串（主要用于 GET 请求）。
 	 * 
 	 * @param urlStr
-	 * @param params
+	 * @param paramMap
 	 * @return
 	 */
-	public static String convertParamToUrlString(String urlStr, Map<String, Object> params) {
+	public static String convertRequestParamMapToUrlString(String urlStr, Map<String, Object> paramMap) {
 
-		if (params != null) {
+		if (paramMap != null) {
 			if (urlStr.indexOf('?') == -1) {
-				urlStr = urlStr + "?" + convertParamToString(params);
+				urlStr = urlStr + "?" + convertRequestParamMapToString(paramMap);
 			} else {
-				urlStr = urlStr + "&" + convertParamToString(params);
+				urlStr = urlStr + "&" + convertRequestParamMapToString(paramMap);
 			}
 		}
 
@@ -492,18 +818,18 @@ public class HttpConnUtils {
 	/**
 	 * 将 Map 形式的请求参数转换成经过 URL 编码的字符串。
 	 * 
-	 * @param params
+	 * @param paramMap
 	 * @return
 	 */
-	public static String convertParamToString(Map<String, Object> params) {
+	public static String convertRequestParamMapToString(Map<String, Object> paramMap) {
 
-		if (params == null) {
+		if (paramMap == null) {
 			return null;
 		}
 
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
-		for (Map.Entry<String, Object> entry : params.entrySet()) {
+		for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
 			if (i++ > 0) {
 				sb.append("&");
 			}
@@ -524,6 +850,26 @@ public class HttpConnUtils {
 		return sb.toString();
 	}
 
+	public static String convertRequestCookieMapToString(Map<String, String> cookieMap) {
+
+		if (cookieMap == null) {
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
+			if (i++ > 0) {
+				sb.append("; ");
+			}
+			sb.append(entry.getKey());
+			sb.append("=");
+			sb.append(entry.getValue());
+		}
+
+		return sb.toString();
+	}
+
 	private static class CharsetRecorder {
 
 		String charset;
@@ -536,6 +882,34 @@ public class HttpConnUtils {
 			this.charset = charset;
 		}
 
+	}
+
+	public static void main(String[] args) {
+
+		 String url1 = "https://xueqiu.com/stock/screener/screen.json?category=SH&exchange=&areacode=&indcode=&orderby=symbol&order=desc&current=ALL&pct=ALL&page=3&pb=0_5&roediluted.20180930=0_100&pettm=0_50&_=1544108359733";
+
+		String url = "https://xueqiu.com/hq/screener";
+		
+		 RequestInfo requestInfo = new RequestInfo(url);
+		
+		 ResponseInfo responseInfo = getResponseInfo(requestInfo);
+		
+		 System.out.println(responseInfo.getResponseCode());
+		 System.out.println(responseInfo.getResponseMessage());
+		 System.out.println(responseInfo.getCookieList());
+		 System.out.println(responseInfo.getCookieMap());
+
+		 RequestInfo requestInfo1 = new RequestInfo(url1);
+		 requestInfo1.setRequestCookieMap(responseInfo.getCookieMap());
+		 
+		 ResponseInfo responseInfo1 = getResponseInfo(requestInfo1);
+		 
+		 System.out.println(responseInfo1.getResponseCode());
+		 System.out.println(responseInfo1.getResponseMessage());
+		 System.out.println(responseInfo1.getString());
+
+		 
+		
 	}
 
 }
