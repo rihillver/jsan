@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,22 +38,26 @@ public class HttpConnUtils {
 	public static final String DELETE = "DELETE";
 	public static final String TRACE = "TRACE";
 
+	private static final int CONNECT_TIMEOUT = 10000; // 建立连接的超时时间为10秒
+	private static final int READ_TIMEOUT = 30000; // 传递数据的超时时间为30秒
+	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
+
 	public static class RequestInfo {
 
-		private String urlStr = null; // url地址
 		private URL url = null; // URL实例
+		private String urlStr = null; // url地址
 		private String requestMethod = GET; // 请求方法必须大写
-		private boolean instanceFollowRedirects = false; // HttpURLConnection实例是否应该自动执行 HTTP 重定向（响应代码为 3xx 的请求）
-		private boolean doInput = true;
-		private boolean doOutput = false;
+		// private boolean doInput = true;
+		// private boolean doOutput = false;
 		private boolean useCaches = false; // 是否使用缓存
+		private boolean instanceFollowRedirects = false; // HttpURLConnection实例是否应该自动执行 HTTP 重定向（响应代码为 3xx 的请求）
 		private long ifModifiedSince = 0; // 如果指定了时间，则只有在该时间之后又进行了修改时，才获取该对象。
-		private int connectTimeout = 10000; // 建立连接的超时时间为10秒
-		private int readTimeout = 30000; // 传递数据的超时时间为30秒
+		private int connectTimeout = CONNECT_TIMEOUT;
+		private int readTimeout = READ_TIMEOUT;
 
-		private Map<String, String> requestPropertyMap = null;
 		private Map<String, Object> requestParamMap = null;
 		private Map<String, String> requestCookieMap = null;
+		private Map<String, String> requestPropertyMap = null;
 
 		private OutputStream outputStream = null; // 不为null时表示自行处理输出流
 
@@ -62,7 +67,19 @@ public class HttpConnUtils {
 
 		public RequestInfo(String urlStr) {
 
+			this(urlStr, GET);
+		}
+
+		public RequestInfo(String urlStr, String requestMethod) {
+
+			this(urlStr, requestMethod, null);
+		}
+
+		public RequestInfo(String urlStr, String requestMethod, Map<String, Object> requestParamMap) {
+
 			this.urlStr = urlStr;
+			this.requestMethod = requestMethod;
+			this.requestParamMap = requestParamMap;
 		}
 
 		// -------------------
@@ -122,22 +139,6 @@ public class HttpConnUtils {
 
 		public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
 			this.instanceFollowRedirects = instanceFollowRedirects;
-		}
-
-		public boolean isDoInput() {
-			return doInput;
-		}
-
-		public void setDoInput(boolean doInput) {
-			this.doInput = doInput;
-		}
-
-		public boolean isDoOutput() {
-			return doOutput;
-		}
-
-		public void setDoOutput(boolean doOutput) {
-			this.doOutput = doOutput;
 		}
 
 		public boolean isUseCaches() {
@@ -206,8 +207,8 @@ public class HttpConnUtils {
 
 		@Override
 		public String toString() {
-			return "RequestInfo [urlStr=" + urlStr + ", url=" + url + ", requestMethod=" + requestMethod + ", instanceFollowRedirects=" + instanceFollowRedirects + ", doInput=" + doInput + ", doOutput=" + doOutput + ", useCaches=" + useCaches + ", ifModifiedSince=" + ifModifiedSince + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout + ", requestPropertyMap=" + requestPropertyMap
-					+ ", requestParamMap=" + requestParamMap + ", requestCookieMap=" + requestCookieMap + "]";
+			return "RequestInfo [url=" + url + ", urlStr=" + urlStr + ", requestMethod=" + requestMethod + ", useCaches=" + useCaches + ", instanceFollowRedirects=" + instanceFollowRedirects + ", ifModifiedSince=" + ifModifiedSince + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout + ", requestParamMap=" + requestParamMap + ", requestCookieMap=" + requestCookieMap + ", requestPropertyMap="
+					+ requestPropertyMap + "]";
 		}
 
 	}
@@ -295,6 +296,53 @@ public class HttpConnUtils {
 			}
 
 			return null;
+		}
+
+		public String getHeaderField(String name) {
+
+			if (headerFields != null) {
+				List<String> list = headerFields.get(name);
+				if (list.size() > 0) {
+					return list.get(0);
+				}
+			}
+
+			return null;
+		}
+
+		@SuppressWarnings("deprecation")
+		public long getHeaderFieldDate(String name, long Default) {
+			String dateString = getHeaderField(name);
+			try {
+				if (dateString.indexOf("GMT") == -1) {
+					dateString = dateString + " GMT";
+				}
+				return Date.parse(dateString);
+			} catch (Exception e) {
+			}
+			return Default;
+		}
+
+		public int getHeaderFieldInt(String name, int Default) {
+			String value = getHeaderField(name);
+			try {
+				return Integer.parseInt(value);
+			} catch (Exception e) {
+			}
+			return Default;
+		}
+
+		public long getHeaderFieldLong(String name, long Default) {
+			String value = getHeaderField(name);
+			try {
+				return Long.parseLong(value);
+			} catch (Exception e) {
+			}
+			return Default;
+		}
+
+		public long getContentLengthLong() {
+			return getHeaderFieldLong("content-length", -1);
 		}
 
 		// ------------------------
@@ -416,8 +464,8 @@ public class HttpConnUtils {
 		try {
 			conn = (HttpURLConnection) url.openConnection();
 
-			conn.setDoOutput(requestInfo.isDoInput());
-			conn.setDoOutput(requestInfo.isDoOutput());
+			// conn.setDoOutput(requestInfo.isDoInput());
+			// conn.setDoOutput(requestInfo.isDoOutput());
 			conn.setRequestMethod(requestInfo.getRequestMethod());
 			conn.setConnectTimeout(requestInfo.getConnectTimeout());
 			conn.setReadTimeout(requestInfo.getReadTimeout());
@@ -439,9 +487,13 @@ public class HttpConnUtils {
 				}
 			}
 
+			Map<String, Object> requestParamMap = requestInfo.getRequestParamMap();
+			if (requestParamMap != null && POST.equals(requestMethod)) {
+				conn.setDoOutput(true);
+			}
+
 			conn.connect();
 
-			Map<String, Object> requestParamMap = requestInfo.getRequestParamMap();
 			if (requestParamMap != null && POST.equals(requestMethod)) {
 				PrintWriter writer = new PrintWriter(conn.getOutputStream());
 				writer.write(convertRequestParamMapToString(requestParamMap));
@@ -491,12 +543,6 @@ public class HttpConnUtils {
 
 	/******************************************************/
 
-	private static final int CONNECT_TIMEOUT = 10000; // 建立连接的超时时间为10秒
-
-	private static final int READ_TIMEOUT = 30000; // 传递数据的超时时间为30秒
-
-	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
-
 	/**
 	 * 返回 URL 请求的字符串形式（GET 方式，自动分析字符编码）。
 	 * 
@@ -505,20 +551,7 @@ public class HttpConnUtils {
 	 */
 	public static String getString(String urlStr) {
 
-		return getString(urlStr, null, null);
-	}
-
-	/**
-	 * 返回 URL 请求的字符串形式（自动分析字符编码）。
-	 * 
-	 * @param urlStr
-	 * @param method
-	 * @param params
-	 * @return
-	 */
-	public static String getString(String urlStr, String method, Map<String, Object> params) {
-
-		return getString(urlStr, method, params, null);
+		return getString(urlStr, null);
 	}
 
 	/**
@@ -530,41 +563,36 @@ public class HttpConnUtils {
 	 */
 	public static String getString(String urlStr, String charset) {
 
-		return getString(urlStr, null, null, charset);
+		return getString(urlStr, GET, null, charset);
+	}
+
+	/**
+	 * 返回 URL 请求的字符串形式（自动分析字符编码）。
+	 * 
+	 * @param urlStr
+	 * @param requestMethod
+	 * @param requestParamMap
+	 * @return
+	 */
+	public static String getString(String urlStr, String requestMethod, Map<String, Object> requestParamMap) {
+
+		return getString(urlStr, requestMethod, requestParamMap, null);
 	}
 
 	/**
 	 * 返回 URL 请求的字符串形式（指定字符编码）。
 	 * 
 	 * @param urlStr
-	 * @param method
-	 * @param params
+	 * @param requestMethod
+	 * @param requestParamMap
 	 * @param charset
 	 * @return
 	 */
-	public static String getString(String urlStr, String method, Map<String, Object> params, String charset) {
+	public static String getString(String urlStr, String requestMethod, Map<String, Object> requestParamMap, String charset) {
 
-		CharsetRecorder recorder = charset == null ? new CharsetRecorder() : null;
+		ResponseInfo responseInfo = getResponseInfo(new RequestInfo(urlStr, requestMethod, requestParamMap));
 
-		byte[] result = getBytes(urlStr, method, params, recorder);
-
-		if (charset == null) {
-			charset = recorder.getCharset();
-		}
-
-		if (result != null) {
-			if (charset != null) {
-				try {
-					return new String(result, charset);
-				} catch (UnsupportedEncodingException e) {
-					throw new RuntimeException(e);
-				}
-			} else {
-				return new String(result);
-			}
-		}
-
-		return null;
+		return charset == null ? responseInfo.getString() : responseInfo.getString(charset);
 
 	}
 
@@ -576,41 +604,20 @@ public class HttpConnUtils {
 	 */
 	public static byte[] getBytes(String urlStr) {
 
-		return getBytes(urlStr, null, null);
+		return getBytes(urlStr, GET, null);
 	}
 
 	/**
 	 * 返回 URL 请求的字节数组形式。
 	 * 
 	 * @param urlStr
-	 * @param method
-	 * @param params
+	 * @param requestMethod
+	 * @param requestParamMap
 	 * @return
 	 */
-	public static byte[] getBytes(String urlStr, String method, Map<String, Object> params) {
+	public static byte[] getBytes(String urlStr, String requestMethod, Map<String, Object> requestParamMap) {
 
-		return getBytes(urlStr, method, params, null);
-	}
-
-	private static byte[] getBytes(String urlStr, String method, Map<String, Object> params, CharsetRecorder recorder) {
-
-		byte[] bytes = null;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-		try {
-			toStream(urlStr, out, method, params, recorder);
-			bytes = out.toByteArray();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return bytes;
+		return getResponseInfo(new RequestInfo(urlStr, requestMethod, requestParamMap)).getBytes();
 	}
 
 	/**
@@ -622,19 +629,19 @@ public class HttpConnUtils {
 	 */
 	public static File getFile(String urlStr, String filePath) {
 
-		return getFile(urlStr, null, null, filePath);
+		return getFile(urlStr, GET, null, filePath);
 	}
 
 	/**
 	 * 返回 URL 请求的文件形式。
 	 * 
 	 * @param urlStr
-	 * @param method
-	 * @param params
+	 * @param requestMethod
+	 * @param requestParamMap
 	 * @param filePath
 	 * @return
 	 */
-	public static File getFile(String urlStr, String method, Map<String, Object> params, String filePath) {
+	public static File getFile(String urlStr, String requestMethod, Map<String, Object> requestParamMap, String filePath) {
 
 		File oldFile = null;
 
@@ -658,7 +665,11 @@ public class HttpConnUtils {
 		try {
 			fos = new FileOutputStream(file);
 			bos = new BufferedOutputStream(fos);
-			toStream(urlStr, bos, method, params);
+
+			RequestInfo requestInfo = new RequestInfo(urlStr, requestMethod, requestParamMap);
+			requestInfo.setOutputStream(bos);
+			getResponseInfo(requestInfo);
+
 			return file;
 		} catch (Exception e) {
 			error = true;
@@ -712,97 +723,13 @@ public class HttpConnUtils {
 	}
 
 	/**
-	 * URL 请求转输出流。
-	 * 
-	 * @param urlStr
-	 * @param out
-	 * @param method
-	 * @param params
-	 * @throws Exception
-	 */
-	public static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params) throws Exception {
-
-		toStream(urlStr, out, method, params, null);
-	}
-
-	private static void toStream(String urlStr, OutputStream out, String method, Map<String, Object> params, CharsetRecorder recorder) throws Exception {
-
-		HttpURLConnection conn = null;
-		InputStream in = null;
-
-		if (method != null) {
-			method = method.toUpperCase();
-		}
-
-		if (method == null || GET.equals(method)) {
-			urlStr = convertRequestParamMapToUrlString(urlStr, params);
-		}
-
-		URL url = getURL(urlStr);
-
-		try {
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setUseCaches(false); // 禁止缓存
-			conn.setInstanceFollowRedirects(false); // 禁止重定向
-			conn.setConnectTimeout(CONNECT_TIMEOUT);
-			conn.setReadTimeout(READ_TIMEOUT);
-			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止非常规的User-Agent请求
-
-			if (method != null) {
-				conn.setRequestMethod(method);
-				if (POST.equals(method)) {
-					conn.setDoOutput(true);
-				}
-			}
-
-			conn.connect();
-
-			if (params != null && POST.equals(method)) {
-				PrintWriter writer = new PrintWriter(conn.getOutputStream());
-				writer.write(convertRequestParamMapToString(params));
-				writer.close();
-			}
-
-			if (conn.getResponseCode() == 200) {
-
-				if (recorder != null) { // 提取字符编码
-					String contentType = conn.getContentType();
-					if (contentType != null) {
-						String temp = contentType.replaceAll(".*charset\\s*=\\s*([\\w-]+).*", "$1");
-						if (!temp.equals(contentType) && temp.length() > 0) {
-							recorder.setCharset(temp);
-						}
-					}
-				}
-
-				in = conn.getInputStream();
-				convertStream(in, out);
-			} else {
-				throw new RuntimeException("response code is " + conn.getResponseCode());
-			}
-
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
-	}
-
-	/**
 	 * 将请求 url 和 Map 形式的请求参数转换成经过 URL 编码的 url 字符串（主要用于 GET 请求）。
 	 * 
 	 * @param urlStr
 	 * @param paramMap
 	 * @return
 	 */
-	public static String convertRequestParamMapToUrlString(String urlStr, Map<String, Object> paramMap) {
+	private static String convertRequestParamMapToUrlString(String urlStr, Map<String, Object> paramMap) {
 
 		if (paramMap != null) {
 			if (urlStr.indexOf('?') == -1) {
@@ -821,7 +748,7 @@ public class HttpConnUtils {
 	 * @param paramMap
 	 * @return
 	 */
-	public static String convertRequestParamMapToString(Map<String, Object> paramMap) {
+	private static String convertRequestParamMapToString(Map<String, Object> paramMap) {
 
 		if (paramMap == null) {
 			return null;
@@ -850,7 +777,7 @@ public class HttpConnUtils {
 		return sb.toString();
 	}
 
-	public static String convertRequestCookieMapToString(Map<String, String> cookieMap) {
+	private static String convertRequestCookieMapToString(Map<String, String> cookieMap) {
 
 		if (cookieMap == null) {
 			return null;
@@ -868,48 +795,6 @@ public class HttpConnUtils {
 		}
 
 		return sb.toString();
-	}
-
-	private static class CharsetRecorder {
-
-		String charset;
-
-		public String getCharset() {
-			return charset;
-		}
-
-		public void setCharset(String charset) {
-			this.charset = charset;
-		}
-
-	}
-
-	public static void main(String[] args) {
-
-		 String url1 = "https://xueqiu.com/stock/screener/screen.json?category=SH&exchange=&areacode=&indcode=&orderby=symbol&order=desc&current=ALL&pct=ALL&page=3&pb=0_5&roediluted.20180930=0_100&pettm=0_50&_=1544108359733";
-
-		String url = "https://xueqiu.com/hq/screener";
-		
-		 RequestInfo requestInfo = new RequestInfo(url);
-		
-		 ResponseInfo responseInfo = getResponseInfo(requestInfo);
-		
-		 System.out.println(responseInfo.getResponseCode());
-		 System.out.println(responseInfo.getResponseMessage());
-		 System.out.println(responseInfo.getCookieList());
-		 System.out.println(responseInfo.getCookieMap());
-
-		 RequestInfo requestInfo1 = new RequestInfo(url1);
-		 requestInfo1.setRequestCookieMap(responseInfo.getCookieMap());
-		 
-		 ResponseInfo responseInfo1 = getResponseInfo(requestInfo1);
-		 
-		 System.out.println(responseInfo1.getResponseCode());
-		 System.out.println(responseInfo1.getResponseMessage());
-		 System.out.println(responseInfo1.getString());
-
-		 
-		
 	}
 
 }
