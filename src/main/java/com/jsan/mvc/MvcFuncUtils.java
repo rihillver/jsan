@@ -90,7 +90,7 @@ public class MvcFuncUtils {
 	 */
 	public static Set<Class<?>> getClasses(String packageName, boolean recursive) {
 
-		Set<Class<?>> classSet = new LinkedHashSet<>();
+		Set<Class<?>> classSet = new LinkedHashSet<Class<?>>();
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 		String packageDir = packageName.replace('.', '/');

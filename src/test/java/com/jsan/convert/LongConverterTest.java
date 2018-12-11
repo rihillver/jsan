@@ -17,15 +17,15 @@ public class LongConverterTest {
 		ConvertService convertService = new GeneralConvertService();
 		Converter converter = convertService.lookupConverter(Long.class);
 
-		long a = (long) converter.convert(new Date(), Long.class);
+		long a = (Long) converter.convert(new Date(), Long.class);
 
 		System.out.println(a);
 
-		long b = (long) converter.convert(new java.sql.Date(131325456365l), Long.TYPE);
+		long b = (Long) converter.convert(new java.sql.Date(131325456365l), Long.TYPE);
 
 		System.out.println(b);
 		
-		List<Date> list = new ArrayList<>();
+		List<Date> list = new ArrayList<Date>();
 		list.add(DateUtils.getOffsetDays(1));
 		list.add(DateUtils.getOffsetDays(2));
 		list.add(DateUtils.getOffsetDays(3));
