@@ -21,7 +21,7 @@ public class HtmlResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "text/html");
 
-		print(response, view.getValue());
+		print(response, view.getData());
 	}
 
 }

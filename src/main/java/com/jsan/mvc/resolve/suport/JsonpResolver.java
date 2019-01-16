@@ -23,7 +23,7 @@ public class JsonpResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "application/json");
 
-		String json = getJsonString(view.getJsonSerializeConfigurator(), view.getValue());
+		String json = getJsonString(view.getJsonSerializeConfigurator(), view.getData());
 
 		String jsonpCallback = view.getJsonpCallback();
 

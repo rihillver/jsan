@@ -14,7 +14,7 @@ import com.jsan.mvc.resolve.Resolver;
 
 public class View {
 
-	public static final String VALUE = "value"; // 默认设置的request属性名
+	public static final String DATA = "data"; // 默认设置的request属性名
 
 	private Map<String, Object> map = new LinkedHashMap<String, Object>();
 	private Map<String, Object> attribute;
@@ -28,12 +28,12 @@ public class View {
 	private String jsonpCallback;
 	private JsonSerializeConfigurator jsonSerializeConfigurator;
 
-	public Object getValue() {
-		return get(VALUE);
+	public Object getData() {
+		return get(DATA);
 	}
 
-	public void addValue(Object value) {
-		add(VALUE, value);
+	public void addData(Object data) {
+		add(DATA, data);
 	}
 
 	public String getUrl() {

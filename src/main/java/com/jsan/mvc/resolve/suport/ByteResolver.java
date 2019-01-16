@@ -21,7 +21,7 @@ public class ByteResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "application/octet-stream");
 
-		writeBytes(response, view.getValue());
+		writeBytes(response, view.getData());
 	}
 
 }

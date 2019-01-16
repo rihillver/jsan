@@ -837,7 +837,7 @@ public abstract class AbstractDispatcher implements Filter {
 					view.setJsonSerializeConfigurator(getJsonSerializeConfigurator());
 				}
 			} else {
-				view.addValue(returnValue);
+				view.addData(returnValue);
 			}
 		}
 

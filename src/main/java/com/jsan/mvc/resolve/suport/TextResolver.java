@@ -21,7 +21,7 @@ public class TextResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "text/plain");
 
-		print(response, view.getValue());
+		print(response, view.getData());
 	}
 
 }

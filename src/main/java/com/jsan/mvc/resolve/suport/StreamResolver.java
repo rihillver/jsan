@@ -21,7 +21,7 @@ public class StreamResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "application/octet-stream");
 
-		writeStream(response, view.getValue());
+		writeStream(response, view.getData());
 	}
 
 }

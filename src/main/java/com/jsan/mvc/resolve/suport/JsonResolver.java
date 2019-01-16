@@ -21,7 +21,7 @@ public class JsonResolver extends AbstractResolver {
 		
 		setContentType(response, view.getContentType(), "application/json");
 
-		print(response, getJsonString(view.getJsonSerializeConfigurator(), view.getValue()));
+		print(response, getJsonString(view.getJsonSerializeConfigurator(), view.getData()));
 	}
 
 }
