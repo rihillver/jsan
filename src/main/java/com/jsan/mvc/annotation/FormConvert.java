@@ -36,7 +36,7 @@ public @interface FormConvert {
 	 * 
 	 * @return
 	 */
-	boolean deep() default false;
+	boolean deepSerialize() default false;
 	
 	/**
 	 * 指定表单字段的前缀。

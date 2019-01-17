@@ -1,5 +1,6 @@
 package com.jsan.mvc.filter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -27,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.jsan.convert.BeanConvertUtils;
 import com.jsan.convert.BeanProxyUtils;
 import com.jsan.convert.ConvertFuncUtils;
@@ -476,8 +479,18 @@ public abstract class AbstractDispatcher implements Filter {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	protected JsonParserConfigurator getJsonParserConfiguratorForPayload(ParameterInfo pInfo) {
 
-	protected JsonParserConfigurator getJsonParserConfigurator(ParameterInfo pInfo) {
+		return getJsonParserConfigurator(pInfo, true);
+	}
+
+	protected JsonParserConfigurator getJsonParserConfiguratorForJsonConvert(ParameterInfo pInfo) {
+
+		return getJsonParserConfigurator(pInfo, false);
+	}
+
+	protected JsonParserConfigurator getJsonParserConfigurator(ParameterInfo pInfo, boolean payload) {
 
 		JsonParserConfigurator configurator = pInfo.getJsonParserConfigurator();
 
@@ -485,7 +498,7 @@ public abstract class AbstractDispatcher implements Filter {
 			synchronized (pInfo) {
 				configurator = pInfo.getJsonParserConfigurator();
 				if (configurator == null) {
-					Class<? extends JsonParserConfigurator> configuratorClass = pInfo.getJsonConvert().value(); // 这里不用判断JsonConvert是否为null，因为该方法被调用的情况下JsonConvert是一定不为null的
+					Class<? extends JsonParserConfigurator> configuratorClass = payload ? pInfo.getPayload().value() : pInfo.getJsonConvert().value(); // 这里不用判断Payload或JsonConvert是否为null，因为该方法被调用的情况下Payload或JsonConvert是一定不为null的
 					if (configuratorClass == JsonParserConfigurator.class) {
 						configurator = getJsonParserConfigurator();
 					} else {
@@ -928,7 +941,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 			ParameterInfo pInfo = parameterInfos[i];
 			Class<?> type = pInfo.getType();
-			Type GenericType = pInfo.getGenericType();
+			Type genericType = pInfo.getGenericType();
 			boolean parameterQuirkMode = isParameterQuirkMode(cInfo, mInfo, pInfo);
 			boolean standardConvertFlag = false;
 
@@ -958,6 +971,8 @@ public abstract class AbstractDispatcher implements Filter {
 					parameterObjects[i] = getHeaderObject(service, pInfo, request);
 				} else if (pInfo.getCookieObject() != null) { // cookie值处理
 					parameterObjects[i] = getCookieObject(service, pInfo, request);
+				} else if (pInfo.getPayload() != null) { // Request Payload形式的字符串（使用场景中多数情况为json字符串）转Object处理
+					parameterObjects[i] = getRequestPayloadToObject(pInfo, request);
 				} else if (pInfo.getJsonConvert() != null) { // 表单字段的json转Object处理
 					standardConvertFlag = true;
 					parameterObjects[i] = getRequestJsonToObject(pInfo, parameterQuirkMode, request);
@@ -974,7 +989,7 @@ public abstract class AbstractDispatcher implements Filter {
 						}
 					}
 					Converter converter = service.lookupConverter(type);
-					parameterObjects[i] = converter.convert(parameterValue, GenericType);
+					parameterObjects[i] = converter.convert(parameterValue, genericType);
 				}
 			}
 
@@ -1160,6 +1175,59 @@ public abstract class AbstractDispatcher implements Filter {
 			return pInfo.getName();
 		}
 	}
+	
+	/**
+	 * Request Payload 形式的字符串（使用场景中多数情况为json字符串）转对象。
+	 * 
+	 * @param pInfo
+	 * @param request
+	 * @param jsonConvert
+	 * @return
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T> T getRequestPayloadToObject(ParameterInfo pInfo, HttpServletRequest request) throws IOException {
+
+		String requestPayloadValue = null;
+		BufferedReader reader = null;
+
+		try {
+			reader = request.getReader();
+			StringBuilder sb = new StringBuilder();
+			char[] buff = new char[256];
+			int len;
+			while ((len = reader.read(buff)) != -1) {
+				sb.append(buff, 0, len);
+			}
+			requestPayloadValue = sb.toString();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		Class<?> type = pInfo.getType();
+		Type GenericType = pInfo.getGenericType();
+		JsonParserConfigurator configurator = getJsonParserConfiguratorForPayload(pInfo);
+
+		if (type == String.class) { // 如果是参数类型是String，直接返回原始字符串
+			return (T) requestPayloadValue;
+		}
+
+		if (type == JSONArray.class) { // 如果是参数类型是JSONArray，直接返回对应的转换的JSONArray
+			return (T) JSON.parseArray(requestPayloadValue);
+		}
+
+		if (type == JSONObject.class) { // 如果是参数类型是JSONObject，直接返回对应的转换的JSONObject
+			return (T) JSON.parseObject(requestPayloadValue, configurator.getFeatures());
+		}
+
+		return JSON.parseObject(requestPayloadValue, GenericType, configurator.getParserConfig(), configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+	}
 
 	/**
 	 * json 字符串转对象。
@@ -1174,7 +1242,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		String parameterValue = getRequestParameterValue(pInfo, parameterQuirkMode, request);
 		Type GenericType = pInfo.getGenericType();
-		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
+		JsonParserConfigurator configurator = getJsonParserConfiguratorForJsonConvert(pInfo);
 
 		return JSON.parseObject(parameterValue, GenericType, configurator.getParserConfig(),
 				configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
