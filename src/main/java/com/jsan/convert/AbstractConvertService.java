@@ -201,10 +201,15 @@ public abstract class AbstractConvertService implements ConvertService, Cloneabl
 		}
 
 		if (converter == null) {
-			// 抛出转换器未注册异常
-			String msg = "Converter not registered: " + type.getName();
-			logger.error(msg);
-			throw new RuntimeException(msg);
+			if (type.getName().startsWith("java.")||type.getName().startsWith("javax.")) {				
+				// 如果是java核心库里面的类，则抛出转换器未注册异常
+				String msg = "Converter not registered: " + type.getName();
+				logger.error(msg);
+				throw new RuntimeException(msg);
+			}else {
+				// 其他情况则按Object类处理，以便以更深层次的递归转换
+				converter = converterMap.get(Object.class);
+			}			
 		}
 
 		return converter;

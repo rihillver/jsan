@@ -86,22 +86,22 @@ public class BeanConvertUtils {
 		return fieldClass.cast(obj);
 	}
 
-	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map) {
+	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map) {
 
-		return getObject(beanClass, map, false);
+		return getBean(beanClass, map, true);
 	}
 
-	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, boolean keyToCamelCase) {
+	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, boolean keyToCamelCase) {
 
-		return getObject(beanClass, map, defaultConvertService, keyToCamelCase);
+		return getBean(beanClass, map, defaultConvertService, keyToCamelCase);
 	}
 
-	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, ConvertService service) {
+	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, ConvertService service) {
 
-		return getObject(beanClass, map, service, false);
+		return getBean(beanClass, map, service, true);
 	}
 
-	public static <T> T getObject(Class<T> beanClass, Map<?, ?> map, ConvertService service, boolean keyToCamelCase) {
+	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, ConvertService service, boolean keyToCamelCase) {
 
 		T bean = createBeanInstance(beanClass);
 

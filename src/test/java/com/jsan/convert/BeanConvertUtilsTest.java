@@ -33,23 +33,23 @@ public class BeanConvertUtilsTest {
 
 		ConvertService convertService = new SplitTrimConvertService();
 
-		FooBean testBean = BeanConvertUtils.getObject(FooBean.class, map, convertService);
-		testBean = BeanConvertUtils.getObject(FooBean.class, map, convertService);
-		testBean = BeanConvertUtils.getObject(FooBean.class, map, convertService);
+		FooBean testBean = BeanConvertUtils.getBean(FooBean.class, map, convertService);
+		testBean = BeanConvertUtils.getBean(FooBean.class, map, convertService);
+		testBean = BeanConvertUtils.getBean(FooBean.class, map, convertService);
 
 		long start = System.nanoTime();
 
-		testBean = BeanConvertUtils.getObject(FooBean.class, map, convertService);
+		testBean = BeanConvertUtils.getBean(FooBean.class, map, convertService);
 
 		long end = System.nanoTime() - start;
 
 		System.out.println("time1：" + end);
 
-		testBean = BeanConvertUtils.getObject(FooBean.class, map, new SplitTrimConvertService());
+		testBean = BeanConvertUtils.getBean(FooBean.class, map, new SplitTrimConvertService());
 
 		start = System.nanoTime();
 
-		testBean = BeanConvertUtils.getObject(FooBean.class, map, new SplitTrimConvertService());
+		testBean = BeanConvertUtils.getBean(FooBean.class, map, new SplitTrimConvertService());
 		end = System.nanoTime() - start;
 
 		System.out.println("time2：" + end);
@@ -70,7 +70,7 @@ public class BeanConvertUtilsTest {
 		map.put("name", "Jack");
 		map.put("color", "red"); // 可以转换
 
-		BarBean barBean = BeanConvertUtils.getObject(BarBean.class, map);
+		BarBean barBean = BeanConvertUtils.getBean(BarBean.class, map);
 		System.out.println(barBean);
 
 		barBean.setName("Tom");

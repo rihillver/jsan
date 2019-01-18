@@ -134,7 +134,7 @@ public class PropertiesConvertUtils {
 			properties = handleProperties(properties, keyPrefix);
 		}
 
-		return BeanConvertUtils.getObject(clazz, properties, service);
+		return BeanConvertUtils.getBean(clazz, properties, service);
 	}
 
 	public static <T> T getObject(String dirPath, String fileName, Class<T> clazz, ConvertService service) {
@@ -185,7 +185,7 @@ public class PropertiesConvertUtils {
 			properties = handleProperties(properties, keyPrefix);
 		}
 
-		return BeanConvertUtils.getObject(clazz, properties, service);
+		return BeanConvertUtils.getBean(clazz, properties, service);
 	}
 
 	private static Properties handleProperties(Properties properties, String keyPrefix) {
