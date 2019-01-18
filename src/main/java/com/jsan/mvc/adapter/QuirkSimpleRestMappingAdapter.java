@@ -22,7 +22,7 @@ import com.jsan.mvc.MvcConfig;
  *
  */
 
-public class SimpleRestMappingAdapter implements MappingAdapter {
+public class QuirkSimpleRestMappingAdapter implements MappingAdapter {
 
 	private static final String defaultClassName = "index";
 	private static final String defaultMethodName = "index";

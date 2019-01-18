@@ -9,7 +9,9 @@ import java.lang.annotation.Target;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
- * 控制器上映射方法形参上的表单字段 json 转换成（Bean）对象的注解。
+ * 控制器上映射方法形参上的表单 json 转换成（Bean）对象的注解。
+ * <p>
+ * 当客户端请求的 Content-Type 为 text/plain、application/json等情况时，请求表单参数则在 Request Payload 中，此时服务端需要通过 request.getReader() 或 request.getInputStream() 来获取数据， 通过该注解可以将这些表单数据转换到对应的形参上。
  * 
  */
 
@@ -21,14 +23,11 @@ public @interface JsonConvert {
 	Class<? extends JsonParserConfigurator> value() default JsonParserConfigurator.class;
 	
 	/**
-	 * 待实现。。。。
-	 * 是否处理客户端直接以json对象进行深度序列化后的形式提交请求参数的情况进行有效的特殊转换。
-	 * <p>
-	 * 注：这里指的不是json字符串，而是原生json对象，例如客户端通过jQuery以ajax的方式直接以json对象作为data提交时，其默认将对json对象进行深度序列化并转换成比较特殊的方式表示键值对，如items[]=[1,2,3]、obj[a]=xxx等，因为jQuery需要调用jQuery.param序列化参数，jQuery.param(obj, traditional)默认情况下traditional为false，即jquery会深度序列化参数对象，以适应如PHP和Ruby on Rails框架，但servelt无法处理，当然了，客户端可以通过设置traditional为true阻止深度序列化。
+	 * 声明是否使用动态代理的方式，仅对于 Bean 的转换类型才有效，对于 Map 的转换类型无效。
 	 * 
 	 * @return
 	 */
-	boolean deep() default false;
+	boolean proxy() default false;
 	
 	/*
 	public Map<String, Object> abc(Map<String, String[]> parameterMap) {

@@ -10,7 +10,7 @@ import com.jsan.mvc.MvcConfig;
  *
  */
 
-public class StandardMappingAdapter implements MappingAdapter {
+public class TraditionMappingAdapter implements MappingAdapter {
 
 	private static final String defaultClassName = "index";
 	private static final String defaultMethodName = "index";

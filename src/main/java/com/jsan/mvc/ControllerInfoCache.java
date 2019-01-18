@@ -24,7 +24,6 @@ import com.jsan.mvc.annotation.JsonConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
-import com.jsan.mvc.annotation.Payload;
 import com.jsan.mvc.annotation.Post;
 import com.jsan.mvc.annotation.Put;
 import com.jsan.mvc.annotation.QuirkMode;
@@ -162,8 +161,6 @@ public class ControllerInfoCache {
 				}
 			} else if (annotation instanceof JsonConvert) {
 				pInfo.setJsonConvert((JsonConvert) annotation);
-			} else if (annotation instanceof Payload) {
-				pInfo.setPayload((Payload) annotation);
 			} else if (annotation instanceof QuirkMode) {
 				pInfo.setQuirkMode((QuirkMode) annotation);
 			} else if (annotation instanceof MethodValue) {
