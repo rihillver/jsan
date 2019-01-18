@@ -59,9 +59,9 @@ public class BeanModelBuilder<B> extends SqlxModelBuilder implements BeanModel<B
 
 		if (BeanProxyUtils.isDaoBean(bean)) {
 			Class<B> beanClass = BeanProxyUtils.getDaoBeanOriginalClass(bean);
-			return BeanConvertUtils.convertBeanToMap(beanClass, bean, true, $fieldInSnakeCase);
+			return BeanConvertUtils.convertBeanToMap(beanClass, bean, true, false, $fieldInSnakeCase); // 基于自身字段、不需要深度转换Map
 		} else {
-			return BeanConvertUtils.convertBeanToMap(bean, true, $fieldInSnakeCase);
+			return BeanConvertUtils.convertBeanToMap(bean, true, false, $fieldInSnakeCase); // 基于自身字段、不需要深度转换Map
 		}
 	}
 

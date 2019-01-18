@@ -53,7 +53,7 @@ public abstract class AbstractMapConverter extends AbstractRecursiveableConverte
 			try {
 				object = (Map<Object, Object>) clazz.newInstance();
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			Map<?, ?> sourceMap = (Map<?, ?>) source;

@@ -1,7 +1,9 @@
 package com.jsan.convert;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -88,7 +90,7 @@ public class BeanConvertUtils {
 
 	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map) {
 
-		return getBean(beanClass, map, true);
+		return getBean(beanClass, map, false);
 	}
 
 	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, boolean keyToCamelCase) {
@@ -98,7 +100,7 @@ public class BeanConvertUtils {
 
 	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, ConvertService service) {
 
-		return getBean(beanClass, map, service, true);
+		return getBean(beanClass, map, service, false);
 	}
 
 	public static <T> T getBean(Class<T> beanClass, Map<?, ?> map, ConvertService service, boolean keyToCamelCase) {
@@ -137,6 +139,11 @@ public class BeanConvertUtils {
 		return getMapBaseOnField(bean, false);
 	}
 
+	public static <T> Map<String, Object> getMapBaseOnField(T bean, boolean deepConvert) {
+		
+		return getMapBaseOnField(bean, deepConvert, false);
+	}
+
 	/**
 	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段（将驼峰形式的字段名转换为下划线形式）。
 	 * 
@@ -144,9 +151,9 @@ public class BeanConvertUtils {
 	 * @param keyToSnakeCase
 	 * @return
 	 */
-	public static <T> Map<String, Object> getMapBaseOnField(T bean, boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> getMapBaseOnField(T bean, boolean deepConvert, boolean keyToSnakeCase) {
 
-		return convertBeanToMap(bean, true, keyToSnakeCase);
+		return convertBeanToMap(bean, true, deepConvert, keyToSnakeCase);
 	}
 
 	/**
@@ -160,6 +167,11 @@ public class BeanConvertUtils {
 		return getMap(bean, false);
 	}
 
+	public static <T> Map<String, Object> getMap(T bean, boolean deepConvert) {
+		
+		return getMap(bean, deepConvert, false);
+	}
+
 	/**
 	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（将驼峰形式的字段名转换为下划线形式）。
 	 * 
@@ -167,9 +179,9 @@ public class BeanConvertUtils {
 	 * @param keyToSnakeCase
 	 * @return
 	 */
-	public static <T> Map<String, Object> getMap(T bean, boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> getMap(T bean, boolean deepConvert, boolean keyToSnakeCase) {
 
-		return convertBeanToMap(bean, false, keyToSnakeCase);
+		return convertBeanToMap(bean, false, deepConvert, keyToSnakeCase);
 	}
 
 	/**
@@ -178,29 +190,35 @@ public class BeanConvertUtils {
 	 * @param bean
 	 * @param baseOnField
 	 *            true：基于自身字段相对于的Getter方法，false：基于所有Getter方法
+	 * @param deepConvert
+	 *            true：深度逐层转换，false：仅第一层转换
 	 * @param keyToSnakeCase
 	 *            true：将key转换为下划线形式，false：默认key不做任何转换
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnField, boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> convertBeanToMap(T bean, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
 
 		Class<T> beanClass = (Class<T>) bean.getClass();
-		return convertBeanToMap(beanClass, bean, baseOnField, keyToSnakeCase);
+		return convertBeanToMap(beanClass, bean, baseOnField, deepConvert, keyToSnakeCase);
 	}
 
 	/**
 	 * 将 Bean 转换成 Map。
+	 * <p>
+	 * （对Array、Collection、Map、T）
 	 * 
 	 * @param beanClass
 	 * @param bean
 	 * @param baseOnField
 	 *            true：基于自身字段相对于的Getter方法，false：基于所有Getter方法
+	 * @param deepConvert
+	 *            true：深度逐层转换，false：仅第一层转换
 	 * @param keyToSnakeCase
 	 *            true：将key转换为下划线形式，false：默认key不做任何转换
 	 * @return
 	 */
-	public static <T> Map<String, Object> convertBeanToMap(Class<T> beanClass, T bean, boolean baseOnField, boolean keyToSnakeCase) {
+	public static <T> Map<String, Object> convertBeanToMap(Class<T> beanClass, T bean, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
 
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 
@@ -214,6 +232,15 @@ public class BeanConvertUtils {
 				}
 				Method method = entry.getValue();
 				Object returnValue = method.invoke(bean);
+				
+				// 深度转换的情况需要继续处理
+				if (deepConvert) {
+					Class<?> returnValueClass = returnValue.getClass();
+					
+					returnValue = recursiveConvert(returnValueClass, returnValue, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
+					
+				}
+				
 				map.put(key, returnValue);
 			}
 		} catch (Exception e) {
@@ -221,6 +248,107 @@ public class BeanConvertUtils {
 		}
 
 		return map;
+	}
+
+	/**
+	 * 逐层递归转换。
+	 * 
+	 * @param <T>
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	private static <T> Object recursiveConvert(Class<?> valueClass, Object value, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
+
+		if (valueClass.isArray()) { // 数组时
+			value = arrayDeepConvert(value, baseOnField, deepConvert, keyToSnakeCase);
+		} else if (Collection.class.isAssignableFrom(valueClass)) { // Collection时
+			value = collectionDeepConvert(value, baseOnField, deepConvert, keyToSnakeCase);
+		} else if (Map.class.isAssignableFrom(valueClass)) { // Map时
+			value = mapDeepConvert(value, baseOnField, deepConvert, keyToSnakeCase);
+		} else { // bean时
+			String valueClassName = valueClass.getName();
+			if (!(valueClassName.startsWith("java.") || valueClassName.startsWith("javax."))) { // 非java核心类库的情况均视作为普通的bean
+				value = convertBeanToMap((Class<T>) valueClass, (T) value, baseOnField, deepConvert, keyToSnakeCase);
+			}
+		}
+
+		return value;
+	}
+
+	private static <T> Object arrayDeepConvert(Object array, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
+
+		Class<?> componentClass = Object.class;
+
+		int length = Array.getLength(array);
+		Object object = Array.newInstance(componentClass, length);
+
+		if (length > 0) {
+			for (int i = 0; i < length; i++) {
+
+				Object value = Array.get(array, i);
+				Class<?> valueClass = value.getClass();
+
+				value = recursiveConvert(valueClass, value, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
+
+				Array.set(object, i, value);
+			}
+		}
+
+		return object;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Collection<Object> collectionDeepConvert(Object collection, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
+
+		Collection<Object> object = null;
+
+		try {
+			object = (Collection<Object>) collection.getClass().newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		Collection<?> sourceCollection = (Collection<?>) collection;
+		for (Object obj : sourceCollection) {
+
+			Object value = obj;
+			Class<?> valueClass = value.getClass();
+
+			value = recursiveConvert(valueClass, value, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
+
+			object.add(value);
+		}
+
+		return object;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Map<Object, Object> mapDeepConvert(Object map, boolean baseOnField, boolean deepConvert, boolean keyToSnakeCase) {
+
+		Map<Object, Object> object = null;
+
+		try {
+			object = (Map<Object, Object>) map.getClass().newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		Map<?, ?> sourceMap = (Map<?, ?>) map;
+
+		for (Map.Entry<?, ?> entry : sourceMap.entrySet()) {
+
+			Object k = entry.getKey();
+			Class<?> kClass = k.getClass();
+			k = recursiveConvert(kClass, k, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
+
+			Object v = entry.getValue();
+			Class<?> vClass = v.getClass();
+			v = recursiveConvert(vClass, v, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
+
+			object.put(k, v);
+		}
+
+		return object;
 	}
 
 	/**
