@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,8 +59,8 @@ import com.jsan.mvc.View;
 import com.jsan.mvc.adapter.CacheAdapter;
 import com.jsan.mvc.adapter.EhcacheCacheAdapter;
 import com.jsan.mvc.adapter.MappingAdapter;
-import com.jsan.mvc.adapter.TraditionMappingAdapter;
 import com.jsan.mvc.adapter.StrictSimpleRestMappingAdapter;
+import com.jsan.mvc.adapter.TraditionMappingAdapter;
 import com.jsan.mvc.annotation.Cache;
 import com.jsan.mvc.annotation.CookieObject;
 import com.jsan.mvc.annotation.FormConvert;
@@ -949,6 +950,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 				if (pInfo.getFormConvert() != null) {
 					if (Map.class.isAssignableFrom(type)) { // 表单转Map处理
+						parameterQuirkMode = false; // 表单转Map不对@QuirkMode做处理，@QuirkMode只针对表单转 Bean
 						parameterObjects[i] = getRequestFormToMap(service, pInfo, parameterQuirkMode, request);
 					} else { // 表单转Bean处理
 						parameterObjects[i] = getRequestFormToBean(service, pInfo, parameterQuirkMode, request);
@@ -1256,34 +1258,39 @@ public abstract class AbstractDispatcher implements Filter {
 		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass,
 				service);
 
-		String prefix = formConvert.prefix();
-		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+		if (pInfo.getFormConvert().deep()) { // 参数被深度序列化的情况
 
-			String key = entry.getKey();
-
-			if (!prefix.isEmpty()) {
-				if (key.startsWith(prefix)) {
-					key = key.substring(prefix.length());
-				} else {
-					continue;
+			Map<String, Object> map = getRequestParameterMapHandleForDeepSerialize(pInfo, parameterMap, parameterQuirkMode);
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
+				Method method = writeMethodMap.get(entry.getKey());
+				if (method != null) {
+					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, entry.getValue());
 				}
 			}
 
-			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
-				continue;
+		} else {
+
+			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+
+				String key = entry.getKey();
+
+				if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
+					continue;
+				}
+
+				if (parameterQuirkMode) {
+					key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
+				}
+
+				Method method = writeMethodMap.get(key);
+				if (method != null) {
+					String[] value = entry.getValue();
+					Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
+
+					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, obj);
+				}
 			}
 
-			if (parameterQuirkMode) {
-				key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
-			}
-
-			Method method = writeMethodMap.get(key);
-			if (method != null) {
-				String[] value = entry.getValue();
-				Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
-
-				BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, obj);
-			}
 		}
 
 		return bean;
@@ -1312,40 +1319,149 @@ public abstract class AbstractDispatcher implements Filter {
 	protected Object getRequestFormToMap(ConvertService service, ParameterInfo pInfo, boolean parameterQuirkMode,
 			HttpServletRequest request) {
 
+		Map<String, Object> map = null;
+		
+		Class<?> type = pInfo.getType();
 		Type genericType = pInfo.getGenericType();
-		MultiValue multiValue = pInfo.getMultiValue();
-		Set<String> multiValueSet = pInfo.getMultiValueSet();
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		
+		if(pInfo.getFormConvert().deep()){ // 参数被深度序列化的情况
+			
+			map = getRequestParameterMapHandleForDeepSerialize(pInfo, parameterMap, parameterQuirkMode);
+			
+		}else {
+			
+			MultiValue multiValue = pInfo.getMultiValue();
+			Set<String> multiValueSet = pInfo.getMultiValueSet();
+			Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
+
+			map = new LinkedHashMap<>(parameterMap.size());
+
+			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+
+				String key = entry.getKey();
+
+				if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
+					continue;
+				}
+
+				if (parameterQuirkMode) {
+					key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
+				}
+
+				String[] value = entry.getValue();
+				Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
+
+				map.put(key, obj);
+			}
+			
+		}
+		
+		// 如果返回的类型是Map（无参数化）或Map<String, Object>（参数化）则直接返回，无须再自行多余的转换操作
+		if (type == Map.class) {
+			if (genericType instanceof ParameterizedType) { // 参数化类型时
+				ParameterizedType actualParameterizedType = (ParameterizedType) genericType;
+				Type kType = actualParameterizedType.getActualTypeArguments()[0];
+				Type vType = actualParameterizedType.getActualTypeArguments()[1];
+				if (kType == String.class && vType == Object.class) {
+					return map;
+				}
+			} else {
+				return map;
+			}
+		}
+
+		Converter converter = service.lookupConverter(type);
+
+		return converter.convert(map, genericType);
+	}
+	
+	protected Map<String, Object> getRequestParameterMapHandleForDeepSerialize(ParameterInfo pInfo, Map<String, String[]> parameterMap, boolean parameterQuirkMode) {
+
+		boolean flag = true;
+
 		Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
 
-		Map<String, String[]> requestParameterMap = request.getParameterMap();
-		Map<String, Object> map = new LinkedHashMap<String, Object>(requestParameterMap.size());
+		Map<String, Object> map = new LinkedHashMap<>(parameterMap.size());
 
-		// 这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
-		String prefix = pInfo.getFormConvert().prefix();
-		for (Map.Entry<String, String[]> entry : requestParameterMap.entrySet()) {
+		// 第一层级处理
+		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 			String key = entry.getKey();
 
-			if (!prefix.isEmpty()) {
-				if (key.startsWith(prefix)) {
-					key = key.substring(prefix.length());
-				} else {
-					continue;
-				}
-			}
-
-			if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
+			// 判断是否为指定参与表单转换的参数只需要在第一层判断处理即可
+			int symbolIndex = key.indexOf('[');
+			String tempKey = symbolIndex == -1 ? key : key.substring(0, symbolIndex);
+			if (formConvertParamSet != null && !formConvertParamSet.contains(tempKey)) {
 				continue;
 			}
 
+			if (parameterQuirkMode) {
+				key = ConvertFuncUtils.parseSnakeCaseToCamelCase(key); // 将key转换为驼峰命名规范
+			}
+
 			String[] value = entry.getValue();
-			Object obj = getMultiValueHandle(multiValue, multiValueSet, key, value);
-			map.put(key, obj);
+			if (key.endsWith("[]")) {
+				map.put(key.substring(0, key.length() - 2), Arrays.asList(value));
+			} else {
+				map.put(key, value[0]);
+				if (key.indexOf('[') != -1 && key.indexOf(']') != -1) {
+					flag = false;
+				}
+			}
 		}
 
-		Converter converter = service.lookupConverter(pInfo.getType());
+		if (flag) {
+			return map;
+		}
 
-		return converter.convert(map, genericType);
+		return recursiveHandleForDeepSerialize(map);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Map<String, Object> recursiveHandleForDeepSerialize(Map<String, Object> map) {
+
+		boolean flag = true;
+
+		Map<String, Object> tempMap = new LinkedHashMap<>();
+
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+
+			String key = entry.getKey();
+			Object value = entry.getValue();
+
+			int leftIndex = key.lastIndexOf('[');
+			int rightIndex = key.lastIndexOf(']');
+
+			if (leftIndex != -1 && rightIndex != -1) {
+				String name = key.substring(0, leftIndex);
+				String itemName = key.substring(leftIndex + 1, rightIndex);
+
+				Object tempObject = tempMap.get(name);
+				if (tempObject == null) {
+					Map<String, Object> itemMap = new LinkedHashMap<>();
+					itemMap.put(itemName, value);
+
+					tempMap.put(name, itemMap);
+				} else {
+					Map<String, Object> itemMap = (Map<String, Object>) tempObject;
+					itemMap.put(itemName, value);
+
+					tempMap.put(name, itemMap);
+				}
+
+				flag = false;
+			} else {
+				tempMap.put(key, value);
+			}
+
+		}
+
+		if (flag) {
+			return tempMap;
+		}
+
+		return recursiveHandleForDeepSerialize(tempMap);
 	}
 
 	/**

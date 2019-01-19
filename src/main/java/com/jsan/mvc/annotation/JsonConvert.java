@@ -9,9 +9,13 @@ import java.lang.annotation.Target;
 import com.jsan.mvc.json.JsonParserConfigurator;
 
 /**
- * 控制器上映射方法形参上的表单 json 转换成（Bean）对象的注解。
+ * 控制器上映射方法形参上的 Request Payload 数据（通常为json字符串形式）转换的注解。
  * <p>
- * 当客户端请求的 Content-Type 为 text/plain、application/json等情况时，请求表单参数则在 Request Payload 中，此时服务端需要通过 request.getReader() 或 request.getInputStream() 来获取数据， 通过该注解可以将这些表单数据转换到对应的形参上。
+ * 当客户端请求的 Content-Type 为 text/plain、application/json 等情况时，请求表单参数则在 Request Payload 中，此时服务端需要通过 request.getReader() 或 request.getInputStream() 来获取数据， 通过该注解可以将这些表单数据转换到对应的形参上。
+ * <p>
+ * 注：<br>
+ * 1、基于 Fastjson 进行 json 的转换。<br>
+ * 2、形参类型为 String、JSONObject、JSONArray 时将直接以对应的对象返回，不会做更多的无畏转换。
  * 
  */
 
@@ -23,7 +27,7 @@ public @interface JsonConvert {
 	Class<? extends JsonParserConfigurator> value() default JsonParserConfigurator.class;
 	
 	/**
-	 * 声明是否使用动态代理的方式，仅对于 Bean 的转换类型才有效，对于 Map 的转换类型无效。
+	 * 声明是否使用动态代理的方式，仅对于 Bean 的转换类型才有效，对于数组、Collectio、Map 的转换类型无效。
 	 * 
 	 * @return
 	 */

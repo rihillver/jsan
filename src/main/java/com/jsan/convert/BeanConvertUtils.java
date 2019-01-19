@@ -72,7 +72,7 @@ public class BeanConvertUtils {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * 获取 Bean 对象中的字段值（该字段必须有对应的 getter 方法）。
 	 * 
@@ -83,7 +83,7 @@ public class BeanConvertUtils {
 	 * @return
 	 */
 	public static <C, T> C getProperty(T bean, String key, Class<C> fieldClass) {
-		
+
 		Object obj = getProperty(bean, key);
 		return fieldClass.cast(obj);
 	}
@@ -139,8 +139,15 @@ public class BeanConvertUtils {
 		return getMapBaseOnField(bean, false);
 	}
 
+	/**
+	 * 基于 bean 的字段名，仅含自身的所有字段，不含父类的任何字段（逐层递归转换）。
+	 * 
+	 * @param bean
+	 * @param deepConvert
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMapBaseOnField(T bean, boolean deepConvert) {
-		
+
 		return getMapBaseOnField(bean, deepConvert, false);
 	}
 
@@ -167,8 +174,15 @@ public class BeanConvertUtils {
 		return getMap(bean, false);
 	}
 
+	/**
+	 * 基于 bean 的 Getter 方法，通过 Getter 方法取字段名（对应的字段不一定真实存在），含父类的公共方法，不含自身的私有方法（逐层递归转换）。
+	 * 
+	 * @param bean
+	 * @param deepConvert
+	 * @return
+	 */
 	public static <T> Map<String, Object> getMap(T bean, boolean deepConvert) {
-		
+
 		return getMap(bean, deepConvert, false);
 	}
 
@@ -232,15 +246,15 @@ public class BeanConvertUtils {
 				}
 				Method method = entry.getValue();
 				Object returnValue = method.invoke(bean);
-				
+
 				// 深度转换的情况需要继续处理
 				if (deepConvert) {
 					Class<?> returnValueClass = returnValue.getClass();
-					
+
 					returnValue = recursiveConvert(returnValueClass, returnValue, baseOnField, deepConvert, keyToSnakeCase); // 逐层递归转换
-					
+
 				}
-				
+
 				map.put(key, returnValue);
 			}
 		} catch (Exception e) {

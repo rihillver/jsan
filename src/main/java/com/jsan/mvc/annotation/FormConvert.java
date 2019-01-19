@@ -13,6 +13,8 @@ import java.lang.annotation.Target;
  * insert、update 操作）仅排除代理对象未被设置的字段，如果在 Dao 操作过程中（主要指 insert、update
  * 操作）没有显示排除一些需要保护的字段，那么提交的表单中如果存在（或者恶意的加上）这些字段，则这些字段就不会被排除掉，因此当没有明确指定参与表单转换的参数时，一些需要绝对保护的字段在
  * Dao 操作过程（主要指 insert、update 操作）中请务必显式的排除。</strong>
+ * <p>
+ * 将表单字段转换成 Bean 的逻辑是通过 writeMethod 来注入，而非通过 writeMethodBaseOnField 来注入，因此只要有相应的 writeMethod（即setter方法） 与表单字段相对应即可正确转换。
  * 
  */
 
@@ -27,23 +29,15 @@ public @interface FormConvert {
 	 * @return
 	 */
 	boolean proxy() default false;
-	
+
 	/**
-	 * 待实现。。。。
-	 * 是否处理客户端直接以json对象进行深度序列化后的形式提交请求参数的情况进行有效的特殊转换。
+	 * 是否处理客户端对参数以深度序列化的形式提交请求参数的情况进行有效的特殊转换。
 	 * <p>
-	 * 注：这里指的不是json字符串，而是原生json对象，例如客户端通过jQuery以ajax的方式直接以json对象作为data提交时，其默认将对json对象进行深度序列化并转换成比较特殊的方式表示键值对，如items[]=[1,2,3]、obj[a]=xxx等，因为jQuery需要调用jQuery.param序列化参数，jQuery.param(obj, traditional)默认情况下traditional为false，即jquery会深度序列化参数对象，以适应如PHP和Ruby on Rails框架，但servelt无法处理，当然了，客户端可以通过设置traditional为true阻止深度序列化。
+	 * 注：例如客户端通过jQuery以ajax的方式直接以json对象作为data提交时，jQuery默认将对json对象进行深度序列化并转换成比较特殊的方式表示键值对，如items[]=[1,2,3]、obj[a]=testa、obj[b][c]=testb等，因为jQuery默认调用jQuery.param序列化参数，jQuery.param(obj, traditional)默认情况下traditional为false，即jquery会深度序列化参数对象，以适应如PHP和Ruby on Rails框架，但servelt无法处理，因此可以通过该注解进行识别转换。
 	 * 
 	 * @return
 	 */
 	boolean deep() default false;
-	
-	/**
-	 * 指定表单字段的前缀。
-	 * 
-	 * @return
-	 */
-	String prefix() default "";
 
 	/**
 	 * 指定参与表单转换的参数。
@@ -51,4 +45,5 @@ public @interface FormConvert {
 	 * @return
 	 */
 	String[] params() default {};
+	
 }
