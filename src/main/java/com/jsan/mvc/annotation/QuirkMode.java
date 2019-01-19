@@ -8,7 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * 兼容模式，即是否将含有下划线的表单字段转换成驼峰形式（仅对于将表单转换成 bean 时有效）。
+ * 兼容模式，即是否将含有下划线的表单字段转换成驼峰形式（对于将表单转换成 Map 时无效）。
  *
  */
 

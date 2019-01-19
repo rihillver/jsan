@@ -40,6 +40,7 @@ import com.jsan.convert.Formatter;
 import com.jsan.convert.GeneralConvertService;
 import com.jsan.convert.Mold;
 import com.jsan.convert.PropertiesConvertUtils;
+import com.jsan.convert.TypeReferer;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
@@ -956,7 +957,7 @@ public abstract class AbstractDispatcher implements Filter {
 						parameterObjects[i] = getRequestFormToBean(service, pInfo, parameterQuirkMode, request);
 					}
 				} else if (pInfo.getJsonConvert() != null) { // Request Payload形式的字符串（使用场景中多数情况为json字符串）转Object处理
-					parameterObjects[i] = getRequestJsonToObject(pInfo, parameterQuirkMode, request);
+					parameterObjects[i] = getRequestJsonToObject(service, pInfo, request);
 				} else if (pInfo.getRequestObject() != null) { // request属性对象处理
 					parameterObjects[i] = getRequestObject(service, pInfo, request);
 				} else if (pInfo.getSessionObject() != null) { // session属性对象处理
@@ -1166,29 +1167,25 @@ public abstract class AbstractDispatcher implements Filter {
 	}
 	
 	/**
-	 * Request Payload 形式的字符串（使用场景中多数情况为json字符串）转对象。
+	 * 获取 Request Payload 形式的字符串（实际使用场景中多数情况为json字符串）。
 	 * 
-	 * @param pInfo
 	 * @param request
-	 * @param jsonConvert
 	 * @return
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unchecked")
-	protected <T> T getRequestPayloadToObject(ParameterInfo pInfo, HttpServletRequest request) throws IOException {
+	protected String getRequestPayloadData(HttpServletRequest request) throws IOException {
 
-		String requestPayloadValue = null;
+		StringBuilder sb = new StringBuilder();
+
 		BufferedReader reader = null;
 
 		try {
 			reader = request.getReader();
-			StringBuilder sb = new StringBuilder();
 			char[] buff = new char[256];
 			int len;
 			while ((len = reader.read(buff)) != -1) {
 				sb.append(buff, 0, len);
 			}
-			requestPayloadValue = sb.toString();
 		} finally {
 			if (reader != null) {
 				try {
@@ -1199,42 +1196,62 @@ public abstract class AbstractDispatcher implements Filter {
 			}
 		}
 
-		Class<?> type = pInfo.getType();
-		Type GenericType = pInfo.getGenericType();
-		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
-
-		if (type == String.class) { // 如果是参数类型是String，直接返回原始字符串
-			return (T) requestPayloadValue;
-		}
-
-		if (type == JSONArray.class) { // 如果是参数类型是JSONArray，直接返回对应的转换的JSONArray
-			return (T) JSON.parseArray(requestPayloadValue);
-		}
-
-		if (type == JSONObject.class) { // 如果是参数类型是JSONObject，直接返回对应的转换的JSONObject
-			return (T) JSON.parseObject(requestPayloadValue, configurator.getFeatures());
-		}
-
-		return JSON.parseObject(requestPayloadValue, GenericType, configurator.getParserConfig(), configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+		return sb.toString();
 	}
 
 	/**
 	 * json 字符串转对象。
 	 * 
+	 * @param service
 	 * @param pInfo
 	 * @param request
-	 * @param jsonConvert
 	 * @return
+	 * @throws Exception 
 	 */
-	protected <T> T getRequestJsonToObject(ParameterInfo pInfo, boolean parameterQuirkMode,
-			HttpServletRequest request) {
+	@SuppressWarnings("unchecked")
+	protected <T> T getRequestJsonToObject(ConvertService service, ParameterInfo pInfo, HttpServletRequest request) throws Exception {
 
-		String parameterValue = getRequestParameterValue(pInfo, parameterQuirkMode, request);
+		String data = getRequestPayloadData(request);
+
+		Class<?> type = pInfo.getType();
 		Type GenericType = pInfo.getGenericType();
 		JsonParserConfigurator configurator = getJsonParserConfigurator(pInfo);
 
-		return JSON.parseObject(parameterValue, GenericType, configurator.getParserConfig(),
-				configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+		if (type == String.class) { // 如果是参数类型是String，直接返回原始字符串
+			return (T) data;
+		}
+
+		if (type == JSONArray.class) { // 如果是参数类型是JSONArray，直接返回对应的转换的JSONArray
+			return (T) JSON.parseArray(data);
+		}
+
+		if (type == JSONObject.class) { // 如果是参数类型是JSONObject，直接返回对应的转换的JSONObject
+			return (T) JSON.parseObject(data, configurator.getFeatures());
+		}
+
+		if (pInfo.getJsonConvert().proxy()) { // 使用daoBean模式
+
+			GenericType = new TypeReferer<Map<String, Object>>() {}.getType();
+			Map<String, Object> map = JSON.parseObject(data, GenericType, configurator.getParserConfig(), configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+
+			Class<T> beanClass = (Class<T>) type;
+			T bean = BeanProxyUtils.getDaoBean(beanClass);
+			Map<String, Method> writeMethodMap = BeanInformationCache.getWriteMethodMap(beanClass);
+			BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass, service);
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
+				Method method = writeMethodMap.get(entry.getKey());
+				if (method != null) {
+					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, entry.getValue());
+				}
+			}
+			return bean;
+
+		} else {
+
+			return JSON.parseObject(data, GenericType, configurator.getParserConfig(), configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+
+		}
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1258,7 +1275,7 @@ public abstract class AbstractDispatcher implements Filter {
 		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass,
 				service);
 
-		if (pInfo.getFormConvert().deep()) { // 参数被深度序列化的情况
+		if (formConvert.deep()) { // 参数被深度序列化的情况
 
 			Map<String, Object> map = getRequestParameterMapHandleForDeepSerialize(pInfo, parameterMap, parameterQuirkMode);
 			for (Map.Entry<String, Object> entry : map.entrySet()) {
