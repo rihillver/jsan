@@ -40,7 +40,6 @@ import com.jsan.convert.Formatter;
 import com.jsan.convert.GeneralConvertService;
 import com.jsan.convert.Mold;
 import com.jsan.convert.PropertiesConvertUtils;
-import com.jsan.convert.TypeReferer;
 import com.jsan.convert.annotation.ConvertServiceRegister;
 import com.jsan.convert.annotation.ConverterRegister;
 import com.jsan.convert.annotation.DateTimePattern;
@@ -1231,8 +1230,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		if (pInfo.getJsonConvert().proxy()) { // 使用daoBean模式
 
-			GenericType = new TypeReferer<Map<String, Object>>() {}.getType();
-			Map<String, Object> map = JSON.parseObject(data, GenericType, configurator.getParserConfig(), configurator.getParseProcess(), configurator.getFeatureValues(), configurator.getFeatures());
+			Map<String, Object> map = JSON.parseObject(data, configurator.getFeatures());
 
 			Class<T> beanClass = (Class<T>) type;
 			T bean = BeanProxyUtils.getDaoBean(beanClass);
