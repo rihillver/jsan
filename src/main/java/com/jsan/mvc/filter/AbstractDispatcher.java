@@ -1273,11 +1273,24 @@ public abstract class AbstractDispatcher implements Filter {
 		BeanConvertServiceContainer container = BeanConvertServiceCache.getConvertServiceContainer(Mold.MVC, beanClass,
 				service);
 
+		String prefix = formConvert.prefix();
+		
 		if (formConvert.deep()) { // 参数被深度序列化的情况
 
 			Map<String, Object> map = getRequestParameterMapHandleForDeepSerialize(pInfo, parameterMap, parameterQuirkMode);
 			for (Map.Entry<String, Object> entry : map.entrySet()) {
-				Method method = writeMethodMap.get(entry.getKey());
+				
+				String key = entry.getKey();
+
+				if (!prefix.isEmpty()) { // 指定前缀处理
+					if (key.startsWith(prefix)) {
+						key = key.substring(prefix.length());
+					} else {
+						continue;
+					}
+				}
+				
+				Method method = writeMethodMap.get(key);
 				if (method != null) {
 					BeanConvertUtils.convertBeanElement(bean, beanClass, service, container, method, entry.getValue());
 				}
@@ -1288,6 +1301,14 @@ public abstract class AbstractDispatcher implements Filter {
 			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 				String key = entry.getKey();
+
+				if (!prefix.isEmpty()) { // 指定前缀处理
+					if (key.startsWith(prefix)) {
+						key = key.substring(prefix.length());
+					} else {
+						continue;
+					}
+				}
 
 				if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
 					continue;
@@ -1340,9 +1361,29 @@ public abstract class AbstractDispatcher implements Filter {
 		Type genericType = pInfo.getGenericType();
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		
+		// 这里不用判断FormConvert是否为null，因为该方法被调用的情况下FormConvert是一定不为null的
+		String prefix = pInfo.getFormConvert().prefix();
+				
 		if(pInfo.getFormConvert().deep()){ // 参数被深度序列化的情况
 			
 			map = getRequestParameterMapHandleForDeepSerialize(pInfo, parameterMap, parameterQuirkMode);
+			
+			if (!prefix.isEmpty()) { // 指定前缀处理
+
+				Map<String, Object> tempMap = new LinkedHashMap<>();
+
+				for (Map.Entry<String, Object> entry : map.entrySet()) {
+					String key = entry.getKey();
+					if (key.startsWith(prefix)) {
+						key = key.substring(prefix.length());
+						tempMap.put(key, entry.getValue());
+					} else {
+						continue;
+					}
+				}
+
+				map = tempMap;
+			}
 			
 		}else {
 			
@@ -1355,6 +1396,14 @@ public abstract class AbstractDispatcher implements Filter {
 			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
 				String key = entry.getKey();
+
+				if (!prefix.isEmpty()) { // 指定前缀处理
+					if (key.startsWith(prefix)) {
+						key = key.substring(prefix.length());
+					} else {
+						continue;
+					}
+				}
 
 				if (formConvertParamSet != null && !formConvertParamSet.contains(key)) {
 					continue;

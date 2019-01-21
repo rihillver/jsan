@@ -38,6 +38,13 @@ public @interface FormConvert {
 	 * @return
 	 */
 	boolean deep() default false;
+	
+	/**
+	 * 指定表单字段的前缀。
+	 * 
+	 * @return
+	 */
+	String prefix() default "";
 
 	/**
 	 * 指定参与表单转换的参数。
