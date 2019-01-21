@@ -11,7 +11,8 @@ import com.jsan.convert.annotation.NumberPattern;
 import com.jsan.mvc.annotation.CookieObject;
 import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.HeaderObject;
-import com.jsan.mvc.annotation.JsonConvert;
+import com.jsan.mvc.annotation.JsonMode;
+import com.jsan.mvc.annotation.PayloadConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
@@ -38,7 +39,8 @@ public class ParameterInfo {
 
 	private ParamName paramName; // 指定的请求参数名
 	private FormConvert formConvert;
-	private JsonConvert jsonConvert;
+	private PayloadConvert payloadConvert;
+	private JsonMode jsonMode;
 	private QuirkMode quirkMode;
 	private MethodValue methodValue;
 	private MultiValue multiValue;
@@ -99,12 +101,12 @@ public class ParameterInfo {
 		this.formConvert = formConvert;
 	}
 
-	public JsonConvert getJsonConvert() {
-		return jsonConvert;
+	public PayloadConvert getPayloadConvert() {
+		return payloadConvert;
 	}
 
-	public void setJsonConvert(JsonConvert jsonConvert) {
-		this.jsonConvert = jsonConvert;
+	public void setPayloadConvert(PayloadConvert payloadConvert) {
+		this.payloadConvert = payloadConvert;
 	}
 
 	public QuirkMode getQuirkMode() {
@@ -217,6 +219,14 @@ public class ParameterInfo {
 
 	public void setCookieObject(CookieObject cookieObject) {
 		this.cookieObject = cookieObject;
+	}
+
+	public JsonMode getJsonMode() {
+		return jsonMode;
+	}
+
+	public void setJsonMode(JsonMode jsonMode) {
+		this.jsonMode = jsonMode;
 	}
 
 }

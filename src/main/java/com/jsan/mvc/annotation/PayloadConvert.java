@@ -22,12 +22,12 @@ import com.jsan.mvc.json.JsonParserConfigurator;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface JsonConvert {
+public @interface PayloadConvert {
 
 	Class<? extends JsonParserConfigurator> value() default JsonParserConfigurator.class;
 
 	/**
-	 * 声明是否使用动态代理的方式，仅对于Bean的类型转换才有效，当该值设为true时，请务必确保是对于Bean的转换，否则可能导致转换错误，因为此时的转换逻辑是先通过Fastjson将字符串转换成Map，再将Map转成Bean。
+	 * 声明是否使用动态代理的方式，仅对于Bean的类型转换才有效，当该值设为true时，请务必确保是对于Bean的转换，否则可能导致转换错误，因为此时的转换逻辑是先通过Fastjson将字符串转换成Map（JSONObject），再将Map（JSONObject）转成Bean。
 	 * 
 	 * @return
 	 */

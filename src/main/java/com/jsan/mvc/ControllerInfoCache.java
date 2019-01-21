@@ -20,7 +20,8 @@ import com.jsan.mvc.annotation.Delete;
 import com.jsan.mvc.annotation.FormConvert;
 import com.jsan.mvc.annotation.Get;
 import com.jsan.mvc.annotation.HeaderObject;
-import com.jsan.mvc.annotation.JsonConvert;
+import com.jsan.mvc.annotation.JsonMode;
+import com.jsan.mvc.annotation.PayloadConvert;
 import com.jsan.mvc.annotation.MethodValue;
 import com.jsan.mvc.annotation.MultiValue;
 import com.jsan.mvc.annotation.ParamName;
@@ -159,8 +160,10 @@ public class ControllerInfoCache {
 					Set<String> set = new HashSet<String>(Arrays.asList(params));
 					pInfo.setFormConvertParamSet(set); // 初始化formConvertParamSet
 				}
-			} else if (annotation instanceof JsonConvert) {
-				pInfo.setJsonConvert((JsonConvert) annotation);
+			} else if (annotation instanceof PayloadConvert) {
+				pInfo.setPayloadConvert((PayloadConvert) annotation);
+			} else if (annotation instanceof JsonMode) {
+				pInfo.setJsonMode((JsonMode) annotation);
 			} else if (annotation instanceof QuirkMode) {
 				pInfo.setQuirkMode((QuirkMode) annotation);
 			} else if (annotation instanceof MethodValue) {
