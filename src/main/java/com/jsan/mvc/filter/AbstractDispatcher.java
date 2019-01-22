@@ -1376,7 +1376,7 @@ public abstract class AbstractDispatcher implements Filter {
 			
 			if (!prefix.isEmpty()) { // 指定前缀处理
 
-				Map<String, Object> tempMap = new LinkedHashMap<>();
+				Map<String, Object> tempMap = new LinkedHashMap<String, Object>();
 
 				for (Map.Entry<String, Object> entry : map.entrySet()) {
 					String key = entry.getKey();
@@ -1397,7 +1397,7 @@ public abstract class AbstractDispatcher implements Filter {
 			Set<String> multiValueSet = pInfo.getMultiValueSet();
 			Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
 
-			map = new LinkedHashMap<>(parameterMap.size());
+			map = new LinkedHashMap<String, Object>(parameterMap.size());
 
 			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 
@@ -1452,7 +1452,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		Set<String> formConvertParamSet = pInfo.getFormConvertParamSet();
 
-		Map<String, Object> map = new LinkedHashMap<>(parameterMap.size());
+		Map<String, Object> map = new LinkedHashMap<String, Object>(parameterMap.size());
 
 		// 第一层级处理
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
@@ -1493,7 +1493,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 		boolean flag = true;
 
-		Map<String, Object> tempMap = new LinkedHashMap<>();
+		Map<String, Object> tempMap = new LinkedHashMap<String, Object>();
 
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 
@@ -1509,7 +1509,7 @@ public abstract class AbstractDispatcher implements Filter {
 
 				Object tempObject = tempMap.get(name);
 				if (tempObject == null) {
-					Map<String, Object> itemMap = new LinkedHashMap<>();
+					Map<String, Object> itemMap = new LinkedHashMap<String, Object>();
 					itemMap.put(itemName, value);
 
 					tempMap.put(name, itemMap);
