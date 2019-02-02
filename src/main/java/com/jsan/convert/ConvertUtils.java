@@ -90,6 +90,42 @@ public class ConvertUtils {
 	}
 
 	// ==================================================
+	
+	/**
+	 * 返回精确转换的Float（指定小数位和舍入方式）。
+	 * 
+	 * @param f
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	protected static Float getFloatRoundConvert(Float f, int scale, RoundingMode round) {
+
+		if (f != null) {
+			BigDecimal b = new BigDecimal(f);
+			f = b.setScale(scale, round).floatValue();
+		}
+
+		return f;
+	}
+
+	/**
+	 * 返回精确转换的Float（指定小数位和舍入方式）。
+	 * 
+	 * @param d
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	protected static Double getDoubleRoundConvert(Double d, int scale, RoundingMode round) {
+
+		if (d != null) {
+			BigDecimal b = new BigDecimal(d);
+			d = b.setScale(scale, round).doubleValue();
+		}
+
+		return d;
+	}
 
 	/**
 	 * 返回转换值（int）。
@@ -123,6 +159,31 @@ public class ConvertUtils {
 
 		return (float) floatConverter.convert(obj, float.class);
 	}
+	
+	/**
+	 * 返回转换值（float），指定小数位，按 RoundingMode.HALF_UP 四舍五入。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @return
+	 */
+	public static float toFloatRound(Object obj, int scale) {
+
+		return getFloatRoundConvert(toFloat(obj), scale, RoundingMode.HALF_UP);
+	}
+	
+	/**
+	 * 返回转换值（float），指定小数位和舍入方式。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	public static float toFloatRound(Object obj, int scale, RoundingMode round) {
+		
+		return getFloatRoundConvert(toFloat(obj), scale, round);
+	}
 
 	/**
 	 * 返回转换值（double）。
@@ -133,6 +194,31 @@ public class ConvertUtils {
 	public static double toDouble(Object obj) {
 
 		return (double) doubleConverter.convert(obj, double.class);
+	}
+	
+	/**
+	 * 返回转换值（double），指定小数位，按 RoundingMode.HALF_UP 四舍五入。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @return
+	 */
+	public static double toDoubleRound(Object obj, int scale) {
+
+		return getDoubleRoundConvert(toDouble(obj), scale, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * 返回转换值（double），指定小数位和舍入方式。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	public static double toDoubleRound(Object obj, int scale, RoundingMode round) {
+
+		return getDoubleRoundConvert(toDouble(obj), scale, round);
 	}
 
 	/**
@@ -384,8 +470,62 @@ public class ConvertUtils {
 	 */
 	public static Float getFloat(Object obj, float def) {
 
-		Float float1 = getFloat(obj);
-		return float1 == null ? def : float1;
+		Float f = getFloat(obj);
+		return f == null ? def : f;
+	}
+
+	/**
+	 * 返回转换值（Float），指定小数位，按 RoundingMode.HALF_UP 四舍五入。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @return
+	 */
+	public static Float getFloatRound(Object obj, int scale) {
+
+		return getFloatRoundConvert(getFloat(obj), scale, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * 返回转换值（Float），指定小数位，按 RoundingMode.HALF_UP 四舍五入，如果值为 null ，则返回指定的值。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param def
+	 * @return
+	 */
+	public static Float getFloatRound(Object obj, int scale, float def) {
+
+		Float f = getFloatRound(obj, scale);
+		return f == null ? def : f;
+	}
+
+	/**
+	 * 返回转换值（Float），指定小数位和舍入方式。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	public static Float getFloatRound(Object obj, int scale, RoundingMode round) {
+
+		return getFloatRoundConvert(getFloat(obj), scale, round);
+	}
+
+	/**
+	 * 返回转换值（Float），指定小数位和舍入方式，如果值为 null ，则返回指定的值。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @param def
+	 * @return
+	 */
+	public static Float getFloatRound(Object obj, int scale, RoundingMode round, float def) {
+
+		Float f = getFloatRound(obj, scale, round);
+		return f == null ? def : f;
 	}
 
 	/**
@@ -410,6 +550,60 @@ public class ConvertUtils {
 
 		Double double1 = getDouble(obj);
 		return double1 == null ? def : double1;
+	}
+
+	/**
+	 * 返回转换值（Double），指定小数位，按 RoundingMode.HALF_UP 四舍五入。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @return
+	 */
+	public static Double getDoubleRound(Object obj, int scale) {
+
+		return getDoubleRoundConvert(getDouble(obj), scale, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * 返回转换值（Double），指定小数位，按 RoundingMode.HALF_UP 四舍五入，如果值为 null ，则返回指定的值。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param def
+	 * @return
+	 */
+	public static Double getDoubleRound(Object obj, int scale, double def) {
+
+		Double f = getDoubleRound(obj, scale);
+		return f == null ? def : f;
+	}
+
+	/**
+	 * 返回转换值（Double），指定小数位和舍入方式。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @return
+	 */
+	public static Double getDoubleRound(Object obj, int scale, RoundingMode round) {
+
+		return getDoubleRoundConvert(getDouble(obj), scale, round);
+	}
+
+	/**
+	 * 返回转换值（Double），指定小数位和舍入方式，如果值为 null ，则返回指定的值。
+	 * 
+	 * @param obj
+	 * @param scale
+	 * @param round
+	 * @param def
+	 * @return
+	 */
+	public static Double getDoubleRound(Object obj, int scale, RoundingMode round, double def) {
+
+		Double f = getDoubleRound(obj, scale, round);
+		return f == null ? def : f;
 	}
 
 	/**

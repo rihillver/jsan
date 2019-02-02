@@ -79,10 +79,30 @@ public class ConvertWrapper {
 
 		return ConvertUtils.toFloat(get(obj));
 	}
+	
+	public float toFloatRound(Object obj, int scale) {
+
+		return toFloatRound(obj, scale);
+	}
+	
+	public float toFloatRound(Object obj, int scale, RoundingMode round) {
+		
+		return toFloatRound(obj, scale, round);
+	}
 
 	public double toDouble(String obj) {
 
 		return ConvertUtils.toDouble(get(obj));
+	}
+	
+	public double toDoubleRound(Object obj, int scale) {
+
+		return toDoubleRound(obj, scale);
+	}
+
+	public double toDoubleRound(Object obj, int scale, RoundingMode round) {
+
+		return toDoubleRound(obj, scale, round);
 	}
 
 	public short toShort(String obj) {
@@ -179,6 +199,26 @@ public class ConvertWrapper {
 		return ConvertUtils.getFloat(get(obj), def);
 	}
 
+	public Float getFloatRound(Object obj, int scale) {
+
+		return getFloatRound(obj, scale);
+	}
+
+	public Float getFloatRound(Object obj, int scale, float def) {
+
+		return getFloatRound(obj, scale, def);
+	}
+
+	public Float getFloatRound(Object obj, int scale, RoundingMode round) {
+
+		return getFloatRound(obj, scale, round);
+	}
+
+	public Float getFloatRound(Object obj, int scale, RoundingMode round, float def) {
+
+		return getFloatRound(obj, scale, round, def);
+	}
+
 	public Double getDouble(String obj) {
 
 		return ConvertUtils.getDouble(get(obj));
@@ -187,6 +227,26 @@ public class ConvertWrapper {
 	public Double getDouble(String obj, double def) {
 
 		return ConvertUtils.getDouble(get(obj), def);
+	}
+
+	public Double getDoubleRound(Object obj, int scale) {
+
+		return ConvertUtils.getDoubleRound(obj, scale);
+	}
+
+	public Double getDoubleRound(Object obj, int scale, double def) {
+
+		return getDoubleRound(obj, scale, def);
+	}
+
+	public Double getDoubleRound(Object obj, int scale, RoundingMode round) {
+
+		return getDoubleRound(obj, scale, round);
+	}
+
+	public Double getDoubleRound(Object obj, int scale, RoundingMode round, double def) {
+
+		return getDoubleRound(obj, scale, round, def);
 	}
 
 	public Short getShort(String obj) {
