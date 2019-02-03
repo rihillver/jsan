@@ -1170,6 +1170,48 @@ public class ConvertUtils {
 		String str = getUnicodeExcludeASCII(obj);
 		return str == null ? def : str;
 	}
+	
+	/**
+	 * 返回转换值（String），将显式的 Unicode 形式的字符串恢复成原始的字符串。
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static String getUnicodeStringRecover(Object obj) {
+
+		String str = getString(obj);
+
+		if (str != null && str.contains("\\u")) {
+			StringBuilder sb = new StringBuilder();
+			String[] hexs = str.split("\\\\u");
+			for (int i = 1; i < hexs.length; i++) {
+				if (hexs[i].length() > 4) {
+					int c = Integer.parseInt(hexs[i].substring(0, 4), 16);
+					sb.append((char) c);
+					sb.append(hexs[i].substring(4));
+				} else {
+					int c = Integer.parseInt(hexs[i], 16);
+					sb.append((char) c);
+				}
+			}
+			str = sb.toString();
+		}
+
+		return str;
+	}
+
+	/**
+	 * 返回转换值（String），将显式的 Unicode 形式的字符串恢复成原始的字符串，如果值为 null ，则返回指定的值。
+	 * 
+	 * @param obj
+	 * @param def
+	 * @return
+	 */
+	public static String getUnicodeStringRecover(Object obj, String def) {
+
+		String str = getUnicodeStringRecover(obj);
+		return str == null ? def : str;
+	}
 
 	/**
 	 * 返回转换值（byte[]）。

@@ -438,6 +438,16 @@ public class ConvertWrapper {
 		return ConvertUtils.getUnicodeExcludeASCII(get(obj), def);
 	}
 
+	public String getUnicodeStringRecover(Object obj) {
+
+		return ConvertUtils.getUnicodeStringRecover(obj);
+	}
+
+	public String getUnicodeStringRecover(Object obj, String def) {
+
+		return ConvertUtils.getUnicodeStringRecover(obj, def);
+	}
+
 	public byte[] getBytes(String obj) {
 
 		return ConvertUtils.getBytes(get(obj));
