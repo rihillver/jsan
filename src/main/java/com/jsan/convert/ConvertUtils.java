@@ -986,9 +986,9 @@ public class ConvertUtils {
 				case '"':
 					sb.append("&quot;");
 					break;
-				// case 10: // 换行
-				// case 13: // 回车
-				// break;
+				case '\'':
+					sb.append("&#39;");
+					break;
 				default:
 					sb.append(c);
 				}
