@@ -38,8 +38,7 @@ public class DateUtils {
 
 	private static final String DATE_FORMAT = "EEE MMM dd HH:mm:ss Z yyyy";
 
-	private static final String[] DATE_FORMATS = { "y-M-d H:m:s.S", "y-M-d H:m:s", "y-M-d H:m", "y-M-d", "y-M",
-			"y/M/d H:m:s.S", "y/M/d H:m:s", "y/M/d H:m", "y/M/d", "y/M", }; // 此处顺序不可更改，否则会因优先匹配而导致丢失精度
+	private static final String[] DATE_FORMATS = { "y-M-d H:m:s.S", "y-M-d H:m:s", "y-M-d H:m", "y-M-d", "y-M", "y/M/d H:m:s.S", "y/M/d H:m:s", "y/M/d H:m", "y/M/d", "y/M", }; // 此处顺序不可更改，否则会因优先匹配而导致丢失精度
 
 	/**
 	 * 返回 SimpleDateFormat 对象。
@@ -507,7 +506,7 @@ public class DateUtils {
 	}
 
 	/**
-	 * 判断指定时间是否与当前时间相同（等于）。
+	 * 判断指定时间是否与当前时间相同，精确到毫秒。
 	 * 
 	 * @param date
 	 * @return
@@ -518,7 +517,7 @@ public class DateUtils {
 	}
 
 	/**
-	 * 判断两个时间是否相同（等于）。
+	 * 判断两个时间是否相同，精确到毫秒。
 	 * 
 	 * @param date1
 	 * @param date2
@@ -532,6 +531,144 @@ public class DateUtils {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到秒。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnSecond(Date date) {
+
+		return isEqualOnSecond(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到秒。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnSecond(Date date1, Date date2) {
+
+		return getIntervalSeconds(date1, date2) == 0 ? true : false;
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到分钟。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnMinute(Date date) {
+
+		return isEqualOnMinute(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到分钟。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnMinute(Date date1, Date date2) {
+
+		return getIntervalMinutes(date1, date2) == 0 ? true : false;
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到小时。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnHour(Date date) {
+
+		return isEqualOnHour(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到小时。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnHour(Date date1, Date date2) {
+
+		return getIntervalHours(date1, date2) == 0 ? true : false;
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到天。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnDay(Date date) {
+
+		return isEqualOnDay(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到天。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnDay(Date date1, Date date2) {
+
+		return getIntervalDays(date1, date2) == 0 ? true : false;
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到月。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnMonth(Date date) {
+
+		return isEqualOnMonth(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到月。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnMonth(Date date1, Date date2) {
+
+		return getIntervalMonths(date1, date2) == 0 ? true : false;
+	}
+
+	/**
+	 * 判断指定时间是否与当前时间相同，精确到年。
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static boolean isEqualOnYear(Date date) {
+
+		return isEqualOnYear(getDate(), date);
+	}
+
+	/**
+	 * 判断两个时间是否相同，精确到年。
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isEqualOnYear(Date date1, Date date2) {
+
+		return getIntervalYears(date1, date2) == 0 ? true : false;
 	}
 
 	/**
