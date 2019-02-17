@@ -525,12 +525,7 @@ public class DateUtils {
 	 */
 	public static boolean isEqual(Date date1, Date date2) {
 
-		int i = date2.compareTo(date1);
-		if (i == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return getIntervalMilliseconds(date1, date2) == 0 ? true : false;
 	}
 
 	/**
