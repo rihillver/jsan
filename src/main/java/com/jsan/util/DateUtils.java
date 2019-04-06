@@ -230,6 +230,68 @@ public class DateUtils {
 
 		return new Date();
 	}
+	
+	/**
+	 * 返回当前日期，指定时、分、秒（毫秒为0）。
+	 * 
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @return
+	 */
+	public static Date getDate(int hour, int minute, int second) {
+
+		return getDate(hour, minute, second, 0);
+	}
+
+	/**
+	 * 返回当前日期，指定时、分、秒、毫秒。
+	 * 
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @param millis
+	 * @return
+	 */
+	public static Date getDate(int hour, int minute, int second, int millis) {
+
+		return getDate(new Date(), hour, minute, second, millis);
+	}
+
+	/**
+	 * 返回日期，指定时、分、秒（毫秒为0）。
+	 * 
+	 * @param date
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @return
+	 */
+	public static Date getDate(Date date, int hour, int minute, int second) {
+
+		return getDate(date, hour, minute, second, 0);
+	}
+
+	/**
+	 * 返回日期，指定时、分、秒、毫秒。
+	 * 
+	 * @param date
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @param millis
+	 * @return
+	 */
+	public static Date getDate(Date date, int hour, int minute, int second, int millis) {
+
+		Calendar calendar = getCalendar(date);
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.SECOND, second);
+		calendar.set(Calendar.MILLISECOND, millis);
+
+		return calendar.getTime();
+	}
 
 	/**
 	 * 返回昨天日期。
