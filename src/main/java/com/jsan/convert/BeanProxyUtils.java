@@ -254,7 +254,7 @@ public class BeanProxyUtils {
 		return daoBeanExcludeFieldContainerMap.get(obj);
 	}
 
-	private static void setDaoBeanExcludeFieldContainer(Object obj, DaoBeanExcludeFieldContainer container) {
+	private static synchronized void setDaoBeanExcludeFieldContainer(Object obj, DaoBeanExcludeFieldContainer container) {
 
 		daoBeanExcludeFieldContainerMap.put(obj, container);
 	}

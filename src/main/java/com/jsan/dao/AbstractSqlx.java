@@ -838,6 +838,10 @@ public abstract class AbstractSqlx implements Sqlx {
 
 	protected String getSqlPrefixProcessed(String sql, String table, Crud crud) {
 
+		if (sql == null || sql.isEmpty()) {
+			logger.error("SQL statements cannot be null or empty: {}", sql);
+		}
+		
 		String tmpSql = trimFirst(sql).substring(0, 6).toLowerCase(); // 去除空格后截取前6位，实际情况中sql语句必然是大于5位，否则将没有任何意义
 
 		if (tmpSql.startsWith("where ")) {
