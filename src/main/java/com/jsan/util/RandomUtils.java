@@ -1,5 +1,7 @@
 package com.jsan.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.UUID;
@@ -73,7 +75,111 @@ public class RandomUtils {
 
 		return getInt(minValue, maxValue);
 	}
+	
+	/**
+	 * 返回指定大小范围的随机浮点数值。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @return
+	 */
+	public static double getDouble(double minValue, double maxValue) {
 
+		Random random = randomThreadLocal.get();
+
+		double value = maxValue - minValue;
+		value = value * random.nextDouble();
+		value += minValue;
+
+		return value;
+	}
+	
+	/**
+	 * 返回指定大小范围的随机浮点数值，并指定小数位范围。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @param scale
+	 * @return
+	 */
+	public static double getDouble(double minValue, double maxValue, int scale) {
+		
+		return getDouble(minValue, maxValue, scale, scale);
+	}
+	
+	/**
+	 * 返回指定大小范围的随机浮点数值，并限定小数位范围。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @param minScale
+	 * @param maxScale
+	 * @return
+	 */
+	public static double getDouble(double minValue, double maxValue, int minScale, int maxScale) {
+
+		int scale = maxScale - minScale;
+		if (scale == 0) {
+			scale = maxScale;
+		}
+
+		scale = getInt(minScale, maxScale);
+
+		double d = getDouble(minValue, maxValue);
+		BigDecimal b = new BigDecimal(d);
+
+		return b.setScale(scale, RoundingMode.DOWN).doubleValue();
+	}
+
+	/**
+	 * 返回指定大小范围的随机浮点数值的字符串形式（尾部为 ".0" 时将被去除）。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @return
+	 */
+	public static String getDoubleStr(double minValue, double maxValue) {
+
+		String str = String.valueOf(getDouble(minValue, maxValue));
+		if (str.endsWith(".0")) {
+			str = str.substring(0, str.length() - 2);
+		}
+
+		return str;
+	}
+	
+	/**
+	 * 返回指定大小范围的随机浮点数值的字符串形式，并指定小数位范围（尾部为 ".0" 时将被去除）。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @param scale
+	 * @return
+	 */
+	public static String getDoubleStr(double minValue, double maxValue, int scale) {
+		
+		return getDoubleStr(minValue, maxValue, scale, scale);
+	}
+
+	/**
+	 * 返回指定大小范围的随机浮点数值的字符串形式，并限定小数位范围（尾部为 ".0" 时将被去除）。
+	 * 
+	 * @param minValue
+	 * @param maxValue
+	 * @param minScale
+	 * @param maxScale
+	 * @return
+	 */
+	public static String getDoubleStr(double minValue, double maxValue, int minScale, int maxScale) {
+
+		String str = String.valueOf(getDouble(minValue, maxValue, minScale, maxScale));
+		if (str.endsWith(".0")) {
+			str = str.substring(0, str.length() - 2);
+		}
+
+		return str;
+	}
+	
 	/**
 	 * 返回指定长度范围的随机数字。
 	 * 
