@@ -41,7 +41,7 @@ public class HttpUtils {
 	private static final int CONNECT_TIMEOUT = 10000; // 建立连接的超时时间为10秒
 	private static final int READ_TIMEOUT = 30000; // 传递数据的超时时间为30秒
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
-
+	
 	public static class RequestInfo {
 
 		private URL url = null; // URL实例
@@ -54,6 +54,10 @@ public class HttpUtils {
 		private long ifModifiedSince = 0; // 如果指定了时间，则只有在该时间之后又进行了修改时，才获取该对象。
 		private int connectTimeout = CONNECT_TIMEOUT;
 		private int readTimeout = READ_TIMEOUT;
+
+		private String referer = null;
+		
+		private String requestPayload = null;
 
 		private Map<String, Object> requestParamMap = null;
 		private Map<String, String> requestCookieMap = null;
@@ -72,7 +76,8 @@ public class HttpUtils {
 
 		public RequestInfo(String urlStr, String requestMethod) {
 
-			this(urlStr, requestMethod, null);
+			this.urlStr = urlStr;
+			this.requestMethod = requestMethod;
 		}
 
 		public RequestInfo(String urlStr, String requestMethod, Map<String, Object> requestParamMap) {
@@ -80,6 +85,13 @@ public class HttpUtils {
 			this.urlStr = urlStr;
 			this.requestMethod = requestMethod;
 			this.requestParamMap = requestParamMap;
+		}
+
+		public RequestInfo(String urlStr, String requestMethod, String requestPayload) {
+
+			this.urlStr = urlStr;
+			this.requestMethod = requestMethod;
+			this.requestPayload = requestPayload;
 		}
 
 		// -------------------
@@ -205,9 +217,26 @@ public class HttpUtils {
 			this.requestCookieMap = requestCookieMap;
 		}
 
+		public String getRequestPayload() {
+			return requestPayload;
+		}
+
+		public void setRequestPayload(String requestPayload) {
+			this.requestPayload = requestPayload;
+		}
+
+		public String getReferer() {
+			return referer;
+		}
+
+		public void setReferer(String referer) {
+			this.referer = referer;
+		}
+
 		@Override
 		public String toString() {
-			return "RequestInfo [url=" + url + ", urlStr=" + urlStr + ", requestMethod=" + requestMethod + ", useCaches=" + useCaches + ", instanceFollowRedirects=" + instanceFollowRedirects + ", ifModifiedSince=" + ifModifiedSince + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout + ", requestParamMap=" + requestParamMap + ", requestCookieMap=" + requestCookieMap + ", requestPropertyMap=" + requestPropertyMap + "]";
+			return "RequestInfo [url=" + url + ", urlStr=" + urlStr + ", requestMethod=" + requestMethod + ", useCaches=" + useCaches + ", instanceFollowRedirects=" + instanceFollowRedirects + ", ifModifiedSince=" + ifModifiedSince + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout + ", referer=" + referer + ", requestPayload=" + requestPayload + ", requestParamMap=" + requestParamMap + ", requestCookieMap=" + requestCookieMap + ", requestPropertyMap=" + requestPropertyMap + ", outputStream="
+					+ outputStream + "]";
 		}
 
 	}
@@ -472,6 +501,17 @@ public class HttpUtils {
 			conn.setIfModifiedSince(requestInfo.getIfModifiedSince());
 			conn.setInstanceFollowRedirects(requestInfo.isInstanceFollowRedirects());
 			conn.setRequestProperty("User-Agent", USER_AGENT); // 设置User-Agent，避免部分网站禁止非常规的User-Agent请求
+			
+			String referer = requestInfo.getReferer();
+			if (referer != null) {
+				conn.setRequestProperty("Referer", referer);
+			}
+
+			String requestPayload = requestInfo.getRequestPayload();
+			if (requestPayload != null) {
+				conn.setRequestProperty("Accept", "application/json, text/javascript, */*; q=0.01");
+				conn.setRequestProperty("Content-Type", "application/json");
+			}
 
 			// 处理请求时发送的cookie
 			Map<String, String> requestCookieMap = requestInfo.getRequestCookieMap();
@@ -487,15 +527,20 @@ public class HttpUtils {
 			}
 
 			Map<String, Object> requestParamMap = requestInfo.getRequestParamMap();
-			if (requestParamMap != null && POST.equals(requestMethod)) {
+			if ((requestParamMap != null || requestPayload != null) && POST.equals(requestMethod)) {
 				conn.setDoOutput(true);
 			}
 
 			conn.connect();
 
-			if (requestParamMap != null && POST.equals(requestMethod)) {
+			if ((requestParamMap != null || requestPayload != null) && POST.equals(requestMethod)) {
+
 				PrintWriter writer = new PrintWriter(conn.getOutputStream());
-				writer.write(convertRequestParamMapToString(requestParamMap));
+				if (requestParamMap != null) {
+					writer.write(convertRequestParamMapToString(requestParamMap));
+				} else {
+					writer.write(requestPayload);
+				}
 				writer.close();
 			}
 
@@ -592,6 +637,14 @@ public class HttpUtils {
 		ResponseInfo responseInfo = getResponseInfo(new RequestInfo(urlStr, requestMethod, requestParamMap));
 
 		return charset == null ? responseInfo.getString() : responseInfo.getString(charset);
+
+	}
+
+	public static String getJsonString(String urlStr, String requestPayload) {
+
+		ResponseInfo responseInfo = getResponseInfo(new RequestInfo(urlStr, POST, requestPayload));
+
+		return responseInfo.getString();
 
 	}
 
