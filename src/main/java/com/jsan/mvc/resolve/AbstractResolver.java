@@ -11,13 +11,6 @@ import com.jsan.mvc.json.JsonSerializeConfigurator;
 
 public abstract class AbstractResolver implements Resolver {
 	
-	protected void sendError(HttpServletResponse response, int statusCode) throws IOException {
-
-		if (statusCode > 0) {
-			response.sendError(statusCode);
-		}
-	}
-
 	protected void setStatusCode(HttpServletResponse response, int statusCode) {
 
 		if (statusCode > 0) {

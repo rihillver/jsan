@@ -31,7 +31,10 @@ public class ForwardResolver extends AbstractResolver {
 	public void execute(View view, MvcConfig mvcConfig, MappingInfo mappingInfo, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		
-		sendError(response, view.getErrorCode());
+		if (view.getErrorCode() > 0) {
+			response.sendError(view.getErrorCode());
+			return;
+		}
 
 		setStatusCode(response, view.getStatusCode());
 
