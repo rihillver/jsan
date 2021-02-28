@@ -21,6 +21,7 @@ public class View {
 
 	private String url = ""; // 初始化为""，当被设置为null时，则表示人为的要求抛出404错误
 	private int statusCode; // http状态码
+	private int errorCode; // http状态码，但是 HttpServletResponse 执行的是 sendError() 操作
 
 	private Resolver resolver;
 
@@ -50,6 +51,14 @@ public class View {
 
 	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
+	}
+
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
 	}
 
 	public Resolver getResolver() {
@@ -121,9 +130,7 @@ public class View {
 
 	@Override
 	public String toString() {
-		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", statusCode=" + statusCode
-				+ ", resolver=" + resolver + ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback
-				+ ", jsonSerializeConfigurator=" + jsonSerializeConfigurator + "]";
+		return "View [map=" + map + ", attribute=" + attribute + ", url=" + url + ", statusCode=" + statusCode + ", errorCode=" + errorCode + ", resolver=" + resolver + ", contentType=" + contentType + ", jsonpCallback=" + jsonpCallback + ", jsonSerializeConfigurator=" + jsonSerializeConfigurator + "]";
 	}
 
 }
