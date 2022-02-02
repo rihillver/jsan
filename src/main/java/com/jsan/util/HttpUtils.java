@@ -640,6 +640,13 @@ public class HttpUtils {
 
 	}
 
+	/**
+	 * 返回 URL 请求的字符串形式（Request Payload格式）。
+	 * 
+	 * @param urlStr
+	 * @param requestPayload
+	 * @return
+	 */
 	public static String getJsonString(String urlStr, String requestPayload) {
 
 		ResponseInfo responseInfo = getResponseInfo(new RequestInfo(urlStr, POST, requestPayload));
