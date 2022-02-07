@@ -97,16 +97,17 @@ public class FileUpload extends AbstractUpload {
 
 				FileInfo info = new FileInfo();
 
-				info.setPrimitiveName(primitiveName);
-				info.setName(fileName);
-				info.setNameWithoutExt(fileNameWithoutExt);
-				info.setPath(filePath);
-				info.setSavePath(savePath);
-				info.setSaveDirectory(saveDirectory);
-				info.setFieldName(fieldName);
-				info.setContentType(fileContentType);
-				info.setType(fileType);
-				info.setSize(fileSize);
+				info.setPrimitiveName(primitiveName); // 原始文件名
+				info.setPrimitiveNameWithoutExt(primitiveNameWithoutExt); // 原始文件名（无后缀）
+				info.setName(fileName); // 新文件名
+				info.setNameWithoutExt(fileNameWithoutExt); // 新文件名（无后缀）
+				info.setPath(filePath); // 文件全路径（服务端）
+				info.setSavePath(savePath); // 保存路径
+				info.setSaveDirectory(saveDirectory); // 保存目录（相对于保存路径下的目录）
+				info.setFieldName(fieldName); // 文件字段名
+				info.setContentType(fileContentType); // 文件ContentType
+				info.setType(fileType); // 文件类型（扩展名）
+				info.setSize(fileSize); // 文件大小（单位：Byte）
 
 				fileInfoList.add(info);
 

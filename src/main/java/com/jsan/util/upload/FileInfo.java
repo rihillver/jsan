@@ -4,26 +4,27 @@ import java.util.Arrays;
 
 public class FileInfo {
 
-	private String primitiveName;
+	private String primitiveName; // 原始文件名
+	private String primitiveNameWithoutExt; // 原始文件名（无后缀）
 
-	private String name;
-	private String nameWithoutExt;
+	private String name; // 新文件名
+	private String nameWithoutExt; // 新文件名（无后缀）
 	
-	private String path;
-	private String savePath;
-	private String saveDirectory;
+	private String path; // 文件全路径
+	private String savePath; // 保存路径
+	private String saveDirectory; // 保存目录（相对于保存路径下的目录）
 
-	private String fieldName;
-	private String contentType;
-	private String type;
+	private String fieldName; // 文件字段名
+	private String contentType; // 文件ContentType
+	private String type; // 文件类型（扩展名）
 
-	private long size;
-	private byte[] bytes;
+	private long size; // 文件大小（单位：Byte）
+	private byte[] bytes; // 文件的byte数据，当使用ByteStreamingUpload时，不会存储到文件
 
-	private int width;
-	private int height;
+	private int width; // 图片宽度
+	private int height; // 图片高度
 
-	private String describe;
+	private String describe; // 描述
 
 	public String getPrimitiveName() {
 		return primitiveName;
@@ -137,12 +138,19 @@ public class FileInfo {
 		this.describe = describe;
 	}
 
+	public String getPrimitiveNameWithoutExt() {
+		return primitiveNameWithoutExt;
+	}
+
+	public void setPrimitiveNameWithoutExt(String primitiveNameWithoutExt) {
+		this.primitiveNameWithoutExt = primitiveNameWithoutExt;
+	}
+
 	@Override
 	public String toString() {
-		return "FileInfo [primitiveName=" + primitiveName + ", name=" + name + ", nameWithoutExt=" + nameWithoutExt
-				+ ", path=" + path + ", savePath=" + savePath + ", saveDirectory=" + saveDirectory + ", fieldName="
-				+ fieldName + ", contentType=" + contentType + ", type=" + type + ", size=" + size + ", bytes="
-				+ Arrays.toString(bytes) + ", width=" + width + ", height=" + height + ", describe=" + describe + "]";
+		return "FileInfo [primitiveName=" + primitiveName + ", primitiveNameWithoutExt=" + primitiveNameWithoutExt + ", name=" + name + ", nameWithoutExt=" + nameWithoutExt + ", path=" + path + ", savePath=" + savePath + ", saveDirectory=" + saveDirectory + ", fieldName=" + fieldName + ", contentType=" + contentType + ", type=" + type + ", size=" + size + ", bytes=" + Arrays.toString(bytes) + ", width=" + width + ", height=" + height + ", describe=" + describe + "]";
 	}
+
+	
 
 }
